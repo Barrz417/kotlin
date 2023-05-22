@@ -23,7 +23,7 @@ import org.gradle.tooling.events.task.TaskFinishEvent
 import org.gradle.tooling.events.task.TaskSkippedResult
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.build.report.metrics.*
-import org.jetbrains.kotlin.build.report.statistics.HttpReportService
+import org.jetbrains.kotlin.build.report.statistics.HttpReportParameters
 import org.jetbrains.kotlin.gradle.plugin.BuildEventsListenerRegistryHolder
 import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
 import org.jetbrains.kotlin.gradle.plugin.internal.state.TaskExecutionResults
@@ -53,13 +53,15 @@ abstract class BuildMetricsService : BuildService<BuildMetricsService.Parameters
     interface Parameters : BuildServiceParameters {
         val startParameters: Property<BuildStartParameters>
         val reportingSettings: Property<ReportingSettings>
-        val httpService: Property<HttpReportService>
+        val httpService: Property<HttpReportParameters>
 
         val projectDir: DirectoryProperty
         val label: Property<String?>
         val projectName: Property<String>
         val kotlinVersion: Property<String>
         val buildConfigurationTags: ListProperty<StatTag>
+
+        val useExecutorForHttpReport: Property<Boolean>
     }
 
     private val buildReportService = BuildReportsService()
@@ -156,12 +158,12 @@ abstract class BuildMetricsService : BuildService<BuildMetricsService.Parameters
         private fun Parameters.toBuildReportParameters() = BuildReportParameters(
             startParameters = startParameters.get(),
             reportingSettings = reportingSettings.get(),
-            httpService = httpService.orNull,
+            httpReportParameters = httpService.orNull,
             projectDir = projectDir.asFile.get(),
             label = label.orNull,
             projectName = projectName.get(),
             kotlinVersion = kotlinVersion.get(),
-            additionalTags = HashSet(buildConfigurationTags.get())
+            additionalTags = HashSet(buildConfigurationTags.get()),
         )
 
         private fun registerIfAbsentImpl(
@@ -188,14 +190,21 @@ abstract class BuildMetricsService : BuildService<BuildMetricsService.Parameters
                 it.parameters.startParameters.set(getStartParameters(project))
                 it.parameters.reportingSettings.set(reportingSettings)
                 reportingSettings.httpReportSettings?.let { httpSettings ->
+                    if (httpSettings.useExecutorForHttpReport) {
+                        log.warn("`useExecutorForHttpReport` property for test purpose only")
+                    }
+
                     it.parameters.httpService.set(
-                        HttpReportService(
+                        HttpReportParameters(
                             httpSettings.url,
                             httpSettings.user,
-                            httpSettings.password
+                            httpSettings.password,
+                            //for tests only
+                            httpSettings.useExecutorForHttpReport,
                         )
                     )
-                }
+                    log.debug("Http report is enabled for ${httpSettings.url}")
+                } ?: log.debug("Http report is disabled")
                 it.parameters.projectDir.set(project.layout.projectDirectory)
                 //init gradle tags for build scan and http reports
                 it.parameters.buildConfigurationTags.value(setupTags(project))
