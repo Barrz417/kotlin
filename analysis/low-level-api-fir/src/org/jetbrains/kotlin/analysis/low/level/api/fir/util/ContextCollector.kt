@@ -285,14 +285,13 @@ private class ContextCollectorVisitor(
                     continue
                 }
 
-                val identifier = typeStatement.variable.identifier
                 smartCasts[typeStatement.variable] = typeStatement.exactType
 
                 // The compiler pushes smart-cast types for implicit receivers to ease later lookups.
                 // Here we emulate such behavior. Unlike the compiler, though, modified types are only reflected in the created snapshot.
                 // See other usages of 'replaceReceiverType()' for more information.
-                if (identifier.isReceiver) {
-                    val receiverIndex = implicitReceiverStack.getReceiverIndex(identifier.symbol)
+                if (typeStatement.variable.isReceiver) {
+                    val receiverIndex = implicitReceiverStack.getReceiverIndex(typeStatement.variable.symbol)
                     if (receiverIndex != null) {
                         oldReceiverTypes.add(receiverIndex to implicitReceiverStack.getType(receiverIndex))
 
