@@ -51,8 +51,19 @@ class ClassTask(
         }
 
         val kotlinp = JvmKotlinp(Settings(isVerbose = false, sortDeclarations = true))
-        val metadata1 = class1.getMetadata()
-        val metadata2 = class2.getMetadata()
+
+        val metadata1 = try {
+            class1.getMetadata()
+        } catch (e: Exception) {
+            println("ERROR: Failed to load metadata for class $class1: ${e.message}") //todo: add a MetadataReadError to the report
+            null
+        }
+        val metadata2 = try {
+            class2.getMetadata()
+        } catch (e: Exception) {
+            println("ERROR: Failed to load metadata for class $class2: ${e.message}") //todo: add a MetadataReadError to the report
+            null
+        }
 
         if (metadata1 == null && metadata2 == null) return
 
