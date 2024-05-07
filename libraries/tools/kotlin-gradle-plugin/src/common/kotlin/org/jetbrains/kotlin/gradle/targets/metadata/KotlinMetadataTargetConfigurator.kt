@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.gradle.plugin.sources.*
 import org.jetbrains.kotlin.gradle.plugin.statistics.KotlinMetadataConfigurationMetrics
 import org.jetbrains.kotlin.gradle.targets.native.internal.createCInteropMetadataDependencyClasspath
 import org.jetbrains.kotlin.gradle.targets.native.internal.sharedCommonizerTarget
-import org.jetbrains.kotlin.gradle.tasks.registerTask
+import org.jetbrains.kotlin.gradle.tasks.locateOrRegisterTask
 import org.jetbrains.kotlin.gradle.utils.*
 import org.jetbrains.kotlin.tooling.core.extrasLazyProperty
 
@@ -263,9 +263,8 @@ class KotlinMetadataTargetConfigurator :
     private val ResolvedArtifactResult.isMpp: Boolean get() = variant.attributes.containsMultiplatformAttributes
 }
 
-
-internal fun Project.createGenerateProjectStructureMetadataTask(): TaskProvider<GenerateProjectStructureMetadata> =
-    project.registerTask(lowerCamelCaseName("generateProjectStructureMetadata")) { task ->
+internal fun Project.locateOrRegisterGenerateProjectStructureMetadataTask(): TaskProvider<GenerateProjectStructureMetadata> =
+    project.locateOrRegisterTask(lowerCamelCaseName("generateProjectStructureMetadata")) { task ->
         task.lazyKotlinProjectStructureMetadata = lazy { project.multiplatformExtension.kotlinProjectStructureMetadata }
         task.description = "Generates serialized project structure metadata of the current project (for tooling)"
     }

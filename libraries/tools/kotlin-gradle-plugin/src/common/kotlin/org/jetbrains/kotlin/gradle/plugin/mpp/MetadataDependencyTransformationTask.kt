@@ -22,7 +22,9 @@ import org.jetbrains.kotlin.gradle.targets.metadata.dependsOnClosureWithInterCom
 import org.jetbrains.kotlin.gradle.tasks.dependsOn
 import org.jetbrains.kotlin.gradle.tasks.locateOrRegisterTask
 import org.jetbrains.kotlin.gradle.tasks.locateTask
-import org.jetbrains.kotlin.gradle.utils.*
+import org.jetbrains.kotlin.gradle.utils.buildPathCompat
+import org.jetbrains.kotlin.gradle.utils.filesProvider
+import org.jetbrains.kotlin.gradle.utils.lowerCamelCaseName
 import java.io.File
 import javax.inject.Inject
 
@@ -32,7 +34,7 @@ import javax.inject.Inject
 typealias TransformKotlinGranularMetadata = MetadataDependencyTransformationTask
 
 internal const val TRANSFORM_ALL_SOURCESETS_DEPENDENCIES_METADATA = "transformDependenciesMetadata"
-private fun transformGranularMetadataTaskName(sourceSetName: String) =
+internal fun transformGranularMetadataTaskName(sourceSetName: String) =
     lowerCamelCaseName("transform", sourceSetName, "DependenciesMetadata")
 
 internal fun Project.locateOrRegisterMetadataDependencyTransformationTask(

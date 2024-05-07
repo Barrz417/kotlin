@@ -357,4 +357,9 @@ internal fun <T : KotlinTarget> KotlinTargetsContainerWithPresets.configureOrCre
 
 internal val KotlinMultiplatformExtension.metadataTarget get() = metadata() as KotlinMetadataTarget
 
+internal suspend fun KotlinMultiplatformExtension.awaitMetadataTarget(): KotlinMetadataTarget {
+    awaitTargets()
+    return metadataTarget
+}
+
 internal val Collection<KotlinTarget>.platformTargets: List<KotlinTarget> get() = filter { it !is KotlinMetadataTarget }

@@ -18,10 +18,14 @@ sealed class MppDependencyProjectStructureMetadataExtractor {
 
 internal class ProjectMppDependencyProjectStructureMetadataExtractor(
     val projectPath: String,
-    private val projectStructureMetadataProvider: () -> KotlinProjectStructureMetadata?,
+    private val projectStructureMetadataFile: File?,
 ) : MppDependencyProjectStructureMetadataExtractor() {
 
-    override fun getProjectStructureMetadata(): KotlinProjectStructureMetadata? = projectStructureMetadataProvider()
+    override fun getProjectStructureMetadata(): KotlinProjectStructureMetadata? {
+        return projectStructureMetadataFile?.let {
+            parseKotlinSourceSetMetadataFromJson(projectStructureMetadataFile.reader().readText())
+        }
+    }
 }
 
 internal open class JarMppDependencyProjectStructureMetadataExtractor(

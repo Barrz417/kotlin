@@ -5,7 +5,10 @@
 
 package org.jetbrains.kotlin.gradle.plugin.ide.dependencyResolvers
 
+import org.gradle.api.Project
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
+import org.gradle.api.file.FileCollection
+import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.idea.tcs.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.ide.IdeDependencyResolver
@@ -13,10 +16,14 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.MetadataDependencyResolution.Choos
 import org.jetbrains.kotlin.gradle.plugin.mpp.MetadataDependencyResolution.ChooseVisibleSourceSets.MetadataProvider.ArtifactMetadataProvider
 import org.jetbrains.kotlin.gradle.plugin.mpp.kotlinTransformedMetadataLibraryDirectoryForIde
 import org.jetbrains.kotlin.gradle.plugin.mpp.read
+import org.jetbrains.kotlin.gradle.plugin.mpp.resolvableMetadataConfiguration
+import org.jetbrains.kotlin.gradle.plugin.mpp.resolvableMetadataConfigurationForEachSourSet
+import org.jetbrains.kotlin.gradle.plugin.sources.InternalKotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.sources.internal
+import org.jetbrains.kotlin.gradle.utils.LazyResolvedConfiguration
 import org.jetbrains.kotlin.tooling.core.mutableExtrasOf
 
-internal object IdeTransformedMetadataDependencyResolver : IdeDependencyResolver {
+internal object IdeTransformedMetadataDependencyResolver : IdeDependencyResolver, IdeDependencyResolver.WithBuildDependencies {
     override fun resolve(sourceSet: KotlinSourceSet): Set<IdeaKotlinDependency> =
         sourceSet.resolveMetadata<ChooseVisibleSourceSets>()
             .filter { resolution -> resolution.dependency.id !is ProjectComponentIdentifier }
@@ -52,5 +59,9 @@ internal object IdeTransformedMetadataDependencyResolver : IdeDependencyResolver
                 )
             }
         }
+    }
+
+    override fun dependencies(project: Project): Iterable<Any> {
+        return resolvableMetadataConfigurationForEachSourSet(project)
     }
 }

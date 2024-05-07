@@ -13,7 +13,6 @@ import org.gradle.api.attributes.LibraryElements
 import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.plugin.GradlePluginApiVersion
 import org.gradle.util.GradleVersion
-import java.lang.RuntimeException
 
 fun Project.addExtendsFromRelation(extendingConfigurationName: String, extendsFromConfigurationName: String, forced: Boolean = true) {
     if (extendingConfigurationName == extendsFromConfigurationName) return
