@@ -1,9 +1,12 @@
 package text
 
-class Pretty(
-        appendable: Appendable,
-        private val firstCharPrefix: String = "",
-        private var isFirstChar: Boolean = true) {
+@DslMarker
+annotation class PrettyDslMarker
+
+@PrettyDslMarker
+class Pretty(appendable: Appendable, private val firstCharPrefix: String) {
+  private var isFirstChar: Boolean = true
+
   private val appendable = object : CharAppendable {
     override fun append(char: Char): Appendable = also {
       if (isFirstChar) {
@@ -33,7 +36,7 @@ class Pretty(
 }
 
 fun Appendable.pretty(fn: Pretty.() -> Unit) = apply {
-  Pretty(this).fn()
+  Pretty(this, "").fn()
 }
 
 fun prettyString(fn: Pretty.() -> Unit) = run {
