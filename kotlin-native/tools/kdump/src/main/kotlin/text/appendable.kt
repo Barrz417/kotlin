@@ -65,11 +65,7 @@ fun Appendable.appendPadded(charCount: Int, fn: Appendable.() -> Unit) = also { 
 fun Appendable.appendNonISOControl(fn: Appendable.() -> Unit) = also { appendable ->
   object : CharAppendable {
     override fun append(char: Char) = apply {
-      if (char.isISOControl()) {
-        appendable.append(".")
-      } else {
-        appendable.append(char)
-      }
+      appendable.append(char.takeIf { !it.isISOControl() } ?: '.')
     }
   }.fn()
 }
