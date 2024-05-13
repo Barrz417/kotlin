@@ -1,8 +1,10 @@
 package kdump
 
 import base.Endianness
+import kotlin.math.min
 import text.Pretty
 import text.appendNonISOControl
+import text.appendPadded
 
 fun Pretty.literal(string: String) = plain {
   append('"')
@@ -18,8 +20,22 @@ fun Pretty.id(long: Long) = plain {
   append(long.toString())
 }
 
-fun Pretty.binary(byteArray: ByteArray) = plain {
-  append("TODO")
+fun Pretty.bytes(byteArray: ByteArray) {
+  for (segment in byteArray.indices step 16) {
+    plain {
+      appendPadded(16 * 3 + 3) {
+        for (index in segment..<min(segment + 16, byteArray.size)) {
+          append(String.format("%02x", byteArray[index].toInt().and(0xff)))
+          append(" ")
+        }
+      }
+      appendNonISOControl {
+        for (index in segment..<min(segment + 16, byteArray.size)) {
+          append(byteArray[index].toInt().and(0xff).toChar())
+        }
+      }
+    }
+  }
 }
 
 fun Pretty.name(enum: Enum<*>) = plain {
@@ -69,20 +85,20 @@ fun Pretty.item(item: Item) {
       struct("object") {
         field("id") { id(item.id) }
         field("type id") { id(item.typeId) }
-        field("byte array") { binary(item.byteArray) }
+        struct("bytes") { bytes(item.byteArray) }
       }
     is ArrayItem ->
       struct("array") {
         field("id") { id(item.id) }
         field("type id") { id(item.typeId) }
         field("count") { decimal(item.count) }
-        field("byte array") { binary(item.byteArray) }
+        struct("bytes") { bytes(item.byteArray) }
       }
     is ExtraObject ->
       struct("extra object") {
         field("id") { id(item.id) }
-        field("type id") { id(item.baseObjectId) }
-        field("byte array") { id(item.associatedObjectId) }
+        field("base object id") { id(item.baseObjectId) }
+        field("associated object id") { id(item.associatedObjectId) }
       }
     is GlobalRoot ->
       struct("global root") {

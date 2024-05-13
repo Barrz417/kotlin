@@ -39,9 +39,9 @@ class Pretty private constructor(appendable: Appendable, private val firstCharPr
   }
 }
 
-fun Appendable.appendPretty(fn: Pretty.() -> Unit) = apply {
+fun Appendable.appendPretty(fn: Pretty.() -> Unit): Appendable = apply {
   Pretty.with(this).fn()
-}
+}.append("\n")
 
 fun prettyString(fn: Pretty.() -> Unit) = run {
   StringBuilder().apply { appendPretty { fn() } }.toString()

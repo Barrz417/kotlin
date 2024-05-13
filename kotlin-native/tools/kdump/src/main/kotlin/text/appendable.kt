@@ -1,6 +1,6 @@
 package text
 
-fun appendableString(fn: Appendable.() -> Appendable) = StringBuilder().apply { fn() }.toString()
+fun appendableString(fn: Appendable.() -> Unit) = StringBuilder().apply { fn() }.toString()
 
 /** Appendable with default char-sequence functions. */
 interface CharAppendable: Appendable {
@@ -25,7 +25,7 @@ object PrintAppendable: CharAppendable {
 }
 
 /** Appendable which indents with two spaces. */
-fun Appendable.appendIndented(fn: Appendable.() -> Appendable) = also { appendable ->
+fun Appendable.appendIndented(fn: Appendable.() -> Unit) = also { appendable ->
   object : CharAppendable {
     var isIndentStart = false
 
@@ -42,7 +42,7 @@ fun Appendable.appendIndented(fn: Appendable.() -> Appendable) = also { appendab
 }
 
 /** Appendable which pads or truncates to the char count. */
-fun Appendable.appendPadded(charCount: Int, fn: Appendable.() -> Appendable) = also { appendable ->
+fun Appendable.appendPadded(charCount: Int, fn: Appendable.() -> Unit) = also { appendable ->
   object : CharAppendable {
     var remaining = charCount
 
@@ -62,7 +62,7 @@ fun Appendable.appendPadded(charCount: Int, fn: Appendable.() -> Appendable) = a
 }
 
 /** Appendable which appends ISO-control characters as dot '.' */
-fun Appendable.appendNonISOControl(fn: Appendable.() -> Appendable) = also { appendable ->
+fun Appendable.appendNonISOControl(fn: Appendable.() -> Unit) = also { appendable ->
   object : CharAppendable {
     override fun append(char: Char) = apply {
       if (char.isISOControl()) {
