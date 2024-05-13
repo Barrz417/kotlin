@@ -10,24 +10,24 @@ fun main(args: Array<String>) {
   when (args.getOrNull(0)) {
     "print" ->
       args.getOrNull(1)?.let { pathname ->
-        print(pathname)
+        mainPrint(pathname)
       }
     "hprof" ->
       args.getOrNull(1)?.let { inPathname ->
         args.getOrNull(2)?.let { outPathname ->
-          hprof(inPathname, outPathname)
+          mainHprof(inPathname, outPathname)
         }
       }
     else -> null
-  } ?: usage()
+  } ?: mainUsage()
 }
 
-fun usage() {
+fun mainUsage() {
   println("usage: kdump print <in>")
   println("       kdump hprof <in> <out>")
 }
 
-fun print(pathname: String) {
+fun mainPrint(pathname: String) {
   File(pathname)
           .inputStream()
           .buffered()
@@ -36,7 +36,7 @@ fun print(pathname: String) {
           .let { prettyPrintln { item(it) } }
 }
 
-fun hprof(inPathname: String, outPathname: String) {
+fun mainHprof(inPathname: String, outPathname: String) {
   File(inPathname)
           .inputStream()
           .buffered()
