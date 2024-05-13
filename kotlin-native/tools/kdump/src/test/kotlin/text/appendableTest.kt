@@ -6,22 +6,48 @@ import kotlin.test.assertEquals
 class AppendableTest {
   @Test
   fun appendableString() {
-    assertEquals("", appendableString { this })
     assertEquals("foo", appendableString { append("foo") })
   }
 
   @Test
-  fun intentable() {
-    assertEquals(
-            "",
-            appendableString { appendIndented { this } })
-
-    assertEquals(
-            "one",
-            appendableString { appendIndented { append("one") } })
-
+  fun appendIndented() {
     assertEquals(
             "one\n  two\n  three",
             appendableString { appendIndented { append("one\ntwo\nthree") } })
+  }
+
+  @Test
+  fun appendPadded() {
+    assertEquals("123  ", appendableString { appendPadded(5) { append("123") } })
+    assertEquals("12345", appendableString { appendPadded(5) { append("12345667890") } })
+  }
+
+  @Test
+  fun appendNonISOControl() {
+    assertEquals(
+            "one.two.three.",
+            appendableString { appendNonISOControl { append("one\ntwo\nthree\u0000") } })
+  }
+
+  @Test
+  fun structuralAppendable() {
+    assertEquals("", structString {})
+
+    assertEquals("10", structString {
+      appendStruct {
+        append("10")
+      }
+    })
+
+    assertEquals("id: 10", structString {
+      appendField("id") { append("10") }
+    })
+
+    assertEquals("vector\n  x: 10\n  y: 20", structString {
+      appendStruct("vector") {
+        appendField("x") { append("10") }
+        appendField("y") { append("20") }
+      }
+    })
   }
 }
