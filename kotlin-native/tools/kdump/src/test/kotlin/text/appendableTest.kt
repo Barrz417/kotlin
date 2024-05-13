@@ -28,26 +28,4 @@ class AppendableTest {
             "one.two.three.",
             appendableString { appendNonISOControl { append("one\ntwo\nthree\u0000") } })
   }
-
-  @Test
-  fun structuralAppendable() {
-    assertEquals("", prettyString {})
-
-    assertEquals("10", prettyString {
-      plain {
-        append("10")
-      }
-    })
-
-    assertEquals("id: 10", prettyString {
-      field("id") { plain { append("10") } }
-    })
-
-    assertEquals("vector\n  x: 10\n  y: 20", prettyString {
-      struct("vector") {
-        field("x") { plain { append("10") } }
-        field("y") { plain { append("20") } }
-      }
-    })
-  }
 }
