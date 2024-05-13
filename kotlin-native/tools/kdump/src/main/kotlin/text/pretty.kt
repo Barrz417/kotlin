@@ -4,7 +4,11 @@ package text
 annotation class PrettyDslMarker
 
 @PrettyDslMarker
-class Pretty(appendable: Appendable, private val firstCharPrefix: String) {
+class Pretty private constructor(appendable: Appendable, private val firstCharPrefix: String = "") {
+  companion object {
+    fun with(appendable: Appendable) = Pretty(appendable)
+  }
+
   private var isFirstChar: Boolean = true
 
   private val appendable = object : CharAppendable {
@@ -35,10 +39,10 @@ class Pretty(appendable: Appendable, private val firstCharPrefix: String) {
   }
 }
 
-fun Appendable.pretty(fn: Pretty.() -> Unit) = apply {
-  Pretty(this, "").fn()
+fun Appendable.appendPretty(fn: Pretty.() -> Unit) = apply {
+  Pretty.with(this).fn()
 }
 
 fun prettyString(fn: Pretty.() -> Unit) = run {
-  StringBuilder().apply { pretty { fn() } }.toString()
+  StringBuilder().apply { appendPretty { fn() } }.toString()
 }
