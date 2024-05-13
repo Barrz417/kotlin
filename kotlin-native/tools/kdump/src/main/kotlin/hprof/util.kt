@@ -9,11 +9,3 @@ val Profile.Record.heapDumpRecordSequence: Sequence<HeapDump.Record> get() =
     is HeapDumpSection -> records.asSequence()
     else -> sequenceOf()
   }
-
-fun Profile.toSingleHeapDump(): Profile =
-  copy(records =
-    records
-      .asSequence()
-      .filter { it !is HeapDump && it !is HeapDumpSection && it !is HeapDumpEnd }
-      .toList()
-      .plus(HeapDump(heapDumpRecordSequence.toList())))
