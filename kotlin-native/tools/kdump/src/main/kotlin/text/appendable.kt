@@ -18,7 +18,7 @@ object PrintAppendable: Appendable {
 
 interface CharAppendable: Appendable {
   override fun append(csq: CharSequence?) = apply {
-    csq?.forEach { append(it) }
+    (csq ?: "null").forEach { append(it) }
   }
 
   override fun append(csq: CharSequence?, start: Int, end: Int) = apply {
