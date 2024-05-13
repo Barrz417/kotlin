@@ -17,10 +17,10 @@ fun Pretty.decimal(int: Int) = plain {
 }
 
 fun Pretty.id(long: Long) = plain {
-  append(long.toString())
+  append("0x${long.toULong().toString(16)}")
 }
 
-fun Pretty.bytes(byteArray: ByteArray) {
+fun Pretty.binary(byteArray: ByteArray) {
   for (segment in byteArray.indices step 16) {
     plain {
       appendPadded(16 * 3 + 3) {
@@ -85,14 +85,14 @@ fun Pretty.item(item: Item) {
       struct("object") {
         field("id") { id(item.id) }
         field("type id") { id(item.typeId) }
-        struct("bytes") { bytes(item.byteArray) }
+        struct("bytes") { binary(item.byteArray) }
       }
     is ArrayItem ->
       struct("array") {
         field("id") { id(item.id) }
         field("type id") { id(item.typeId) }
         field("count") { decimal(item.count) }
-        struct("bytes") { bytes(item.byteArray) }
+        struct("bytes") { binary(item.byteArray) }
       }
     is ExtraObject ->
       struct("extra object") {

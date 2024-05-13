@@ -1,10 +1,9 @@
 package kdump.hprof
 
-import java.io.*
-import base.*
-import kdump.hprof.*
-import kdump.*
-import hprof.*
+import hprof.write
+import java.io.File
+import java.io.PushbackInputStream
+import kdump.readDump
 
 fun main(args: Array<String>) {
   File(args[0])
