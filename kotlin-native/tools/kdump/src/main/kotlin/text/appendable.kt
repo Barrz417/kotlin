@@ -2,20 +2,7 @@ package text
 
 fun appendableString(fn: Appendable.() -> Appendable) = StringBuilder().apply { fn() }.toString()
 
-object PrintAppendable: Appendable {
-  override fun append(csq: CharSequence?) = apply {
-    print(csq)
-  }
-
-  override fun append(csq: CharSequence?, start: Int, end: Int) = apply {
-    print(csq?.subSequence(start, end))
-  }
-
-  override fun append(c: Char) = apply {
-    print(c)
-  }
-}
-
+/** Appendable with default char-sequence functions. */
 interface CharAppendable: Appendable {
   override fun append(csq: CharSequence?) = apply {
     (csq ?: "null").forEach { append(it) }
@@ -26,18 +13,18 @@ interface CharAppendable: Appendable {
   }
 }
 
-fun Appendable.appendNonISOControl(fn: Appendable.() -> Appendable) = also { appendable ->
-  object : CharAppendable {
-    override fun append(char: Char) = apply {
-      if (char.isISOControl()) {
-        appendable.append(".")
-      } else {
-        appendable.append(char)
-      }
-    }
-  }.fn()
+/** Appendable which prints. */
+object PrintAppendable: CharAppendable {
+  override fun append(csq: CharSequence?) = apply {
+    print(csq)
+  }
+
+  override fun append(c: Char) = apply {
+    print(c)
+  }
 }
 
+/** Appendable which indents with two spaces. */
 fun Appendable.appendIndented(fn: Appendable.() -> Appendable) = also { appendable ->
   object : CharAppendable {
     var isIndentStart = false
@@ -54,9 +41,10 @@ fun Appendable.appendIndented(fn: Appendable.() -> Appendable) = also { appendab
   }.fn()
 }
 
-fun Appendable.appendPadded(size: Int, fn: Appendable.() -> Appendable) = also { appendable ->
+/** Appendable which pads or truncates to the char count. */
+fun Appendable.appendPadded(charCount: Int, fn: Appendable.() -> Appendable) = also { appendable ->
   object : CharAppendable {
-    var remaining = size
+    var remaining = charCount
 
     override fun append(char: Char) = apply {
       if (remaining > 0) {
@@ -71,5 +59,18 @@ fun Appendable.appendPadded(size: Int, fn: Appendable.() -> Appendable) = also {
       }
     }
   }.apply { fn() }.pad()
+}
+
+/** Appendable which appends ISO-control characters as dot '.' */
+fun Appendable.appendNonISOControl(fn: Appendable.() -> Appendable) = also { appendable ->
+  object : CharAppendable {
+    override fun append(char: Char) = apply {
+      if (char.isISOControl()) {
+        appendable.append(".")
+      } else {
+        appendable.append(char)
+      }
+    }
+  }.fn()
 }
 

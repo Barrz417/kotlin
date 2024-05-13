@@ -46,3 +46,5 @@ fun Appendable.appendPretty(fn: Pretty.() -> Unit) = apply {
 fun prettyString(fn: Pretty.() -> Unit) = run {
   StringBuilder().apply { appendPretty { fn() } }.toString()
 }
+
+fun prettyPrint(fn: Pretty.() -> Unit) = PrintAppendable.appendPretty(fn)
