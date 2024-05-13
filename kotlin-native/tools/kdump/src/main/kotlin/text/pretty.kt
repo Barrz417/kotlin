@@ -41,10 +41,17 @@ class Pretty private constructor(appendable: Appendable, private val firstCharPr
 
 fun Appendable.appendPretty(fn: Pretty.() -> Unit): Appendable = apply {
   Pretty.with(this).fn()
-}.append("\n")
+}
 
 fun prettyString(fn: Pretty.() -> Unit) = run {
   StringBuilder().apply { appendPretty { fn() } }.toString()
 }
 
-fun prettyPrint(fn: Pretty.() -> Unit) = PrintAppendable.appendPretty(fn)
+fun prettyPrint(fn: Pretty.() -> Unit) {
+  PrintAppendable.appendPretty(fn)
+}
+
+fun prettyPrintln(fn: Pretty.() -> Unit) {
+  prettyPrint(fn)
+  println()
+}

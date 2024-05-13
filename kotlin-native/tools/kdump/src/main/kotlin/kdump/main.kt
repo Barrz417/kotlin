@@ -1,8 +1,7 @@
 package kdump
 
 import java.io.*
-import base.*
-import text.prettyPrint
+import text.prettyPrintln
 
 fun main(args: Array<String>) {
   File(args[0])
@@ -10,6 +9,6 @@ fun main(args: Array<String>) {
           .buffered()
           .let { PushbackInputStream(it) }
           .readDump()
-          .let { prettyPrint { item(it) } }
+          .let { prettyPrintln { item(it) } }
           //.dump()
 }
