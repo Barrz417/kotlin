@@ -4,25 +4,25 @@ import base.Endianness
 import text.Pretty
 import text.appendNonISOControl
 
-fun Pretty.literal(string: String) = apply {
+fun Pretty.literal(string: String) = plain {
   append('"')
   appendNonISOControl { append(string) }
   append('"')
 }
 
-fun Pretty.decimal(int: Int) = apply {
+fun Pretty.decimal(int: Int) = plain {
   append(int.toString())
 }
 
-fun Pretty.id(long: Long) = apply {
+fun Pretty.id(long: Long) = plain {
   append(long.toString())
 }
 
-fun Pretty.binary(byteArray: ByteArray) {
+fun Pretty.binary(byteArray: ByteArray) = plain {
   append("TODO")
 }
 
-fun Pretty.name(enum: Enum<*>) = apply {
+fun Pretty.name(enum: Enum<*>) = plain {
   append(enum.name)
 }
 
@@ -51,7 +51,7 @@ fun Pretty.item(endianness: Endianness) {
 
 fun Pretty.item(idSize: IdSize) {
   field("id size") {
-    append(idSize.byteCount.toString())
+    decimal(idSize.byteCount)
   }
 }
 

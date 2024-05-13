@@ -1,31 +1,33 @@
 package text
 
 class Pretty(
-        private val appendable: Appendable,
+        appendable: Appendable,
         private val firstCharPrefix: String = "",
-        private var isFirstChar: Boolean = true): CharAppendable {
-  override fun append(char: Char): Appendable = also {
-    if (isFirstChar) {
-      appendable.append(firstCharPrefix)
-      isFirstChar = false
+        private var isFirstChar: Boolean = true) {
+  private val appendable = object : CharAppendable {
+    override fun append(char: Char): Appendable = also {
+      if (isFirstChar) {
+        appendable.append(firstCharPrefix)
+        isFirstChar = false
+      }
+      appendable.append(char)
     }
-    appendable.append(char)
   }
 
   fun struct(name: String, fn: Pretty.() -> Unit) {
-    append(name)
-    appendIndented { apply { Pretty(this, "\n").fn() } }
+    appendable.append(name)
+    appendable.appendIndented { apply { Pretty(this, "\n").fn() } }
     isFirstChar = true
   }
 
   fun field(name: String, fn: Pretty.() -> Unit) {
-    append(name)
-    Pretty(this, ": ").fn()
+    appendable.append(name)
+    Pretty(appendable, ": ").fn()
     isFirstChar = true
   }
 
-  fun line(fn: Appendable.() -> Unit) {
-    Pretty(this, "").appendable.fn()
+  fun plain(fn: Appendable.() -> Unit) {
+    Pretty(appendable, "").appendable.fn()
     isFirstChar = true
   }
 }

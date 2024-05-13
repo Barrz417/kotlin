@@ -34,19 +34,19 @@ class AppendableTest {
     assertEquals("", prettyString {})
 
     assertEquals("10", prettyString {
-      pretty {
+      plain {
         append("10")
       }
     })
 
     assertEquals("id: 10", prettyString {
-      field("id") { append("10") }
+      field("id") { plain { append("10") } }
     })
 
     assertEquals("vector\n  x: 10\n  y: 20", prettyString {
       struct("vector") {
-        field("x") { append("10") }
-        field("y") { append("20") }
+        field("x") { plain { append("10") } }
+        field("y") { plain { append("20") } }
       }
     })
   }
