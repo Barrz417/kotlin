@@ -3,12 +3,12 @@ package text
 fun appendableString(fn: Appendable.() -> Appendable) = StringBuilder().apply { fn() }.toString()
 
 object PrintAppendable: Appendable {
-  override fun append(csq: CharSequence) = apply {
+  override fun append(csq: CharSequence?) = apply {
     print(csq)
   }
 
-  override fun append(csq: CharSequence, start: Int, end: Int) = apply {
-    print(csq.subSequence(start, end))
+  override fun append(csq: CharSequence?, start: Int, end: Int) = apply {
+    print(csq?.subSequence(start, end))
   }
 
   override fun append(c: Char) = apply {
@@ -17,12 +17,12 @@ object PrintAppendable: Appendable {
 }
 
 interface CharAppendable: Appendable {
-  override fun append(csq: CharSequence) = apply {
-    csq.forEach { append(it) }
+  override fun append(csq: CharSequence?) = apply {
+    csq?.forEach { append(it) }
   }
 
-  override fun append(csq: CharSequence, start: Int, end: Int) = apply {
-    append(csq.subSequence(start, end))
+  override fun append(csq: CharSequence?, start: Int, end: Int) = apply {
+    append(csq?.subSequence(start, end))
   }
 }
 
