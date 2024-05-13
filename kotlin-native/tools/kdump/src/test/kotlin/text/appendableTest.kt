@@ -31,22 +31,22 @@ class AppendableTest {
 
   @Test
   fun structuralAppendable() {
-    assertEquals("", structString {})
+    assertEquals("", prettyString {})
 
-    assertEquals("10", structString {
-      appendStruct {
+    assertEquals("10", prettyString {
+      pretty {
         append("10")
       }
     })
 
-    assertEquals("id: 10", structString {
-      appendField("id") { append("10") }
+    assertEquals("id: 10", prettyString {
+      field("id") { append("10") }
     })
 
-    assertEquals("vector\n  x: 10\n  y: 20", structString {
-      appendStruct("vector") {
-        appendField("x") { append("10") }
-        appendField("y") { append("20") }
+    assertEquals("vector\n  x: 10\n  y: 20", prettyString {
+      struct("vector") {
+        field("x") { append("10") }
+        field("y") { append("20") }
       }
     })
   }

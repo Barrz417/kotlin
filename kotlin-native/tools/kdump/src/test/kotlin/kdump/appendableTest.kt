@@ -1,9 +1,6 @@
 package kdump
 
-import base.Endianness
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import text.structString
 
 class StructuralAppendableTest {
   @Test

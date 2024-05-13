@@ -1,0 +1,138 @@
+package kdump
+
+import base.Endianness
+import text.Pretty
+import text.appendNonISOControl
+
+fun Pretty.literal(string: String) = apply {
+  append('"')
+  appendNonISOControl { append(string) }
+  append('"')
+}
+
+fun Pretty.decimal(int: Int) = apply {
+  append(int.toString())
+}
+
+fun Pretty.id(long: Long) = apply {
+  append(long.toString())
+}
+
+fun Pretty.binary(byteArray: ByteArray) {
+  append("TODO")
+}
+
+fun Pretty.name(enum: Enum<*>) = apply {
+  append(enum.name)
+}
+
+fun Pretty.item(dump: Dump) {
+  struct("dump") {
+    header(dump)
+    item(dump.endianness)
+    item(dump.idSize)
+    struct("items") {
+      dump.items.forEach { item(it) }
+    }
+  }
+}
+
+fun Pretty.header(dump: Dump) {
+  field("header") {
+    literal(dump.headerString)
+  }
+}
+
+fun Pretty.item(endianness: Endianness) {
+  field("endianness") {
+    name(endianness)
+  }
+}
+
+fun Pretty.item(idSize: IdSize) {
+  field("id size") {
+    append(idSize.byteCount.toString())
+  }
+}
+
+fun Pretty.item(item: Item) {
+  when (item) {
+    is Type ->
+      struct("type") {
+        field("id") { id(item.id) }
+        field("super type id") { id(item.superTypeId) }
+        field("package name") { literal(item.packageName) }
+        field("relative name") { literal(item.relativeName) }
+        field("body") { item(item.body) }
+      }
+    is ObjectItem ->
+      struct("object") {
+        field("id") { id(item.id) }
+        field("type id") { id(item.typeId) }
+        field("byte array") { binary(item.byteArray) }
+      }
+    is ArrayItem ->
+      struct("array") {
+        field("id") { id(item.id) }
+        field("type id") { id(item.typeId) }
+        field("count") { decimal(item.count) }
+        field("byte array") { binary(item.byteArray) }
+      }
+    is ExtraObject ->
+      struct("extra object") {
+        field("id") { id(item.id) }
+        field("type id") { id(item.baseObjectId) }
+        field("byte array") { id(item.associatedObjectId) }
+      }
+    is GlobalRoot ->
+      struct("global root") {
+        field("source") { name(item.source) }
+        field("object id") { id(item.objectId) }
+      }
+    is Thread ->
+    struct("thread") {
+      field("id") { id(item.id) }
+    }
+    is ThreadRoot ->
+      struct("thread root") {
+        field("thread id") { id(item.threadId) }
+        field("source") { name(item.source) }
+        field("object id") { id(item.objectId) }
+      }
+  }
+}
+
+fun Pretty.item(body: Type.Body) {
+  when (body) {
+    is Type.Body.Array -> struct("array") {
+      field("element size") { decimal(body.elementSize) }
+      body.extra?.let { item(it) }
+    }
+    is Type.Body.Object -> struct("object") {
+      field("instance size") { decimal(body.instanceSize) }
+      body.extra?.let { item(it) }
+    }
+  }
+}
+
+fun Pretty.item(extra: Type.Body.Object.Extra) {
+  struct("extra") {
+    struct("fields") {
+      extra.fields.forEach { item(it) }
+    }
+  }
+}
+
+fun Pretty.item(extra: Type.Body.Array.Extra) {
+  struct("extra") {
+    field("element type") { name(extra.elementType) }
+  }
+}
+
+fun Pretty.item(field: Field) {
+  struct("field") {
+    field("offset") { decimal(field.offset) }
+    field("type") { name(field.type) }
+    field("name") { literal(field.name) }
+  }
+}

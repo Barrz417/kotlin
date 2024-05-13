@@ -2,8 +2,6 @@ package kdump
 
 import java.io.*
 import base.*
-import text.PrintAppendable
-import text.appendStruct
 
 fun main(args: Array<String>) {
   File(args[0])
