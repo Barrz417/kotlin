@@ -1,7 +1,12 @@
 package io
 
-import java.io.*
-import base.*
+import base.Endianness
+import base.Endianness.BIG
+import base.Endianness.LITTLE
+import java.io.ByteArrayOutputStream
+import java.io.EOFException
+import java.io.InputStream
+import java.io.PushbackInputStream
 
 /** Returns stream which reads from this stream up to given length. */
 fun InputStream.newWithSize(size: Int): InputStream =
@@ -34,8 +39,8 @@ fun InputStream.readShortInt(endianness: Endianness): Int {
   val i1 = readByteInt()
   val i2 = readByteInt()
   return when (endianness) {
-    Endianness.LITTLE_ENDIAN -> i2.shl(8).or(i1)
-    Endianness.BIG_ENDIAN -> i1.shl(8).or(i2)
+    LITTLE -> i2.shl(8).or(i1)
+    BIG -> i1.shl(8).or(i2)
   }
 }
 
@@ -46,8 +51,8 @@ fun InputStream.readInt(endianness: Endianness): Int {
   val i1 = readShortInt(endianness)
   val i2 = readShortInt(endianness)
   return when (endianness) {
-    Endianness.LITTLE_ENDIAN -> i2.shl(16).or(i1)
-    Endianness.BIG_ENDIAN -> i1.shl(16).or(i2)
+    LITTLE -> i2.shl(16).or(i1)
+    BIG -> i1.shl(16).or(i2)
   }
 }
 
@@ -55,8 +60,8 @@ fun InputStream.readLong(endianness: Endianness): Long {
   val l1 = readInt(endianness).toLong().and(0xffffffffL)
   val l2 = readInt(endianness).toLong().and(0xffffffffL)
   return when (endianness) {
-    Endianness.LITTLE_ENDIAN -> l2.shl(32).or(l1)
-    Endianness.BIG_ENDIAN -> l1.shl(32).or(l2)
+    LITTLE -> l2.shl(32).or(l1)
+    BIG -> l1.shl(32).or(l2)
   }
 }
 

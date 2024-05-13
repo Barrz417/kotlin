@@ -6,7 +6,7 @@ import io.*
 
 fun InputStream.readEndianness(): Endianness {
   val byte = byteInt()
-  return if (byte.and(1) != 0) Endianness.LITTLE_ENDIAN else Endianness.BIG_ENDIAN
+  return if (byte.and(1) != 0) Endianness.LITTLE else Endianness.BIG
 }
 
 fun InputStream.readIdSize(): IdSize {

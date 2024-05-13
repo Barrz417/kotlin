@@ -1,3 +1,3 @@
 package base
 
-enum class Endianness { LITTLE_ENDIAN, BIG_ENDIAN }
+enum class Endianness { LITTLE, BIG }

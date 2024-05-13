@@ -11,23 +11,18 @@ import hprof.StackFrame as HProfStackFrame
 import hprof.StartThread as HProfStartThread
 import hprof.ClassDump as HProfClassDump
 import hprof.InstanceDump as HProfInstanceDump
-import hprof.RootUnknown as HProfRootUnknown
 import hprof.RootJavaFrame as HProfRootJavaFrame
 import hprof.RootThreadObject as HProfRootThreadObject
 import hprof.RootJniGlobal as HProfRootJniGlobal
 import hprof.RootStickyClass as HProfRootStickyClass
 import hprof.PrimitiveArrayDump as HProfPrimitiveArrayDump
 import hprof.ObjectArrayDump as HProfObjectArrayDump
-import hprof.Constant as HProfConstant
-import hprof.StaticField as HProfStaticField
 import hprof.InstanceField as HProfInstanceField
 import hprof.Type as HProfType
 import hprof.size as hprofSize
 import java.io.*
 import io.*
 import base.*
-import base.Endianness.*
-import kotlin.math.*
 
 const val ADD_JAVA_LANG_STRINGS = true
 
@@ -68,7 +63,7 @@ private val HProfType.size: Int get() = hprofSize(hprofIdSize)
 
 fun Dump.newConverter(): Converter =
   Converter(
-    endianness = Endianness.LITTLE_ENDIAN,
+    endianness = Endianness.LITTLE,
     idSize = IdSize.BITS_64,
     idToItemMap = items.asSequence().mapNotNull { item -> item.idOrNull?.let { id -> id to item } }.toMap(),
     time = System.currentTimeMillis(),
@@ -139,13 +134,13 @@ data class Converter(
         outputStream.writeByte(byteArray.get(index))
       RuntimeType.VECTOR_128 ->
         when (endianness) {
-          Endianness.BIG_ENDIAN -> {
+          Endianness.BIG -> {
             outputStream.writeInt(byteArray.getInt(index + 0, endianness))
             outputStream.writeInt(byteArray.getInt(index + 4, endianness))
             outputStream.writeInt(byteArray.getInt(index + 8, endianness))
             outputStream.writeInt(byteArray.getInt(index + 12, endianness))
           }
-          Endianness.LITTLE_ENDIAN -> {
+          Endianness.LITTLE -> {
             outputStream.writeInt(byteArray.getInt(index + 12, endianness))
             outputStream.writeInt(byteArray.getInt(index + 8, endianness))
             outputStream.writeInt(byteArray.getInt(index + 4, endianness))

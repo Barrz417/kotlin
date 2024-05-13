@@ -48,7 +48,7 @@ fun prettyString(fn: Pretty.() -> Unit) = run {
 }
 
 fun prettyPrint(fn: Pretty.() -> Unit) {
-  PrintAppendable.appendPretty(fn)
+  printAppendable { appendPretty(fn) }
 }
 
 fun prettyPrintln(fn: Pretty.() -> Unit) {

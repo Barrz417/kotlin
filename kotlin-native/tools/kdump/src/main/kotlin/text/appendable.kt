@@ -13,18 +13,18 @@ interface CharAppendable: Appendable {
   }
 }
 
-/** Appendable which prints. */
-object PrintAppendable: CharAppendable {
-  override fun append(csq: CharSequence?) = apply {
-    print(csq)
-  }
+fun printAppendable(fn: Appendable.() -> Unit) {
+  object : CharAppendable {
+    override fun append(csq: CharSequence?) = apply {
+      print(csq)
+    }
 
-  override fun append(c: Char) = apply {
-    print(c)
-  }
+    override fun append(c: Char) = apply {
+      print(c)
+    }
+  }.fn()
 }
 
-/** Appendable which indents with two spaces. */
 fun Appendable.appendIndented(fn: Appendable.() -> Unit) = also { appendable ->
   object : CharAppendable {
     var isIndentStart = false
