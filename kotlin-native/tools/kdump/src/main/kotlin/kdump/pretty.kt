@@ -2,9 +2,7 @@ package kdump
 
 import base.Endianness
 import kotlin.math.min
-import text.Pretty
-import text.appendNonISOControl
-import text.appendPadded
+import text.*
 
 fun Pretty.literal(string: String) = plain {
   append('"')
@@ -12,34 +10,8 @@ fun Pretty.literal(string: String) = plain {
   append('"')
 }
 
-fun Pretty.decimal(int: Int) = plain {
-  append(int.toString())
-}
-
 fun Pretty.id(long: Long) = plain {
   append("0x${long.toULong().toString(16)}")
-}
-
-fun Pretty.binary(byteArray: ByteArray) {
-  for (segment in byteArray.indices step 16) {
-    plain {
-      appendPadded(16 * 3 + 3) {
-        for (index in segment..<min(segment + 16, byteArray.size)) {
-          append(String.format("%02x", byteArray[index].toInt().and(0xff)))
-          append(" ")
-        }
-      }
-      appendNonISOControl {
-        for (index in segment..<min(segment + 16, byteArray.size)) {
-          append(byteArray[index].toInt().and(0xff).toChar())
-        }
-      }
-    }
-  }
-}
-
-fun Pretty.name(enum: Enum<*>) = plain {
-  append(enum.name)
 }
 
 fun Pretty.item(dump: Dump) {

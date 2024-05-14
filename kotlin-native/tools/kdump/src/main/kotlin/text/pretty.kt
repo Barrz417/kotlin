@@ -1,5 +1,7 @@
 package text
 
+import kotlin.math.min
+
 @DslMarker
 annotation class PrettyDslMarker
 
@@ -54,4 +56,42 @@ fun prettyPrint(fn: Pretty.() -> Unit) {
 fun prettyPrintln(fn: Pretty.() -> Unit) {
   prettyPrint(fn)
   println()
+}
+
+fun Pretty.name(enum: Enum<*>) = plain {
+  append(enum.name)
+}
+
+fun Pretty.decimal(int: Int) = plain {
+  append(int.toString())
+}
+
+fun Pretty.decimal(long: Long) = plain {
+  append(long.toString())
+}
+
+fun Pretty.hexadecimal(int: Int) = plain {
+  append("0x${int.toUInt().toString(16)}")
+}
+
+fun Pretty.hexadecimal(long: Long) = plain {
+  append("0x${long.toULong().toString(16)}")
+}
+
+fun Pretty.binary(byteArray: ByteArray) {
+  for (segment in byteArray.indices step 16) {
+    plain {
+      appendPadded(16 * 3 + 3) {
+        for (index in segment..<min(segment + 16, byteArray.size)) {
+          append(String.format("%02x", byteArray[index].toInt().and(0xff)))
+          append(" ")
+        }
+      }
+      appendNonISOControl {
+        for (index in segment..<min(segment + 16, byteArray.size)) {
+          append(byteArray[index].toInt().and(0xff).toChar())
+        }
+      }
+    }
+  }
 }
