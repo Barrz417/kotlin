@@ -1,6 +1,6 @@
 package kdump
 
-import base.*
+import base.Endianness
 
 enum class IdSize {
   BITS_8,

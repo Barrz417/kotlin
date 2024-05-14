@@ -1,8 +1,8 @@
 package hprof
 
 import base.Endianness
-import java.io.*
 import io.*
+import java.io.*
 
 fun OutputStream.write(idSize: IdSize) {
   writeInt(idSize.size, Endianness.BIG)

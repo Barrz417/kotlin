@@ -1,8 +1,18 @@
 package kdump
 
-import base.*
-import java.io.*
-import io.*
+import base.Endianness
+import base.nullUnless
+import io.readByte
+import io.readByteArray
+import io.readByteInt
+import io.readCString
+import io.readInt
+import io.readList
+import io.readLong
+import io.readShort
+import java.io.IOException
+import java.io.InputStream
+import java.io.PushbackInputStream
 
 fun InputStream.readEndianness(): Endianness {
   val byte = this.readByteInt()

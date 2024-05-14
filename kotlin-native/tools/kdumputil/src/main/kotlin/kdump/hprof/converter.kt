@@ -1,28 +1,41 @@
 package kdump.hprof
 
-import kdump.*
-import hprof.IdSize as HProfIdSize
-import hprof.Profile as HProfProfile
-import hprof.HeapDump as HProfHeapDump
-import hprof.StringConstant as HProfStringConstant
-import hprof.LoadClass as HProfLoadClass
-import hprof.StackTrace as HProfStackTrace
-import hprof.StackFrame as HProfStackFrame
-import hprof.StartThread as HProfStartThread
+import base.Endianness
+import base.align
+import base.getByte
+import base.getDouble
+import base.getFloat
+import base.getInt
+import base.getLong
+import base.getShort
 import hprof.ClassDump as HProfClassDump
+import hprof.HeapDump as HProfHeapDump
+import hprof.IdSize as HProfIdSize
 import hprof.InstanceDump as HProfInstanceDump
+import hprof.InstanceField as HProfInstanceField
+import hprof.LoadClass as HProfLoadClass
+import hprof.ObjectArrayDump as HProfObjectArrayDump
+import hprof.PrimitiveArrayDump as HProfPrimitiveArrayDump
+import hprof.Profile as HProfProfile
 import hprof.RootJavaFrame as HProfRootJavaFrame
-import hprof.RootThreadObject as HProfRootThreadObject
 import hprof.RootJniGlobal as HProfRootJniGlobal
 import hprof.RootStickyClass as HProfRootStickyClass
-import hprof.PrimitiveArrayDump as HProfPrimitiveArrayDump
-import hprof.ObjectArrayDump as HProfObjectArrayDump
-import hprof.InstanceField as HProfInstanceField
+import hprof.RootThreadObject as HProfRootThreadObject
+import hprof.StackFrame as HProfStackFrame
+import hprof.StackTrace as HProfStackTrace
+import hprof.StartThread as HProfStartThread
+import hprof.StringConstant as HProfStringConstant
 import hprof.Type as HProfType
 import hprof.size as hprofSize
-import java.io.*
-import io.*
-import base.*
+import io.writeByte
+import io.writeDouble
+import io.writeFloat
+import io.writeInt
+import io.writeLong
+import io.writeShort
+import java.io.ByteArrayOutputStream
+import java.io.OutputStream
+import kdump.*
 
 const val ADD_JAVA_LANG_STRINGS = true
 
@@ -418,7 +431,9 @@ class Converter(
     hprofHeapDumpRecords.add(
       HProfInstanceDump(
         objectId = threadObjectId,
-        classObjectId = extraClassObjectId(ClassName.THREAD)))
+        classObjectId = extraClassObjectId(ClassName.THREAD)
+      )
+    )
 
     hprofHeapDumpRecords.add(
       HProfRootThreadObject(
@@ -442,7 +457,8 @@ class Converter(
     hprofHeapDumpRecords.add(
       HProfRootJavaFrame(
         objectId = hprofObjectReferenceId(threadRoot.objectId),
-        threadSerialNumber = threadSerialNumber(threadRoot.threadId))
+        threadSerialNumber = threadSerialNumber(threadRoot.threadId)
+      )
     )
   }
 
@@ -486,7 +502,8 @@ class Converter(
             classObjectId = hprofClassObjectId(type),
             superClassObjectId = hprofSuperClassObjectId(type),
             instanceSize = hprofInstanceSize(type),
-            instanceFields = hprofInstanceFields(type))
+            instanceFields = hprofInstanceFields(type)
+          )
 
         is Type.Body.Array ->
           throw IllegalStateException("Array classes are synthesized.")

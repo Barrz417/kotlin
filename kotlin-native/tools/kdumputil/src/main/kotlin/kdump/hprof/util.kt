@@ -2,11 +2,7 @@ package kdump.hprof
 
 import hprof.Type
 import kdump.Field
-import kdump.Item
-import kdump.MemoryDump
 import kdump.RuntimeType
-import kdump.idOrNull
-
 
 fun String.primitiveArrayClassNameToElementTypePair(): Pair<RuntimeType, Type> =
   when (this) {

@@ -1,6 +1,6 @@
 package hprof
 
-import java.io.*
+import java.io.File
 
 fun File.readProfile(): Profile {
   return inputStream().buffered().use { it.readProfile() }

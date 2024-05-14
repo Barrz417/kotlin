@@ -1,8 +1,17 @@
 package hprof
 
 import base.Endianness
-import java.io.*
-import io.*
+import io.readByte
+import io.readByteArray
+import io.readCString
+import io.readInt
+import io.readList
+import io.readLong
+import io.readShort
+import io.readWithSize
+import java.io.IOException
+import java.io.InputStream
+import java.io.PushbackInputStream
 
 data class Reader(
   val inputStream: PushbackInputStream,

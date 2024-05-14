@@ -1,7 +1,11 @@
 package kdump
 
 import base.Endianness
-import text.*
+import text.Pretty
+import text.appendNonISOControl
+import text.binary
+import text.decimal
+import text.name
 
 fun Pretty.literal(string: String) = item {
   append('"')
