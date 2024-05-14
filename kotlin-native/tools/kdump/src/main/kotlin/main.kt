@@ -1,3 +1,4 @@
+import collections.nextOrNull
 import hprof.write
 import java.io.File
 import java.io.PushbackInputStream
@@ -7,14 +8,18 @@ import kdump.readDump
 import text.prettyPrintln
 
 fun main(args: Array<String>) {
-  when (args.getOrNull(0)) {
+  main(args.iterator())
+}
+
+fun main(args: Iterator<String>) {
+  when (args.nextOrNull()) {
     "print" ->
-      args.getOrNull(1)?.let { pathname ->
+      args.nextOrNull()?.let { pathname ->
         mainPrint(pathname)
       }
     "hprof" ->
-      args.getOrNull(1)?.let { inPathname ->
-        args.getOrNull(2)?.let { outPathname ->
+      args.nextOrNull()?.let { inPathname ->
+        args.nextOrNull()?.let { outPathname ->
           mainHprof(inPathname, outPathname)
         }
       }
@@ -23,8 +28,9 @@ fun main(args: Array<String>) {
 }
 
 fun mainUsage() {
-  println("usage: kdump print <in>")
-  println("       kdump hprof <in> <out>")
+  println("Usage:")
+  println("  kdump print <kdump file>")
+  println("  kdump hprof <kdump file> <hprof file>")
 }
 
 fun mainPrint(pathname: String) {
