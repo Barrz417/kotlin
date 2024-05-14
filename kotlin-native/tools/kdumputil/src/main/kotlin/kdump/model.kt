@@ -2,14 +2,34 @@ package kdump
 
 import base.*
 
-sealed class Item
-
 enum class IdSize {
   BITS_8,
   BITS_16,
   BITS_32,
   BITS_64,
 }
+
+enum class RuntimeType {
+  OBJECT,
+  INT_8,
+  INT_16,
+  INT_32,
+  INT_64,
+  FLOAT_32,
+  FLOAT_64,
+  NATIVE_PTR,
+  BOOLEAN,
+  VECTOR_128,
+}
+
+data class MemoryDump(
+  val headerString: String,
+  val endianness: Endianness,
+  val idSize: IdSize,
+  val items: List<Item>,
+)
+
+sealed class Item
 
 data class Type(
   val id: Long,
@@ -31,15 +51,9 @@ data class Type(
   val isArray: Boolean get() = body is Body.Array
 
   // TODO: Remove when not needed
-  val instanceSize get() = when (body) {
-    is Type.Body.Object -> body.instanceSize
-    is Type.Body.Array -> body.elementSize
-  }
-
-  // TODO: Remove when not needed
   val fields: List<Field>? get() = when (body) {
-    is Type.Body.Object -> body.extra?.fields
-    is Type.Body.Array -> null
+    is Body.Object -> body.extra?.fields
+    is Body.Array -> null
   }
 }
 
@@ -61,13 +75,6 @@ data class ExtraObject(
   val baseObjectId: Long,
   val associatedObjectId: Long,
 ): Item()
-
-data class Dump(
-  val headerString: String,
-  val endianness: Endianness,
-  val idSize: IdSize,
-  val items: List<Item>,
-)
 
 data class Field(
   val offset: Int,
@@ -92,17 +99,4 @@ data class ThreadRoot(
   val objectId: Long,
 ): Item() {
   enum class Source { STACK, THREAD_LOCAL }
-}
-
-enum class RuntimeType {
-  OBJECT,
-  INT_8,
-  INT_16,
-  INT_32,
-  INT_64,
-  FLOAT_32,
-  FLOAT_64,
-  NATIVE_PTR,
-  BOOLEAN,
-  VECTOR_128,
 }

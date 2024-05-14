@@ -20,7 +20,7 @@ fun InputStream.readIdSize(): IdSize {
   }
 }
 
-fun InputStream.readDump(): Dump {
+fun InputStream.readDump(): MemoryDump {
   val headerString = readCString().also {
     if (it != "Kotlin/Native dump 1.0.5") {
       throw IOException("invalid header \"$it\"")
@@ -30,7 +30,7 @@ fun InputStream.readDump(): Dump {
   val idSize = readIdSize()
   val reader = Reader(this, endianness, idSize)
   val items = reader.readList { readItem() }
-  return Dump(
+  return MemoryDump(
     headerString = headerString,
     endianness = endianness,
     idSize = idSize,

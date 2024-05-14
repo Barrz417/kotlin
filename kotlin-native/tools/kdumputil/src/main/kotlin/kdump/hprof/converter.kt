@@ -26,42 +26,10 @@ import base.*
 
 const val ADD_JAVA_LANG_STRINGS = true
 
-object ClassName {
-  object Primitive {
-    const val BOOLEAN = "Z"
-    const val CHAR = "C"
-    const val BYTE = "B"
-    const val SHORT = "S"
-    const val INT = "I"
-    const val LONG = "J"
-    const val FLOAT = "F"
-    const val DOUBLE = "D"
-  }
-
-  const val OBJECT = "java/lang/Object"
-  const val STRING = "java/lang/String"
-  const val CLASS = "java/lang/Class"
-  const val CLASS_LOADER = "java/lang/ClassLoader"
-  const val THREAD = "java/lang/Thread"
-  const val EXTRA_OBJECT = "kotlin/ExtraObject"
-
-  object Array {
-    const val OBJECT = "[L" + ClassName.OBJECT + ";"
-    const val BOOLEAN = "[" + ClassName.Primitive.BOOLEAN
-    const val CHAR = "[" + ClassName.Primitive.CHAR
-    const val BYTE = "[" + ClassName.Primitive.BYTE
-    const val SHORT = "[" + ClassName.Primitive.SHORT
-    const val INT = "[" + ClassName.Primitive.INT
-    const val LONG = "[" + ClassName.Primitive.LONG
-    const val FLOAT = "[" + ClassName.Primitive.FLOAT
-    const val DOUBLE = "[" + ClassName.Primitive.DOUBLE
-  }
-}
-
 private val hprofIdSize = HProfIdSize.LONG
 private val HProfType.size: Int get() = hprofSize(hprofIdSize)
 
-fun Dump.newConverter(): Converter =
+fun MemoryDump.newConverter(): Converter =
   Converter(
     endianness = Endianness.LITTLE,
     idSize = IdSize.BITS_64,
@@ -69,7 +37,7 @@ fun Dump.newConverter(): Converter =
     time = System.currentTimeMillis(),
   )
 
-fun Dump.toHProfProfile(): HProfProfile =
+fun MemoryDump.toHProfProfile(): HProfProfile =
   newConverter().also { it.add(this) }.buildProfile()
 
 data class Converter(
@@ -267,7 +235,7 @@ data class Converter(
         add(HProfHeapDump(hprofHeapDumpRecords))
       })
 
-  fun add(dump: Dump) {
+  fun add(memoryDump: MemoryDump) {
     syntheticClassNames.add(ClassName.CLASS)
 
     addSyntheticClass(ClassName.OBJECT)
@@ -306,14 +274,14 @@ data class Converter(
           type = HProfType.LONG)))
 
     if (ADD_JAVA_LANG_STRINGS) {
-      addJavaLangStringIds(dump)
+      addJavaLangStringIds(memoryDump)
     }
 
-    dump.items.forEach { add(it) }
+    memoryDump.items.forEach { add(it) }
   }
 
-  fun addJavaLangStringIds(dump: Dump) {
-    dump.items.forEach { item ->
+  fun addJavaLangStringIds(memoryDump: MemoryDump) {
+    memoryDump.items.forEach { item ->
       if (item is ArrayItem) {
         val type = type(item.typeId)
         if (type.isKotlinString) {
@@ -465,7 +433,7 @@ data class Converter(
 
   fun hprofLoadClass(type: Type): HProfLoadClass {
     val className = type.hprofClassName.let {
-      it.takeIf { !syntheticClassNames.contains(it) } ?: it + "$" + "Kotlin"
+      it.takeIf { !syntheticClassNames.contains(it) } ?: "$it\$Kotlin"
     }
 
     return HProfLoadClass(
@@ -605,79 +573,3 @@ data class Converter(
         .toByteArray())
   }
 }
-
-fun String.primitiveArrayClassNameToElementTypePair(): Pair<RuntimeType, HProfType> =
-  when (this) {
-    "String" -> RuntimeType.INT_16 to HProfType.CHAR
-    "ByteArray" -> RuntimeType.INT_8 to HProfType.BYTE
-    "ShortArray" -> RuntimeType.INT_16 to HProfType.SHORT
-    "IntArray" -> RuntimeType.INT_32 to HProfType.INT
-    "LongArray" -> RuntimeType.INT_64 to HProfType.LONG
-    "FloatArray" -> RuntimeType.FLOAT_32 to HProfType.FLOAT
-    "DoubleArray" -> RuntimeType.FLOAT_64 to HProfType.DOUBLE
-    "CharArray" -> RuntimeType.INT_16 to HProfType.CHAR
-    "BooleanArray" -> RuntimeType.BOOLEAN to HProfType.BOOLEAN
-    else -> throw IllegalArgumentException("Invalid primitive array class name $this")
-  }
-
-val Type.hprofClassName: String get() =
-  if (!isArray) {
-    hprofMappedClassName ?: hprofDefaultClassName
-  } else if (packageName == "kotlin") {
-    when (relativeName) {
-      "String" -> if (ADD_JAVA_LANG_STRINGS) ClassName.STRING else ClassName.Array.CHAR
-      "Array" -> ClassName.Array.OBJECT
-      "BooleanArray" -> ClassName.Array.BOOLEAN
-      "CharArray" -> ClassName.Array.CHAR
-      "ByteArray" -> ClassName.Array.BYTE
-      "ShortArray" -> ClassName.Array.SHORT
-      "IntArray" -> ClassName.Array.INT
-      "LongArray" -> ClassName.Array.LONG
-      "FloatArray" -> ClassName.Array.FLOAT
-      "DoubleArray" -> ClassName.Array.DOUBLE
-      else -> throw IllegalArgumentException("Invalid array relative name: $relativeName")
-    }
-  } else {
-    throw IllegalArgumentException("Invalid array package name: $packageName")
-  }
-
-val Type.hprofMappedClassName: String? get() =
-  when (packageName) {
-    "kotlin" ->
-      when (relativeName) {
-        "String" -> ClassName.STRING
-        else -> null
-      }
-    else -> null
-  }
-
-val Type.hprofDefaultClassName: String get() =
-  hprofPackageName + hprofPackageSeparator + hprofRelativeName
-
-val Type.hprofPackageName: String get() =
-  packageName.replace(".", "/")
-
-val Type.hprofPackageSeparator: String get() =
-  if (packageName.isEmpty()) "" else "/"
-
-val Type.hprofRelativeName: String get() =
-  relativeName.replace(".", "$")
-
-val Type.forceFields: List<Field> get() = fields ?: listOf() //throw IOException("No fields")
-
-val RuntimeType.hprofTypes: List<HProfType> get() =
-  when (this) {
-    RuntimeType.OBJECT -> listOf(HProfType.OBJECT)
-    RuntimeType.INT_8 -> listOf(HProfType.BYTE)
-    RuntimeType.INT_16 -> listOf(HProfType.SHORT)
-    RuntimeType.INT_32 -> listOf(HProfType.INT)
-    RuntimeType.INT_64 -> listOf(HProfType.LONG)
-    RuntimeType.FLOAT_32 -> listOf(HProfType.FLOAT)
-    RuntimeType.FLOAT_64 -> listOf(HProfType.DOUBLE)
-    RuntimeType.NATIVE_PTR -> listOf(HProfType.LONG)
-    RuntimeType.BOOLEAN -> listOf(HProfType.BOOLEAN)
-    RuntimeType.VECTOR_128 -> List(4) { HProfType.INT }
-  }
-
-private fun Int.align(alignment: Int) =
-  alignment.dec().let { mask -> this.plus(mask).and(mask.inv()) }

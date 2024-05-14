@@ -13,20 +13,20 @@ fun Pretty.id(long: Long) = item {
   append("0x${long.toULong().toString(16)}")
 }
 
-fun Pretty.item(dump: Dump) {
+fun Pretty.item(memoryDump: MemoryDump) {
   struct("dump") {
-    header(dump)
-    item(dump.endianness)
-    item(dump.idSize)
+    header(memoryDump)
+    item(memoryDump.endianness)
+    item(memoryDump.idSize)
     struct("items") {
-      dump.items.forEach { item(it) }
+      memoryDump.items.forEach { item(it) }
     }
   }
 }
 
-fun Pretty.header(dump: Dump) {
+fun Pretty.header(memoryDump: MemoryDump) {
   field("header") {
-    literal(dump.headerString)
+    literal(memoryDump.headerString)
   }
 }
 
