@@ -33,7 +33,7 @@ fun main(args: Iterator<String>) {
               when (inFormat) {
                 "kdump" ->
                   when (outFormat) {
-                    "hprof" -> mainHprof(inPathname, outPathname)
+                    "hprof" -> mainConvertKdumpHprof(inPathname, outPathname)
                     else -> null
                   }
                 else -> null
@@ -66,7 +66,7 @@ fun mainPrintHprof(pathname: String) {
   File(pathname).readProfile().let { prettyPrintln { item(it) } }
 }
 
-fun mainHprof(inPathname: String, outPathname: String) {
+fun mainConvertKdumpHprof(inPathname: String, outPathname: String) {
   File(inPathname)
           .inputStream()
           .buffered()
