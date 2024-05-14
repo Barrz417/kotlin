@@ -36,9 +36,9 @@ data class StackFrame(
   val stackFrameId: Long,
   val methodNameStringId: Long,
   val methodSignatureStringId: Long,
-  val sourceFileNameStringId: Long,
-  val classSerialNumber: Int,
-  val lineNumber: Int,
+  val sourceFileNameStringId: Long = 0,
+  val classSerialNumber: Int = 0,
+  val lineNumber: Int = 0,
 ) : Profile.Record()
 
 data class StackTrace(
@@ -90,7 +90,7 @@ data class RootStickyClass(
 data class RootJavaFrame(
   val objectId: Long,
   val threadSerialNumber: Int,
-  val frameNumber: Int,
+  val frameNumber: Int = 0,
 ) : HeapDump.Record()
 
 data class RootThreadObject(
@@ -152,7 +152,7 @@ data class InstanceDump(
 
 data class ObjectArrayDump(
   val arrayObjectId: Long,
-  val stackTraceSerialNumber: Int,
+  val stackTraceSerialNumber: Int = 0,
   val numberOfElements: Int,
   val arrayClassObjectId: Long,
   val byteArray: ByteArray,
@@ -161,9 +161,9 @@ data class ObjectArrayDump(
 data class PrimitiveArrayDump(
   val arrayObjectId: Long,
   val stackTraceSerialNumber: Int = 0,
-  val numberOfElements: Int = 0,
-  val arrayElementType: Type = Type.BYTE,
-  val byteArray: ByteArray = ByteArray(numberOfElements * arrayElementType.primitiveSize),
+  val numberOfElements: Int,
+  val arrayElementType: Type,
+  val byteArray: ByteArray,
 ) : HeapDump.Record()
 
 val IdSize.size: Int

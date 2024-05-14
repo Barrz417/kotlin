@@ -391,7 +391,7 @@ data class Converter(
       HProfStartThread(
         threadSerialNumber = threadSerialNumber,
         threadObjectId = threadObjectId,
-        threadNameStringId = id("thread-$threadSerialNumber")
+        threadNameStringId = id("thread-$threadSerialNumber"),
       )
     )
 
@@ -401,9 +401,6 @@ data class Converter(
         stackFrameId = stackFrameId,
         methodNameStringId = id("start"),
         methodSignatureStringId = id("()V"),
-        sourceFileNameStringId = 0,
-        classSerialNumber = 0,
-        lineNumber = 0
       )
     )
 
@@ -418,14 +415,7 @@ data class Converter(
     hprofHeapDumpRecords.add(
       HProfInstanceDump(
         objectId = threadObjectId,
-        stackTraceSerialNumber = 0,
-        classObjectId = extraClassObjectId(ClassName.THREAD),
-        ByteArrayOutputStream()
-          .apply {
-            // writeLong(threadObjectId)
-            // writeLong(0)
-          }
-          .toByteArray()))
+        classObjectId = extraClassObjectId(ClassName.THREAD)))
 
     hprofHeapDumpRecords.add(
       HProfRootThreadObject(
@@ -449,9 +439,7 @@ data class Converter(
     hprofHeapDumpRecords.add(
       HProfRootJavaFrame(
         objectId = hprofObjectReferenceId(threadRoot.objectId),
-        threadSerialNumber = threadSerialNumber(threadRoot.threadId),
-        frameNumber = 0
-      )
+        threadSerialNumber = threadSerialNumber(threadRoot.threadId))
     )
   }
 
@@ -483,7 +471,6 @@ data class Converter(
     return HProfLoadClass(
       classSerialNumber = nextClassSerialNumber(),
       classObjectId = hprofClassObjectId(type),
-      stackTraceSerialNumber = 0,
       classNameStringId = id(className)
     )
   }
@@ -494,16 +481,8 @@ data class Converter(
         is Type.Body.Object ->
           HProfClassDump(
             classObjectId = hprofClassObjectId(type),
-            stackTraceSerialNumber = 0,
             superClassObjectId = hprofSuperClassObjectId(type),
-            classLoaderObjectId = 0L,
-            signersObjectId = 0L,
-            protectionDomainObjectId = 0L,
-            reservedId1 = 0L,
-            reservedId2 = 0L,
             instanceSize = hprofInstanceSize(type),
-            constants = listOf(),
-            staticFields = listOf(),
             instanceFields = hprofInstanceFields(type))
 
         is Type.Body.Array ->
@@ -620,10 +599,9 @@ data class Converter(
   ): HProfObjectArrayDump {
     return HProfObjectArrayDump(
       arrayObjectId = hprofObjectId,
-      stackTraceSerialNumber = 0,
       numberOfElements = count,
       arrayClassObjectId = hprofArrayClassObjectId,
-      ByteArrayOutputStream()
+      byteArray = ByteArrayOutputStream()
         .apply { writeHProfArray(this, byteArray, offset, count, RuntimeType.OBJECT) }
         .toByteArray())
   }
