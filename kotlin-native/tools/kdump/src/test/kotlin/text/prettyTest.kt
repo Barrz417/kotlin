@@ -9,17 +9,17 @@ class PrettyTest {
     assertEquals("", prettyString {})
 
     assertEquals("10", prettyString {
-      plain { append("10") }
+      item { append("10") }
     })
 
     assertEquals("id: 10", prettyString {
-      field("id") { plain { append("10") } }
+      field("id") { item { append("10") } }
     })
 
     assertEquals("vector\n  x: 10\n  y: 20", prettyString {
       struct("vector") {
-        field("x") { plain { append("10") } }
-        field("y") { plain { append("20") } }
+        field("x") { item { append("10") } }
+        field("y") { item { append("20") } }
       }
     })
   }

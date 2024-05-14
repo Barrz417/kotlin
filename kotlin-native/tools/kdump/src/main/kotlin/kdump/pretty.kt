@@ -1,16 +1,15 @@
 package kdump
 
 import base.Endianness
-import kotlin.math.min
 import text.*
 
-fun Pretty.literal(string: String) = plain {
+fun Pretty.literal(string: String) = item {
   append('"')
   appendNonISOControl { append(string) }
   append('"')
 }
 
-fun Pretty.id(long: Long) = plain {
+fun Pretty.id(long: Long) = item {
   append("0x${long.toULong().toString(16)}")
 }
 

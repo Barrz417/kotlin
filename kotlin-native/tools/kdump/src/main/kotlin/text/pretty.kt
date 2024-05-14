@@ -35,7 +35,7 @@ class Pretty private constructor(appendable: Appendable, private val firstCharPr
     isFirstChar = true
   }
 
-  fun plain(fn: Appendable.() -> Unit) {
+  fun item(fn: Appendable.() -> Unit) {
     Pretty(appendable, "").appendable.fn()
     isFirstChar = true
   }
@@ -58,29 +58,29 @@ fun prettyPrintln(fn: Pretty.() -> Unit) {
   println()
 }
 
-fun Pretty.name(enum: Enum<*>) = plain {
+fun Pretty.name(enum: Enum<*>) = item {
   append(enum.name)
 }
 
-fun Pretty.decimal(int: Int) = plain {
+fun Pretty.decimal(int: Int) = item {
   append(int.toString())
 }
 
-fun Pretty.decimal(long: Long) = plain {
+fun Pretty.decimal(long: Long) = item {
   append(long.toString())
 }
 
-fun Pretty.hexadecimal(int: Int) = plain {
+fun Pretty.hexadecimal(int: Int) = item {
   append("0x${int.toUInt().toString(16)}")
 }
 
-fun Pretty.hexadecimal(long: Long) = plain {
+fun Pretty.hexadecimal(long: Long) = item {
   append("0x${long.toULong().toString(16)}")
 }
 
 fun Pretty.binary(byteArray: ByteArray) {
   for (segment in byteArray.indices step 16) {
-    plain {
+    item {
       appendPadded(16 * 3 + 3) {
         for (index in segment..<min(segment + 16, byteArray.size)) {
           append(String.format("%02x", byteArray[index].toInt().and(0xff)))
