@@ -54,12 +54,7 @@ fun mainUsage() {
 }
 
 fun mainPrintKdump(pathname: String) {
-  File(pathname)
-          .inputStream()
-          .buffered()
-          .let { PushbackInputStream(it) }
-          .readDump()
-          .let { prettyPrintln { item(it) } }
+  File(pathname).readDump().let { prettyPrintln { item(it) } }
 }
 
 fun mainPrintHprof(pathname: String) {
