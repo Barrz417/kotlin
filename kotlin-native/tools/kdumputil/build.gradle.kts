@@ -5,8 +5,8 @@ plugins {
     application
 }
 
-group = "micapolos"
-version = "1.0.5"
+group = "org.jetbrains.kdump"
+version = "1.0.0"
 
 repositories {
     mavenCentral()

@@ -5,5 +5,5 @@ pluginManagement {
     }
     
 }
-rootProject.name = "dump-converter"
+rootProject.name = "kdumputil"
 
