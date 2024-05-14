@@ -160,22 +160,25 @@ class Converter(
   }
 
   fun id(string: String): Long =
-    stringToIdMutableMap[string] ?: stringToIdMutableMap
-      .size
-      .toLong()
-      .inc()
-      .times(8)
-      .or(0x100000000L)
-      .also { id ->
-        stringToIdMutableMap[string] = id
-        idToStringMutableMap[id] = string
-        hprofProfileRecords.add(HProfStringConstant(id, string))
-      }
+    stringToIdMutableMap.getOrPut(string) {
+      stringToIdMutableMap.size
+        .toLong()
+        .inc()
+        .times(8)
+        .or(0x100000000L)
+        .also { id ->
+          idToStringMutableMap[id] = string
+          hprofProfileRecords.add(HProfStringConstant(id, string))
+        }
+    }
 
   fun hprofObjectId(id: Long): Long =
-    if (id == 0L) 0L
-    else idToHProfIdMutableMap[id]
-      ?: newHProfObjectId(item(id).size(idSize)!!).also { idToHProfIdMutableMap[id] = it }
+    when (id) {
+      0L -> 0L
+      else -> idToHProfIdMutableMap.getOrPut(id) {
+        newHProfObjectId(item(id).size(idSize)!!)
+      }
+    }
 
   fun extraClassObjectId(className: String): Long =
     extraClassObjectIds.getOrPut(className) {
