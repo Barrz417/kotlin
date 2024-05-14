@@ -49,3 +49,6 @@ val Item.idOrNull: Long?
       is GlobalRoot -> null
       is ThreadRoot -> null
     }
+
+val MemoryDump.idToItemMap: Map<Long, Item> get() =
+  items.asSequence().mapNotNull { item -> item.idOrNull?.let { id -> id to item } }.toMap()

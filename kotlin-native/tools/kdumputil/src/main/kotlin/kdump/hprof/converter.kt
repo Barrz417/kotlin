@@ -34,9 +34,8 @@ fun MemoryDump.newConverter(): Converter =
   Converter(
     endianness = endianness,
     idSize = idSize,
-    idToItemMap = items.asSequence().mapNotNull { item -> item.idOrNull?.let { id -> id to item } }
-      .toMap(),
-    time = System.currentTimeMillis(),
+    idToItemMap = idToItemMap,
+    profileTime = System.currentTimeMillis(),
   )
 
 fun MemoryDump.toHProfProfile(): HProfProfile =
@@ -46,7 +45,7 @@ data class Converter(
   val endianness: Endianness,
   val idSize: IdSize,
   val idToItemMap: Map<Long, Item>,
-  val time: Long,
+  val profileTime: Long,
   val idToHProfIdMutableMap: MutableMap<Long, Long> = mutableMapOf(),
   val stringToIdMutableMap: MutableMap<String, Long> = mutableMapOf(),
   val idToStringMutableMap: MutableMap<Long, String> = mutableMapOf(),
@@ -243,7 +242,7 @@ data class Converter(
   fun buildProfile(): HProfProfile =
     HProfProfile(
       idSize = hprofIdSize,
-      time = time,
+      time = profileTime,
       records = buildList {
         addAll(hprofProfileRecords)
         add(HProfHeapDump(hprofHeapDumpRecords))

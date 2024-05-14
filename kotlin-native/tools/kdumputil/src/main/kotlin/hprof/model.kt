@@ -57,7 +57,7 @@ data class StartThread(
 ) : Profile.Record()
 
 data class HeapDump(
-  val records: List<HeapDump.Record>,
+  val records: List<Record>,
 ) : Profile.Record() {
   sealed class Record
 }
@@ -66,7 +66,7 @@ data class HeapDumpSection(
   val records: List<HeapDump.Record>,
 ) : Profile.Record()
 
-object HeapDumpEnd : Profile.Record()
+data object HeapDumpEnd : Profile.Record()
 
 data class RootUnknown(
   val objectId: Long,
