@@ -35,29 +35,29 @@ fun MemoryDump.newConverter(): Converter =
     endianness = endianness,
     idSize = idSize,
     idToItemMap = idToItemMap,
-    profileTime = System.currentTimeMillis(),
   )
 
 fun MemoryDump.toHProfProfile(): HProfProfile =
   newConverter().also { it.add(this) }.buildProfile()
 
-data class Converter(
-  val endianness: Endianness,
-  val idSize: IdSize,
-  val idToItemMap: Map<Long, Item>,
-  val profileTime: Long,
-  val idToHProfIdMutableMap: MutableMap<Long, Long> = mutableMapOf(),
-  val stringToIdMutableMap: MutableMap<String, Long> = mutableMapOf(),
-  val idToStringMutableMap: MutableMap<Long, String> = mutableMapOf(),
-  val hprofProfileRecords: MutableList<HProfProfile.Record> = mutableListOf(),
-  val hprofHeapDumpRecords: MutableList<HProfHeapDump.Record> = mutableListOf(),
-  val extraClassObjectIds: MutableMap<String, Long> = mutableMapOf(),
-  val kotlinStringIdToJavaLangStringIdMutableMap: MutableMap<Long, Long> = mutableMapOf(),
-  var lastClassSerialNumber: Int = 0,
-  val threadIdToSerialNumberMap: MutableMap<Long, Int> = mutableMapOf(),
-  var nextFreeHProfObjectAddress: Long = 0x20000000L,
-  val syntheticClassNames: MutableSet<String> = mutableSetOf(),
+class Converter(
+  private val endianness: Endianness,
+  private val idSize: IdSize,
+  private val idToItemMap: Map<Long, Item>,
 ) {
+  private val profileTime: Long = System.currentTimeMillis()
+  private val idToHProfIdMutableMap: MutableMap<Long, Long> = mutableMapOf()
+  private val stringToIdMutableMap: MutableMap<String, Long> = mutableMapOf()
+  private val idToStringMutableMap: MutableMap<Long, String> = mutableMapOf()
+  private val hprofProfileRecords: MutableList<HProfProfile.Record> = mutableListOf()
+  private val hprofHeapDumpRecords: MutableList<HProfHeapDump.Record> = mutableListOf()
+  private val extraClassObjectIds: MutableMap<String, Long> = mutableMapOf()
+  private val kotlinStringIdToJavaLangStringIdMutableMap: MutableMap<Long, Long> = mutableMapOf()
+  private var lastClassSerialNumber: Int = 0
+  private val threadIdToSerialNumberMap: MutableMap<Long, Int> = mutableMapOf()
+  private var nextFreeHProfObjectAddress: Long = 0x20000000L
+  private val syntheticClassNames: MutableSet<String> = mutableSetOf()
+
   fun size(type: RuntimeType): Int = type.size(idSize)
 
   fun hprofInstanceSize(type: Type): Int =
