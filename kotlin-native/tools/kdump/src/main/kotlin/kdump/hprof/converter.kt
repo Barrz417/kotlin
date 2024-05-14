@@ -103,7 +103,7 @@ data class Converter(
     }
 
   fun writeHProfObjectValue(outputStream: OutputStream, byteArray: ByteArray, index: Int) {
-    outputStream.writeLong(hprofObjectReferenceId(getId(byteArray, index)))
+    outputStream.writeLong(hprofObjectReferenceId(getId(byteArray, index)), Endianness.BIG)
   }
 
   fun writeHProfValue(
@@ -118,33 +118,33 @@ data class Converter(
       RuntimeType.INT_8 ->
         outputStream.writeByte(byteArray.get(index))
       RuntimeType.INT_16 ->
-        outputStream.writeShort(byteArray.getShort(index, endianness))
+        outputStream.writeShort(byteArray.getShort(index, endianness), Endianness.BIG)
       RuntimeType.INT_32 ->
-        outputStream.writeInt(byteArray.getInt(index, endianness))
+        outputStream.writeInt(byteArray.getInt(index, endianness), Endianness.BIG)
       RuntimeType.INT_64 ->
-        outputStream.writeLong(byteArray.getLong(index, endianness))
+        outputStream.writeLong(byteArray.getLong(index, endianness), Endianness.BIG)
       RuntimeType.FLOAT_32 ->
-        outputStream.writeFloat(byteArray.getFloat(index, endianness))
+        outputStream.writeFloat(byteArray.getFloat(index, endianness), Endianness.BIG)
       RuntimeType.FLOAT_64 ->
-        outputStream.writeDouble(byteArray.getDouble(index, endianness))
+        outputStream.writeDouble(byteArray.getDouble(index, endianness), Endianness.BIG)
       RuntimeType.NATIVE_PTR ->
         // TODO: Convert to ID.
-        outputStream.writeLong(byteArray.getLong(index, endianness))
+        outputStream.writeLong(byteArray.getLong(index, endianness), Endianness.BIG)
       RuntimeType.BOOLEAN ->
         outputStream.writeByte(byteArray.get(index))
       RuntimeType.VECTOR_128 ->
         when (endianness) {
           Endianness.BIG -> {
-            outputStream.writeInt(byteArray.getInt(index + 0, endianness))
-            outputStream.writeInt(byteArray.getInt(index + 4, endianness))
-            outputStream.writeInt(byteArray.getInt(index + 8, endianness))
-            outputStream.writeInt(byteArray.getInt(index + 12, endianness))
+            outputStream.writeInt(byteArray.getInt(index + 0, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(index + 4, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(index + 8, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(index + 12, endianness), Endianness.BIG)
           }
           Endianness.LITTLE -> {
-            outputStream.writeInt(byteArray.getInt(index + 12, endianness))
-            outputStream.writeInt(byteArray.getInt(index + 8, endianness))
-            outputStream.writeInt(byteArray.getInt(index + 4, endianness))
-            outputStream.writeInt(byteArray.getInt(index + 0, endianness))
+            outputStream.writeInt(byteArray.getInt(index + 12, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(index + 8, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(index + 4, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(index + 0, endianness), Endianness.BIG)
           }
         }
     }
@@ -332,7 +332,7 @@ data class Converter(
         stackTraceSerialNumber = 0,
         classObjectId = extraClassObjectId(ClassName.STRING),
         ByteArrayOutputStream()
-          .apply { writeLong(hprofObjectId(arrayItem.id)) }
+          .apply { writeLong(hprofObjectId(arrayItem.id), Endianness.BIG) }
           .toByteArray()))
   }
 
@@ -379,8 +379,8 @@ data class Converter(
         classObjectId = extraClassObjectId(ClassName.EXTRA_OBJECT),
         ByteArrayOutputStream()
           .apply {
-            writeLong(hprofObjectReferenceId(extraObject.baseObjectId))
-            writeLong(extraObject.associatedObjectId)
+            writeLong(hprofObjectReferenceId(extraObject.baseObjectId), Endianness.BIG)
+            writeLong(extraObject.associatedObjectId, Endianness.BIG)
           }
           .toByteArray()))
   }
@@ -538,11 +538,9 @@ data class Converter(
   fun hprofDumpRecord(arrayItem: ArrayItem): HProfHeapDump.Record {
     val objectId = hprofObjectId(arrayItem.id)
     val type = type(arrayItem.typeId)
-    val elementSize = type.instanceSize
     val count = arrayItem.count
     val byteArray = arrayItem.byteArray
 
-    val fields = type.forceFields
     val offset = 0
 
     return if (type.packageName != "kotlin") {

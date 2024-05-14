@@ -1,16 +1,17 @@
 package hprof
 
+import base.Endianness
 import java.io.*
 import io.*
 
 fun OutputStream.write(idSize: IdSize) {
-  writeInt(idSize.size)
+  writeInt(idSize.size, Endianness.BIG)
 }
 
 fun OutputStream.write(it: Profile) {
   write("JAVA PROFILE 1.0.2")
   write(it.idSize)
-  writeLong(it.time)
+  writeLong(it.time, Endianness.BIG)
   HProfWriter(this, it.idSize).run {
     write(it.records) { write(it) }
   }
@@ -26,15 +27,15 @@ fun HProfWriter.write(byte: Byte) {
 }
 
 fun HProfWriter.write(short: Short) {
-  outputStream.writeShort(short)
+  outputStream.writeShort(short, Endianness.BIG)
 }
 
 fun HProfWriter.write(int: Int) {
-  outputStream.writeInt(int)
+  outputStream.writeInt(int, Endianness.BIG)
 }
 
 fun HProfWriter.write(long: Long) {
-  outputStream.writeLong(long)
+  outputStream.writeLong(long, Endianness.BIG)
 }
 
 fun HProfWriter.write(byteArray: ByteArray) {
