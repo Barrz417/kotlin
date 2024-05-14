@@ -32,8 +32,8 @@ private val HProfType.size: Int get() = hprofSize(hprofIdSize)
 
 fun MemoryDump.newConverter(): Converter =
   Converter(
-    endianness = Endianness.LITTLE,
-    idSize = IdSize.BITS_64,
+    endianness = endianness,
+    idSize = idSize,
     idToItemMap = items.asSequence().mapNotNull { item -> item.idOrNull?.let { id -> id to item } }
       .toMap(),
     time = System.currentTimeMillis(),
