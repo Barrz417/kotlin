@@ -16,15 +16,20 @@ import org.jetbrains.kotlin.fir.builder.FirAnnotationContainerBuilder
 import org.jetbrains.kotlin.fir.builder.FirBuilderDsl
 import org.jetbrains.kotlin.fir.builder.toMutableOrEmpty
 import org.jetbrains.kotlin.fir.diagnostics.ConeDiagnostic
-import org.jetbrains.kotlin.fir.expressions.*
-import org.jetbrains.kotlin.fir.expressions.impl.FirComponentCallImpl
+import org.jetbrains.kotlin.fir.expressions.FirAnnotation
+import org.jetbrains.kotlin.fir.expressions.FirDestructuringAccessExpression
+import org.jetbrains.kotlin.fir.expressions.FirExpression
+import org.jetbrains.kotlin.fir.expressions.impl.FirDestructuringAccessExpressionImpl
+import org.jetbrains.kotlin.fir.references.FirReference
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.FirTypeProjection
+import org.jetbrains.kotlin.name.Name
 
 @FirBuilderDsl
-class FirComponentCallBuilder : FirCallBuilder, FirAnnotationContainerBuilder, FirExpressionBuilder {
+class FirDestructuringAccessExpressionBuilder : FirAnnotationContainerBuilder, FirExpressionBuilder {
     override var coneTypeOrNull: ConeKotlinType? = null
     override val annotations: MutableList<FirAnnotation> = mutableListOf()
+    lateinit var calleeReference: FirReference
     val contextReceiverArguments: MutableList<FirExpression> = mutableListOf()
     val typeArguments: MutableList<FirTypeProjection> = mutableListOf()
     var explicitReceiver: FirExpression? = null
@@ -32,13 +37,15 @@ class FirComponentCallBuilder : FirCallBuilder, FirAnnotationContainerBuilder, F
     var extensionReceiver: FirExpression? = null
     override var source: KtSourceElement? = null
     val nonFatalDiagnostics: MutableList<ConeDiagnostic> = mutableListOf()
-    override var argumentList: FirArgumentList = FirEmptyArgumentList
-    var componentIndex: Int by kotlin.properties.Delegates.notNull<Int>()
+    var position: Int by kotlin.properties.Delegates.notNull<Int>()
+    lateinit var destructuredPropertyName: Name
+    var entrySource: KtSourceElement? = null
 
-    override fun build(): FirComponentCall {
-        return FirComponentCallImpl(
+    override fun build(): FirDestructuringAccessExpression {
+        return FirDestructuringAccessExpressionImpl(
             coneTypeOrNull,
             annotations.toMutableOrEmpty(),
+            calleeReference,
             contextReceiverArguments.toMutableOrEmpty(),
             typeArguments.toMutableOrEmpty(),
             explicitReceiver,
@@ -46,17 +53,18 @@ class FirComponentCallBuilder : FirCallBuilder, FirAnnotationContainerBuilder, F
             extensionReceiver,
             source,
             nonFatalDiagnostics.toMutableOrEmpty(),
-            argumentList,
-            componentIndex,
+            position,
+            destructuredPropertyName,
+            entrySource,
         )
     }
 
 }
 
 @OptIn(ExperimentalContracts::class)
-inline fun buildComponentCall(init: FirComponentCallBuilder.() -> Unit): FirComponentCall {
+inline fun buildDestructuringAccessExpression(init: FirDestructuringAccessExpressionBuilder.() -> Unit): FirDestructuringAccessExpression {
     contract {
         callsInPlace(init, InvocationKind.EXACTLY_ONCE)
     }
-    return FirComponentCallBuilder().apply(init).build()
+    return FirDestructuringAccessExpressionBuilder().apply(init).build()
 }

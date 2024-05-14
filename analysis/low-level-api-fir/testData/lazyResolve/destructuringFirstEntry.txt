@@ -387,7 +387,7 @@ FILE: [ResolvedTo(IMPORTS)] destructuringFirstEntry.kts
             public? [ResolvedTo(RAW_FIR)] get(): <implicit>
 
         [ResolvedTo(CONTRACTS)] [DestructuringDeclarationContainerVariableMarkerKey=true] lval <destruct>: <implicit> = pair#
-        public final [ResolvedTo(CONTRACTS)] [DestructuringDeclarationContainerVariableKey=<local>/<destruct>] val first: <implicit> = R|<local>/<destruct>|.component1#()
+        public final [ResolvedTo(CONTRACTS)] [DestructuringDeclarationContainerVariableKey=<local>/<destruct>] val first: <implicit> = <destructuredProperty>#R|<local>/<destruct>|
             public [ResolvedTo(CONTRACTS)] get(): <implicit>
 
         public final [ResolvedTo(RAW_FIR)] [DestructuringDeclarationContainerVariableKey=<local>/<destruct>] val last: <implicit> = LAZY_EXPRESSION
@@ -612,3 +612,4 @@ FILE: [ResolvedTo(BODY_RESOLVE)] destructuringFirstEntry.kts
 
         public final [ResolvedTo(BODY_RESOLVE)] [DestructuringDeclarationContainerVariableKey=<local>/<destruct>] val last: R|kotlin/Int| = R|<local>/<destruct>|.R|/MyPair.component2|()
             public [ResolvedTo(BODY_RESOLVE)] get(): R|kotlin/Int|
+

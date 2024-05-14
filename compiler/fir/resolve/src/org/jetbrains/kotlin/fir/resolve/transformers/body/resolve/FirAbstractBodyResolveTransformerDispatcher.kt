@@ -601,6 +601,16 @@ abstract class FirAbstractBodyResolveTransformerDispatcher(
         FirDeclarationsResolveTransformer::transformTypeAlias,
     )
 
+    override fun transformDestructuringAccessExpression(
+        destructuringAccessExpression: FirDestructuringAccessExpression,
+        data: ResolutionMode,
+    ): FirStatement = expressionTransformation(
+        destructuringAccessExpression,
+        data,
+        FirExpressionsResolveTransformer::transformDestructuringAccessExpression,
+    )
+
+
     // ------------------------------------- Control flow statements -------------------------------------
 
     private inline fun <T, R> controlFlowStatementsTransformation(

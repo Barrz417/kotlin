@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtDelegatedSuperTypeEntry
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
+import org.jetbrains.kotlin.psi.KtDestructuringDeclarationEntry
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtExpression
@@ -4012,6 +4013,18 @@ internal val KT_DIAGNOSTIC_CONVERTER = KtDiagnosticConverterBuilder.buildConvert
     }
     add(FirErrors.INITIALIZER_REQUIRED_FOR_DESTRUCTURING_DECLARATION) { firDiagnostic ->
         InitializerRequiredForDestructuringDeclarationImpl(
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
+    add(FirErrors.WRONG_DESTRUCTURED_PROPERTY_NAME) { firDiagnostic ->
+        WrongDestructuredPropertyNameImpl(
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
+    add(FirErrors.UNNECESSARY_UNDERSCORE) { firDiagnostic ->
+        UnnecessaryUnderscoreImpl(
             firDiagnostic as KtPsiDiagnostic,
             token,
         )

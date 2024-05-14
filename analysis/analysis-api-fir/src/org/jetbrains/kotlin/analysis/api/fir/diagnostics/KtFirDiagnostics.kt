@@ -52,6 +52,7 @@ import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtDelegatedSuperTypeEntry
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
+import org.jetbrains.kotlin.psi.KtDestructuringDeclarationEntry
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtExpression
@@ -2805,6 +2806,14 @@ sealed interface KtFirDiagnostic<PSI : PsiElement> : KtDiagnosticWithPsi<PSI> {
 
     interface InitializerRequiredForDestructuringDeclaration : KtFirDiagnostic<KtDestructuringDeclaration> {
         override val diagnosticClass get() = InitializerRequiredForDestructuringDeclaration::class
+    }
+
+    interface WrongDestructuredPropertyName : KtFirDiagnostic<KtDestructuringDeclarationEntry> {
+        override val diagnosticClass get() = WrongDestructuredPropertyName::class
+    }
+
+    interface UnnecessaryUnderscore : KtFirDiagnostic<KtDestructuringDeclarationEntry> {
+        override val diagnosticClass get() = UnnecessaryUnderscore::class
     }
 
     interface ComponentFunctionMissing : KtFirDiagnostic<PsiElement> {

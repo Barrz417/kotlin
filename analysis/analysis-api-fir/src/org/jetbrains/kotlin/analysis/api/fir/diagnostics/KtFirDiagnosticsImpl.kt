@@ -53,6 +53,7 @@ import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtDelegatedSuperTypeEntry
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
+import org.jetbrains.kotlin.psi.KtDestructuringDeclarationEntry
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtExpression
@@ -3380,6 +3381,16 @@ internal class InitializerRequiredForDestructuringDeclarationImpl(
     firDiagnostic: KtPsiDiagnostic,
     token: KtLifetimeToken,
 ) : KtAbstractFirDiagnostic<KtDestructuringDeclaration>(firDiagnostic, token), KtFirDiagnostic.InitializerRequiredForDestructuringDeclaration
+
+internal class WrongDestructuredPropertyNameImpl(
+    firDiagnostic: KtPsiDiagnostic,
+    token: KtLifetimeToken,
+) : KtAbstractFirDiagnostic<KtDestructuringDeclarationEntry>(firDiagnostic, token), KtFirDiagnostic.WrongDestructuredPropertyName
+
+internal class UnnecessaryUnderscoreImpl(
+    firDiagnostic: KtPsiDiagnostic,
+    token: KtLifetimeToken,
+) : KtAbstractFirDiagnostic<KtDestructuringDeclarationEntry>(firDiagnostic, token), KtFirDiagnostic.UnnecessaryUnderscore
 
 internal class ComponentFunctionMissingImpl(
     override val missingFunctionName: Name,

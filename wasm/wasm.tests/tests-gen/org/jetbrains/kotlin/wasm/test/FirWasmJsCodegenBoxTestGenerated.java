@@ -28339,6 +28339,34 @@ public class FirWasmJsCodegenBoxTestGenerated extends AbstractFirWasmJsCodegenBo
   }
 
   @Nested
+  @TestMetadata("compiler/testData/codegen/box/nameBasedDestructuring")
+  @TestDataPath("$PROJECT_ROOT")
+  public class NameBasedDestructuring {
+    @Test
+    public void testAllFilesPresentInNameBasedDestructuring() {
+      KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/nameBasedDestructuring"), Pattern.compile("^([^_](.+))\\.kt$"), null, TargetBackend.WASM, true);
+    }
+
+    @Test
+    @TestMetadata("nameBasedDesructuring.kt")
+    public void testNameBasedDesructuring() {
+      runTest("compiler/testData/codegen/box/nameBasedDestructuring/nameBasedDesructuring.kt");
+    }
+
+    @Test
+    @TestMetadata("nameBasedDesructuringInFor.kt")
+    public void testNameBasedDesructuringInFor() {
+      runTest("compiler/testData/codegen/box/nameBasedDestructuring/nameBasedDesructuringInFor.kt");
+    }
+
+    @Test
+    @TestMetadata("nameBasedDesructuringInLambda.kt")
+    public void testNameBasedDesructuringInLambda() {
+      runTest("compiler/testData/codegen/box/nameBasedDestructuring/nameBasedDesructuringInLambda.kt");
+    }
+  }
+
+  @Nested
   @TestMetadata("compiler/testData/codegen/box/nonLocalReturns")
   @TestDataPath("$PROJECT_ROOT")
   public class NonLocalReturns {

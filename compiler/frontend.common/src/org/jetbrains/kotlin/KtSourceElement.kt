@@ -257,6 +257,11 @@ sealed class KtFakeSourceElementKind(final override val shouldSkipErrorTypeRepor
     object DesugaredComponentFunctionCall : KtFakeSourceElementKind()
 
     /**
+     * val (a,b) = x --> val a = x.component1(); val b = x.component2() or  a = x.a; val b = x.b, depends on the type of destructuring
+     */
+    object DestructuredVariable : KtFakeSourceElementKind()
+
+    /**
      * when smart casts applied to the expression, it is wrapped into FirSmartCastExpression
      * which type reference will have a fake source refer to a original source element of it
      */

@@ -90,6 +90,7 @@ import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtDelegatedSuperTypeEntry
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration
+import org.jetbrains.kotlin.psi.KtDestructuringDeclarationEntry
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtExpression
@@ -716,6 +717,8 @@ object FirErrors {
 
     // Destructuring declaration
     val INITIALIZER_REQUIRED_FOR_DESTRUCTURING_DECLARATION: KtDiagnosticFactory0 by error0<KtDestructuringDeclaration>()
+    val WRONG_DESTRUCTURED_PROPERTY_NAME: KtDiagnosticFactory0 by error0<KtDestructuringDeclarationEntry>()
+    val UNNECESSARY_UNDERSCORE: KtDiagnosticFactory0 by warning0<KtDestructuringDeclarationEntry>()
     val COMPONENT_FUNCTION_MISSING: KtDiagnosticFactory2<Name, ConeKotlinType> by error2<PsiElement, Name, ConeKotlinType>()
     val COMPONENT_FUNCTION_AMBIGUITY: KtDiagnosticFactory2<Name, Collection<FirBasedSymbol<*>>> by error2<PsiElement, Name, Collection<FirBasedSymbol<*>>>()
     val COMPONENT_FUNCTION_ON_NULLABLE: KtDiagnosticFactory1<Name> by error1<KtExpression, Name>()

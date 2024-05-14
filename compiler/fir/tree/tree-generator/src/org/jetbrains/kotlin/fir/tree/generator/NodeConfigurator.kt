@@ -36,7 +36,6 @@ import org.jetbrains.kotlin.fir.tree.generator.model.*
 import org.jetbrains.kotlin.generators.tree.AbstractField
 import org.jetbrains.kotlin.generators.tree.StandardTypes
 import org.jetbrains.kotlin.generators.tree.TypeRef
-import org.jetbrains.kotlin.generators.tree.imports.ArbitraryImportable
 import org.jetbrains.kotlin.generators.tree.withArgs
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
@@ -592,9 +591,15 @@ object NodeConfigurator : AbstractFieldConfigurator<FirTreeBuilder>(FirTreeBuild
         }
 
         componentCall.configure {
-            +field("explicitReceiver", expression)
             +intField("componentIndex")
         }
+
+        destructuringAccessExpression.configure {
+            +intField("position")
+            +field("destructuredPropertyName", nameType)
+            +field("entrySource", sourceElementType, nullable = true)
+        }
+
 
         smartCastExpression.configure {
             +field("originalExpression", expression, withReplace = true).withTransform()

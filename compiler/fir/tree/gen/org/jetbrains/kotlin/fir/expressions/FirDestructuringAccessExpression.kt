@@ -12,20 +12,21 @@ import org.jetbrains.kotlin.KtSourceElement
 import org.jetbrains.kotlin.fir.FirElement
 import org.jetbrains.kotlin.fir.FirImplementationDetail
 import org.jetbrains.kotlin.fir.diagnostics.ConeDiagnostic
-import org.jetbrains.kotlin.fir.references.FirNamedReference
 import org.jetbrains.kotlin.fir.references.FirReference
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.FirTypeProjection
 import org.jetbrains.kotlin.fir.visitors.FirTransformer
 import org.jetbrains.kotlin.fir.visitors.FirVisitor
+import org.jetbrains.kotlin.name.Name
 
 /**
- * Generated from: [org.jetbrains.kotlin.fir.tree.generator.FirTreeBuilder.componentCall]
+ * Generated from: [org.jetbrains.kotlin.fir.tree.generator.FirTreeBuilder.destructuringAccessExpression]
  */
-abstract class FirComponentCall : FirFunctionCall() {
+abstract class FirDestructuringAccessExpression : FirQualifiedAccessExpression() {
     @UnresolvedExpressionTypeAccess
     abstract override val coneTypeOrNull: ConeKotlinType?
     abstract override val annotations: List<FirAnnotation>
+    abstract override val calleeReference: FirReference
     abstract override val contextReceiverArguments: List<FirExpression>
     abstract override val typeArguments: List<FirTypeProjection>
     abstract override val explicitReceiver: FirExpression?
@@ -33,21 +34,22 @@ abstract class FirComponentCall : FirFunctionCall() {
     abstract override val extensionReceiver: FirExpression?
     abstract override val source: KtSourceElement?
     abstract override val nonFatalDiagnostics: List<ConeDiagnostic>
-    abstract override val argumentList: FirArgumentList
-    abstract override val calleeReference: FirNamedReference
-    abstract override val origin: FirFunctionCallOrigin
-    abstract val componentIndex: Int
+    abstract val position: Int
+    abstract val destructuredPropertyName: Name
+    abstract val entrySource: KtSourceElement?
 
     override fun <R, D> accept(visitor: FirVisitor<R, D>, data: D): R =
-        visitor.visitComponentCall(this, data)
+        visitor.visitDestructuringAccessExpression(this, data)
 
     @Suppress("UNCHECKED_CAST")
     override fun <E : FirElement, D> transform(transformer: FirTransformer<D>, data: D): E =
-        transformer.transformComponentCall(this, data) as E
+        transformer.transformDestructuringAccessExpression(this, data) as E
 
     abstract override fun replaceConeTypeOrNull(newConeTypeOrNull: ConeKotlinType?)
 
     abstract override fun replaceAnnotations(newAnnotations: List<FirAnnotation>)
+
+    abstract override fun replaceCalleeReference(newCalleeReference: FirReference)
 
     abstract override fun replaceContextReceiverArguments(newContextReceiverArguments: List<FirExpression>)
 
@@ -64,17 +66,11 @@ abstract class FirComponentCall : FirFunctionCall() {
 
     abstract override fun replaceNonFatalDiagnostics(newNonFatalDiagnostics: List<ConeDiagnostic>)
 
-    abstract override fun replaceArgumentList(newArgumentList: FirArgumentList)
+    abstract override fun <D> transformAnnotations(transformer: FirTransformer<D>, data: D): FirDestructuringAccessExpression
 
-    abstract override fun replaceCalleeReference(newCalleeReference: FirNamedReference)
+    abstract override fun <D> transformCalleeReference(transformer: FirTransformer<D>, data: D): FirDestructuringAccessExpression
 
-    abstract override fun replaceCalleeReference(newCalleeReference: FirReference)
+    abstract override fun <D> transformTypeArguments(transformer: FirTransformer<D>, data: D): FirDestructuringAccessExpression
 
-    abstract override fun <D> transformAnnotations(transformer: FirTransformer<D>, data: D): FirComponentCall
-
-    abstract override fun <D> transformTypeArguments(transformer: FirTransformer<D>, data: D): FirComponentCall
-
-    abstract override fun <D> transformExplicitReceiver(transformer: FirTransformer<D>, data: D): FirComponentCall
-
-    abstract override fun <D> transformCalleeReference(transformer: FirTransformer<D>, data: D): FirComponentCall
+    abstract override fun <D> transformExplicitReceiver(transformer: FirTransformer<D>, data: D): FirDestructuringAccessExpression
 }

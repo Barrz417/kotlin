@@ -12201,6 +12201,12 @@ public class FirLightTreeOldFrontendDiagnosticsTestGenerated extends AbstractFir
       public void testDestructuringInInitializer() {
         runTest("compiler/testData/diagnostics/tests/destructuring/destructuringInInitializer.kt");
       }
+
+      @Test
+      @TestMetadata("nameBasedDestructuringWithWrongPropertyNames.kt")
+      public void testNameBasedDestructuringWithWrongPropertyNames() {
+        runTest("compiler/testData/diagnostics/tests/destructuring/nameBasedDestructuringWithWrongPropertyNames.kt");
+      }
     }
 
     @Nested

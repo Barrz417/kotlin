@@ -33006,6 +33006,34 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
     }
   }
 
+  @TestMetadata("compiler/testData/codegen/box/nameBasedDestructuring")
+  @TestDataPath("$PROJECT_ROOT")
+  @RunWith(JUnit3RunnerWithInners.class)
+  public static class NameBasedDestructuring extends AbstractLightAnalysisModeTest {
+    private void runTest(String testDataFilePath) {
+      KotlinTestUtils.runTest(this::doTest, TargetBackend.JVM_IR, testDataFilePath);
+    }
+
+    public void testAllFilesPresentInNameBasedDestructuring() {
+      KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/codegen/box/nameBasedDestructuring"), Pattern.compile("^(.+)\\.kt$"), null, TargetBackend.JVM_IR, true);
+    }
+
+    @TestMetadata("nameBasedDesructuring.kt")
+    public void testNameBasedDesructuring() {
+      runTest("compiler/testData/codegen/box/nameBasedDestructuring/nameBasedDesructuring.kt");
+    }
+
+    @TestMetadata("nameBasedDesructuringInFor.kt")
+    public void testNameBasedDesructuringInFor() {
+      runTest("compiler/testData/codegen/box/nameBasedDestructuring/nameBasedDesructuringInFor.kt");
+    }
+
+    @TestMetadata("nameBasedDesructuringInLambda.kt")
+    public void testNameBasedDesructuringInLambda() {
+      runTest("compiler/testData/codegen/box/nameBasedDestructuring/nameBasedDesructuringInLambda.kt");
+    }
+  }
+
   @TestMetadata("compiler/testData/codegen/box/nonLocalReturns")
   @TestDataPath("$PROJECT_ROOT")
   @RunWith(JUnit3RunnerWithInners.class)

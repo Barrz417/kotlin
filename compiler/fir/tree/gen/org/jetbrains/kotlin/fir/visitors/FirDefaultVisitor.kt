@@ -149,6 +149,9 @@ abstract class FirDefaultVisitor<out R, in D> : FirVisitor<R, D>() {
     override fun visitComponentCall(componentCall: FirComponentCall, data: D): R =
         visitFunctionCall(componentCall, data)
 
+    override fun visitDestructuringAccessExpression(destructuringAccessExpression: FirDestructuringAccessExpression, data: D): R =
+        visitQualifiedAccessExpression(destructuringAccessExpression, data)
+
     override fun visitCallableReferenceAccess(callableReferenceAccess: FirCallableReferenceAccess, data: D): R =
         visitQualifiedAccessExpression(callableReferenceAccess, data)
 

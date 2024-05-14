@@ -53,7 +53,6 @@ import org.jetbrains.kotlin.types.expressions.OperatorConventions
 import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.runIf
-import org.jetbrains.kotlin.utils.addToStdlib.runUnless
 import org.jetbrains.kotlin.utils.addToStdlib.shouldNotBeCalled
 import org.jetbrains.kotlin.utils.exceptions.errorWithAttachment
 import org.jetbrains.kotlin.utils.exceptions.requireWithAttachment
@@ -197,12 +196,13 @@ open class PsiRawFirBuilder(
             (this as KtAnnotated).extractAnnotationsTo(target)
         }
 
-        override fun createComponentCall(
+        override fun createDestructuringAccessExpression(
             container: FirVariable,
             entrySource: KtSourceElement?,
+            entryName: Name,
             index: Int,
         ): FirExpression = buildOrLazyExpression(entrySource) {
-            super.createComponentCall(container, entrySource, index)
+            return super.createDestructuringAccessExpression(container, entrySource, entryName, index)
         }
 
         private inline fun <reified R : FirElement> KtElement?.convertSafe(): R? =
