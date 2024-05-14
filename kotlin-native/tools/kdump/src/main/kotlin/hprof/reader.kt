@@ -1,5 +1,6 @@
 package hprof
 
+import base.Endianness
 import java.io.*
 import io.*
 
@@ -9,36 +10,35 @@ data class Reader(
 )
 
 fun Reader.readByte(): Byte =
-  inputStream.byte()
+  inputStream.readByte()
 
 fun Reader.readShort(): Short =
-  inputStream.short()
+  inputStream.readShort(Endianness.BIG)
 
 fun Reader.readInt(): Int =
-  inputStream.int()
+  inputStream.readInt(Endianness.BIG)
 
 fun Reader.readLong(): Long =
-  inputStream.long()
+  inputStream.readLong(Endianness.BIG)
 
 fun Reader.readByteArray(size: Int): ByteArray =
-  inputStream.byteArray(size)
+  inputStream.readByteArray(size)
 
 fun Reader.readByteArray(): ByteArray =
-  inputStream.byteArray()
+  inputStream.readByteArray()
 
 fun <T> Reader.readList(size: Int, fn: Reader.() -> T): List<T> =
-  inputStream.list(size) {
+  inputStream.readList(size) {
     Reader(inputStream, idSize).fn()
   }
 
 fun <T> Reader.readList(fn: Reader.() -> T): List<T> =
-  inputStream.list {
+  inputStream.readList {
     Reader(PushbackInputStream(this), idSize).fn()
   }
 
-fun InputStream.readIdSize(): IdSize {
-  val idSizeInt = int()
-  return when (idSizeInt) {
+fun InputStream.readIdSize(): IdSize = run {
+  when (val idSizeInt = readInt(Endianness.BIG)) {
     1 -> IdSize.BYTE
     2 -> IdSize.SHORT
     4 -> IdSize.INT
@@ -77,13 +77,13 @@ fun <T> Reader.readWithSize(size: Int, fn: Reader.() -> T): T =
   }
 
 fun InputStream.readProfile(): Profile {
-  cString().also {
+  readCString().also {
     if (it != "JAVA PROFILE 1.0.2") {
       throw IOException("invalid header \"$it\"")
     }
   }
   val idSize = readIdSize()
-  val time = long()
+  val time = readLong(Endianness.BIG)
   val records = Reader(PushbackInputStream(this), idSize).readList { readRecord() }
   return Profile(idSize, time, records)
 }
@@ -147,7 +147,7 @@ fun Reader.readStackTrace(): StackTrace {
   val stackTraceSerialNumber = readInt()
   val threadSerialNumber = readInt()
   val numberOfFrames = readInt()
-  val stackFrameIds = inputStream.list(numberOfFrames) { readId() }
+  val stackFrameIds = inputStream.readList(numberOfFrames) { readId() }
   return StackTrace(stackTraceSerialNumber, threadSerialNumber, stackFrameIds.toLongArray())
 }
 
@@ -240,11 +240,11 @@ fun Reader.readClassDump(): ClassDump {
   val reservedId2 = readId()
   val instanceSize = readInt()
   val constantsCount = readShort().toInt().and(0xffff)
-  val constants = inputStream.list(constantsCount) { readConstant() }
+  val constants = inputStream.readList(constantsCount) { readConstant() }
   val staticFieldsCount = readShort().toInt().and(0xffff)
-  val staticFields = inputStream.list(staticFieldsCount) { readStaticField() }
+  val staticFields = inputStream.readList(staticFieldsCount) { readStaticField() }
   val instanceFieldCount = readShort().toInt().and(0xffff)
-  val instanceFields = inputStream.list(instanceFieldCount) { readInstanceField() }
+  val instanceFields = inputStream.readList(instanceFieldCount) { readInstanceField() }
   return ClassDump(
     classObjectId,
     stackTraceSerialNumber,

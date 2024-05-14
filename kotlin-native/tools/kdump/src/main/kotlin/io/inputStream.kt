@@ -8,36 +8,39 @@ import java.io.EOFException
 import java.io.InputStream
 import java.io.PushbackInputStream
 
-/** Returns stream which reads from this stream up to given length. */
-fun InputStream.newWithSize(size: Int): InputStream =
-  let { base ->
-    object : InputStream() {
-      private var remaining = size
+/** Returns new input stream which will read up-to the given number of bytes from this stream. */
+fun InputStream.newWithLimit(limit: Int): InputStream = let { base ->
+  object : InputStream() {
+    var remaining = limit
 
-      override fun read(): Int =
-        if (remaining == 0) -1
-        else base.read().also {
-          if (it != -1) {
-            remaining -= 1
-          }
+    override fun read(): Int = when (remaining) {
+      0 -> -1
+      else -> base.read().also {
+        if (it != -1) {
+          remaining -= 1
         }
+      }
     }
   }
+}
 
-fun <V> InputStream.readWithSize(size: Int, fn: InputStream.() -> V): V =
-  newWithSize(size).let { stream ->
+/**
+ * Invokes the given function with an input stream which will read exactly the given number of bytes
+ * from this stream.
+ */
+fun <V> InputStream.readWithSize(size: Int, fn: InputStream.() -> V): V = run {
+  newWithLimit(size).let { stream ->
     stream.fn().also { stream.skipAll() }
   }
+}
 
-fun InputStream.readByteInt(): Int =
-  read().let { if (it == -1) throw EOFException() else it }
+fun InputStream.readByteInt(): Int = read().takeIf { it != -1 } ?: throw EOFException()
 
-fun InputStream.readByte(): Byte =
-  readByteInt().toByte()
+fun InputStream.readByte(): Byte = readByteInt().toByte()
 
 fun InputStream.readShortInt(endianness: Endianness): Int {
-  val i1 = readByteInt()
-  val i2 = readByteInt()
+  val i1 = this.readByteInt()
+  val i2 = this.readByteInt()
   return when (endianness) {
     LITTLE -> i2.shl(8).or(i1)
     BIG -> i1.shl(8).or(i2)
@@ -65,50 +68,7 @@ fun InputStream.readLong(endianness: Endianness): Long {
   }
 }
 
-fun InputStream.readFloat(endianness: Endianness): Float =
-  Float.fromBits(readInt(endianness))
-
-fun InputStream.readDouble(endianness: Endianness): Double =
-  Double.fromBits(readLong(endianness))
-
-fun InputStream.readChar(endianness: Endianness): Char =
-  readShortInt(endianness).toChar()
-
-fun InputStream.byte(): Byte =
-  readByte()
-
-fun InputStream.byteInt(): Int =
-  read().also { if (it == -1) throw EOFException() }
-
-fun InputStream.short(): Short {
-  val b1 = byteInt()
-  val b2 = byteInt()
-  return ((b1 shl 8) or b2).toShort()
-}
-
-fun InputStream.shortInt(): Int =
-  short().toInt().and(0xffff)
-
-fun InputStream.int(): Int {
-  val b1 = byteInt()
-  val b2 = byteInt()
-  val b3 = byteInt()
-  val b4 = byteInt()
-  return (b1 shl 24) or (b2 shl 16) or (b3 shl 8) or b4
-}
-
-fun InputStream.long(): Long {
-  val i1 = int().toLong().and(0xffffffffL)
-  val i2 = int().toLong().and(0xffffffffL)
-  return (i1 shl 32) or i2
-}
-
-fun InputStream.float(): Float = Float.fromBits(int())
-fun InputStream.double(): Double = Double.fromBits(long())
-fun InputStream.char(): Char = short().toInt().and(0xffff).toChar()
-fun InputStream.boolean(): Boolean = byteInt() != 0
-
-fun InputStream.byteArray(size: Int): ByteArray =
+fun InputStream.readByteArray(size: Int): ByteArray =
   ByteArray(size).also {
     var off = 0
     var len = size
@@ -129,14 +89,14 @@ fun InputStream.skipAll() {
   }
 }
 
-fun <V> InputStream.list(size: Int, fn: InputStream.() -> V): List<V> =
+fun <V> InputStream.readList(size: Int, fn: InputStream.() -> V): List<V> =
   buildList {
     repeat(size) {
       add(fn())
     }
   }
 
-fun InputStream.byteArray(): ByteArray =
+fun InputStream.readByteArray(): ByteArray =
   ByteArrayOutputStream().also {
     val byteArray = ByteArray(1024)
     while (true) {
@@ -146,27 +106,23 @@ fun InputStream.byteArray(): ByteArray =
     }
   }.toByteArray()
 
-fun InputStream.string(): String =
-  byteArray().toString(Charsets.UTF_8)
-
-fun InputStream.cString(): String =
+fun InputStream.readCString(): String =
   ByteArrayOutputStream().also {
     while (true) {
-      val byte = byteInt()
+      val byte = this.readByteInt()
       if (byte == 0) break
-      it.write(byte.toInt())
+      it.write(byte)
     }
   }.toByteArray().toString(Charsets.UTF_8)
 
-fun PushbackInputStream.peek(): Int =
-  read().also { unread(it) }
+fun PushbackInputStream.peek(): Int = read().also { unread(it) }
 
-fun PushbackInputStream.eof(): Boolean =
+fun PushbackInputStream.isEof(): Boolean =
   peek() == -1
 
-fun <V> PushbackInputStream.list(fn: PushbackInputStream.() -> V): List<V> =
+fun <V> PushbackInputStream.readList(fn: PushbackInputStream.() -> V): List<V> =
   buildList {
-    while (!eof()) {
+    while (!isEof()) {
       add(fn())
     }
   }

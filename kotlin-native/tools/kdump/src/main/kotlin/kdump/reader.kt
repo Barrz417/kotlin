@@ -5,12 +5,12 @@ import java.io.*
 import io.*
 
 fun InputStream.readEndianness(): Endianness {
-  val byte = byteInt()
+  val byte = this.readByteInt()
   return if (byte.and(1) != 0) Endianness.LITTLE else Endianness.BIG
 }
 
 fun InputStream.readIdSize(): IdSize {
-  val size = byteInt()
+  val size = this.readByteInt()
   return when (size) {
     1 -> IdSize.BITS_8
     2 -> IdSize.BITS_16
@@ -21,7 +21,7 @@ fun InputStream.readIdSize(): IdSize {
 }
 
 fun InputStream.readDump(): Dump {
-  val headerString = cString().also {
+  val headerString = readCString().also {
     if (it != "Kotlin/Native dump 1.0.5") {
       throw IOException("invalid header \"$it\"")
     }
@@ -63,20 +63,20 @@ fun Reader.readLong(): Long =
   inputStream.readLong(endianness)
 
 fun Reader.readByteArray(size: Int): ByteArray =
-  inputStream.byteArray(size)
+  inputStream.readByteArray(size)
 
 fun <T> Reader.readList(fn: Reader.() -> T): List<T> =
-  PushbackInputStream(inputStream).list {
+  PushbackInputStream(inputStream).readList {
     copy(inputStream = this).fn()
   }
 
 fun <T> Reader.readList(size: Int, fn: Reader.() -> T): List<T> =
-  inputStream.list(size) {
+  inputStream.readList(size) {
     copy(inputStream = this).fn()
   }
 
 fun Reader.readString(): String =
-  inputStream.cString()
+  inputStream.readCString()
 
 fun Reader.readRootSource(): GlobalRoot.Source =
   readByteInt().let { int ->
