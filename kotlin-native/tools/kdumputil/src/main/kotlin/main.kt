@@ -25,6 +25,7 @@ fun main(args: Iterator<String>) {
           }
         }
       }
+
     "convert" ->
       args.nextOrNull()?.let { inFormat ->
         args.nextOrNull()?.let { inPathname ->
@@ -36,12 +37,14 @@ fun main(args: Iterator<String>) {
                     "hprof" -> mainConvertKdumpHprof(inPathname, outPathname)
                     else -> null
                   }
+
                 else -> null
               }
             }
           }
         }
       }
+
     else -> null
   } ?: mainUsage()
 }
@@ -63,10 +66,10 @@ fun mainPrintHprof(pathname: String) {
 
 fun mainConvertKdumpHprof(inPathname: String, outPathname: String) {
   File(inPathname)
-          .inputStream()
-          .buffered()
-          .let { PushbackInputStream(it) }
-          .readDump()
-          .toHProfProfile()
-          .run { File(outPathname).write(this) }
+    .inputStream()
+    .buffered()
+    .let { PushbackInputStream(it) }
+    .readDump()
+    .toHProfProfile()
+    .run { File(outPathname).write(this) }
 }

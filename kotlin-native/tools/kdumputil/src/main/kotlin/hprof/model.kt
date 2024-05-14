@@ -18,19 +18,19 @@ data class Profile(
 data class UnknownRecord(
   val tag: Int,
   val byteArray: ByteArray,
-): Profile.Record()
+) : Profile.Record()
 
 data class StringConstant(
   val id: Long,
   val string: String,
-): Profile.Record()
+) : Profile.Record()
 
 data class LoadClass(
   val classSerialNumber: Int,
   val classObjectId: Long,
   val stackTraceSerialNumber: Int = 0,
   val classNameStringId: Long,
-): Profile.Record()
+) : Profile.Record()
 
 data class StackFrame(
   val stackFrameId: Long,
@@ -39,13 +39,13 @@ data class StackFrame(
   val sourceFileNameStringId: Long,
   val classSerialNumber: Int,
   val lineNumber: Int,
-): Profile.Record()
+) : Profile.Record()
 
 data class StackTrace(
   val serialNumber: Int,
   val threadSerialNumber: Int,
   val stackFrameIds: LongArray,
-): Profile.Record()
+) : Profile.Record()
 
 data class StartThread(
   val threadSerialNumber: Int,
@@ -54,50 +54,50 @@ data class StartThread(
   val threadNameStringId: Long = 0,
   val threadGroupNameId: Long = 0,
   val threadParentGroupNameId: Long = 0,
-): Profile.Record()
+) : Profile.Record()
 
 data class HeapDump(
   val records: List<HeapDump.Record>,
-): Profile.Record() {
+) : Profile.Record() {
   sealed class Record
 }
 
 data class HeapDumpSection(
   val records: List<HeapDump.Record>,
-): Profile.Record()
+) : Profile.Record()
 
-object HeapDumpEnd: Profile.Record()
+object HeapDumpEnd : Profile.Record()
 
 data class RootUnknown(
   val objectId: Long,
-): HeapDump.Record()
+) : HeapDump.Record()
 
 data class RootJniGlobal(
   val objectId: Long,
   val refId: Long,
-): HeapDump.Record()
+) : HeapDump.Record()
 
 data class RootJniLocal(
   val objectId: Long,
   val threadSerialNumber: Int,
   val threadFrameNumber: Int,
-): HeapDump.Record()
+) : HeapDump.Record()
 
 data class RootStickyClass(
   val objectId: Long,
-): HeapDump.Record()
+) : HeapDump.Record()
 
 data class RootJavaFrame(
   val objectId: Long,
   val threadSerialNumber: Int,
   val frameNumber: Int,
-): HeapDump.Record()
+) : HeapDump.Record()
 
 data class RootThreadObject(
   val threadObjectId: Long,
   val threadSerialNumber: Int,
   val stackTraceSerialNumber: Int,
-): HeapDump.Record()
+) : HeapDump.Record()
 
 data class ClassDump(
   val classObjectId: Long,
@@ -112,7 +112,7 @@ data class ClassDump(
   val constants: List<Constant> = listOf(),
   val staticFields: List<StaticField> = listOf(),
   val instanceFields: List<InstanceField> = listOf(),
-): HeapDump.Record()
+) : HeapDump.Record()
 
 data class Constant(
   val index: Short,
@@ -148,7 +148,7 @@ data class InstanceDump(
   val stackTraceSerialNumber: Int = 0,
   val classObjectId: Long,
   val byteArray: ByteArray = byteArrayOf(),
-): HeapDump.Record()
+) : HeapDump.Record()
 
 data class ObjectArrayDump(
   val arrayObjectId: Long,
@@ -156,7 +156,7 @@ data class ObjectArrayDump(
   val numberOfElements: Int,
   val arrayClassObjectId: Long,
   val byteArray: ByteArray,
-): HeapDump.Record()
+) : HeapDump.Record()
 
 data class PrimitiveArrayDump(
   val arrayObjectId: Long,
@@ -164,15 +164,16 @@ data class PrimitiveArrayDump(
   val numberOfElements: Int = 0,
   val arrayElementType: Type = Type.BYTE,
   val byteArray: ByteArray = ByteArray(numberOfElements * arrayElementType.primitiveSize),
-): HeapDump.Record()
+) : HeapDump.Record()
 
-val IdSize.size: Int get() =
-  when (this) {
-    IdSize.BYTE -> 1
-    IdSize.SHORT -> 2
-    IdSize.INT -> 4
-    IdSize.LONG -> 8
-  }
+val IdSize.size: Int
+  get() =
+    when (this) {
+      IdSize.BYTE -> 1
+      IdSize.SHORT -> 2
+      IdSize.INT -> 4
+      IdSize.LONG -> 8
+    }
 
 fun Type.size(idSize: IdSize): Int =
   when (this) {
@@ -187,15 +188,16 @@ fun Type.size(idSize: IdSize): Int =
     Type.DOUBLE -> 8
   }
 
-val Type.primitiveSize: Int get() =
-  when (this) {
-    Type.OBJECT -> throw IllegalArgumentException()
-    Type.BOOLEAN -> 1
-    Type.CHAR -> 2
-    Type.BYTE -> 1
-    Type.SHORT -> 2
-    Type.INT -> 4
-    Type.LONG -> 8
-    Type.FLOAT -> 4
-    Type.DOUBLE -> 8
-  }
+val Type.primitiveSize: Int
+  get() =
+    when (this) {
+      Type.OBJECT -> throw IllegalArgumentException()
+      Type.BOOLEAN -> 1
+      Type.CHAR -> 2
+      Type.BYTE -> 1
+      Type.SHORT -> 2
+      Type.INT -> 4
+      Type.LONG -> 8
+      Type.FLOAT -> 4
+      Type.DOUBLE -> 8
+    }

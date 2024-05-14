@@ -28,11 +28,11 @@ fun InputStream.newWithLimit(limit: Int): InputStream = let { base ->
  * Invokes the given function with an input stream which will read exactly the given number of bytes
  * from this stream.
  */
-fun <V> InputStream.readWithSize(size: Int, fn: InputStream.() -> V): V = run {
+fun <V> InputStream.readWithSize(size: Int, fn: InputStream.() -> V): V =
   newWithLimit(size).let { stream ->
     stream.fn().also { stream.skipAll() }
   }
-}
+
 
 fun InputStream.readByteInt(): Int = read().takeIf { it != -1 } ?: throw EOFException()
 

@@ -52,12 +52,14 @@ fun Pretty.item(item: Item) {
         field("relative name") { literal(item.relativeName) }
         field("body") { item(item.body) }
       }
+
     is ObjectItem ->
       struct("object") {
         field("id") { id(item.id) }
         field("type id") { id(item.typeId) }
         struct("bytes") { binary(item.byteArray) }
       }
+
     is ArrayItem ->
       struct("array") {
         field("id") { id(item.id) }
@@ -65,21 +67,25 @@ fun Pretty.item(item: Item) {
         field("count") { decimal(item.count) }
         struct("bytes") { binary(item.byteArray) }
       }
+
     is ExtraObject ->
       struct("extra object") {
         field("id") { id(item.id) }
         field("base object id") { id(item.baseObjectId) }
         field("associated object id") { id(item.associatedObjectId) }
       }
+
     is GlobalRoot ->
       struct("global root") {
         field("source") { name(item.source) }
         field("object id") { id(item.objectId) }
       }
+
     is Thread ->
-    struct("thread") {
-      field("id") { id(item.id) }
-    }
+      struct("thread") {
+        field("id") { id(item.id) }
+      }
+
     is ThreadRoot ->
       struct("thread root") {
         field("thread id") { id(item.threadId) }
@@ -95,6 +101,7 @@ fun Pretty.item(body: Type.Body) {
       field("element size") { decimal(body.elementSize) }
       body.extra?.let { item(it) }
     }
+
     is Type.Body.Object -> struct("object") {
       field("instance size") { decimal(body.instanceSize) }
       body.extra?.let { item(it) }

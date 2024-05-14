@@ -27,13 +27,15 @@ import base.*
 const val ADD_JAVA_LANG_STRINGS = true
 
 private val hprofIdSize = HProfIdSize.LONG
+
 private val HProfType.size: Int get() = hprofSize(hprofIdSize)
 
 fun MemoryDump.newConverter(): Converter =
   Converter(
     endianness = Endianness.LITTLE,
     idSize = IdSize.BITS_64,
-    idToItemMap = items.asSequence().mapNotNull { item -> item.idOrNull?.let { id -> id to item } }.toMap(),
+    idToItemMap = items.asSequence().mapNotNull { item -> item.idOrNull?.let { id -> id to item } }
+      .toMap(),
     time = System.currentTimeMillis(),
   )
 
@@ -83,23 +85,32 @@ data class Converter(
     when (runtimeType) {
       RuntimeType.OBJECT ->
         writeHProfObjectValue(outputStream, byteArray, index)
+
       RuntimeType.INT_8 ->
         outputStream.writeByte(byteArray.get(index))
+
       RuntimeType.INT_16 ->
         outputStream.writeShort(byteArray.getShort(index, endianness), Endianness.BIG)
+
       RuntimeType.INT_32 ->
         outputStream.writeInt(byteArray.getInt(index, endianness), Endianness.BIG)
+
       RuntimeType.INT_64 ->
         outputStream.writeLong(byteArray.getLong(index, endianness), Endianness.BIG)
+
       RuntimeType.FLOAT_32 ->
         outputStream.writeFloat(byteArray.getFloat(index, endianness), Endianness.BIG)
+
       RuntimeType.FLOAT_64 ->
         outputStream.writeDouble(byteArray.getDouble(index, endianness), Endianness.BIG)
+
       RuntimeType.NATIVE_PTR ->
         // TODO: Convert to ID.
         outputStream.writeLong(byteArray.getLong(index, endianness), Endianness.BIG)
+
       RuntimeType.BOOLEAN ->
         outputStream.writeByte(byteArray.get(index))
+
       RuntimeType.VECTOR_128 ->
         when (endianness) {
           Endianness.BIG -> {
@@ -108,6 +119,7 @@ data class Converter(
             outputStream.writeInt(byteArray.getInt(index + 8, endianness), Endianness.BIG)
             outputStream.writeInt(byteArray.getInt(index + 12, endianness), Endianness.BIG)
           }
+
           Endianness.LITTLE -> {
             outputStream.writeInt(byteArray.getInt(index + 12, endianness), Endianness.BIG)
             outputStream.writeInt(byteArray.getInt(index + 8, endianness), Endianness.BIG)
@@ -149,22 +161,22 @@ data class Converter(
   }
 
   fun id(string: String): Long =
-    stringToIdMutableMap[string] ?:
-      stringToIdMutableMap
-        .size
-        .toLong()
-        .inc()
-        .times(8)
-        .or(0x100000000L)
-        .also { id ->
-          stringToIdMutableMap[string] = id
-          idToStringMutableMap[id] = string
-          hprofProfileRecords.add(HProfStringConstant(id, string))
-        }
+    stringToIdMutableMap[string] ?: stringToIdMutableMap
+      .size
+      .toLong()
+      .inc()
+      .times(8)
+      .or(0x100000000L)
+      .also { id ->
+        stringToIdMutableMap[string] = id
+        idToStringMutableMap[id] = string
+        hprofProfileRecords.add(HProfStringConstant(id, string))
+      }
 
   fun hprofObjectId(id: Long): Long =
     if (id == 0L) 0L
-    else idToHProfIdMutableMap[id] ?: newHProfObjectId(item(id).size(idSize)!!).also { idToHProfIdMutableMap[id] = it }
+    else idToHProfIdMutableMap[id]
+      ?: newHProfObjectId(item(id).size(idSize)!!).also { idToHProfIdMutableMap[id] = it }
 
   fun extraClassObjectId(className: String): Long =
     extraClassObjectIds.getOrPut(className) {
@@ -199,7 +211,9 @@ data class Converter(
               RuntimeType.NATIVE_PTR -> ClassName.Array.LONG
               RuntimeType.BOOLEAN -> ClassName.Array.BOOLEAN
               RuntimeType.VECTOR_128 -> ClassName.Array.INT
-            })
+            }
+          )
+
         is Type.Body.Object ->
           when {
             else -> hprofObjectId(type.id)
@@ -260,7 +274,10 @@ data class Converter(
       listOf(
         HProfInstanceField(
           nameStringId = id("value"),
-          type = HProfType.OBJECT)))
+          type = HProfType.OBJECT
+        )
+      )
+    )
 
     addSyntheticClass(
       ClassName.EXTRA_OBJECT,
@@ -268,10 +285,14 @@ data class Converter(
       listOf(
         HProfInstanceField(
           nameStringId = id("baseObject"),
-          type = HProfType.OBJECT),
+          type = HProfType.OBJECT
+        ),
         HProfInstanceField(
           nameStringId = id("associatedObject"),
-          type = HProfType.LONG)))
+          type = HProfType.LONG
+        )
+      )
+    )
 
     if (ADD_JAVA_LANG_STRINGS) {
       addJavaLangStringIds(memoryDump)
@@ -317,14 +338,18 @@ data class Converter(
         classSerialNumber = nextClassSerialNumber(),
         classObjectId = classObjectId,
         stackTraceSerialNumber = 0,
-        classNameStringId = id(className)))
+        classNameStringId = id(className)
+      )
+    )
 
     hprofHeapDumpRecords.add(
       HProfClassDump(
         classObjectId = classObjectId,
         superClassObjectId = superClassObjectId,
         instanceSize = instanceSize,
-        instanceFields = instanceFields))
+        instanceFields = instanceFields
+      )
+    )
   }
 
   fun add(item: Item) {
@@ -362,7 +387,9 @@ data class Converter(
       HProfStartThread(
         threadSerialNumber = threadSerialNumber,
         threadObjectId = threadObjectId,
-        threadNameStringId = id("thread-$threadSerialNumber")))
+        threadNameStringId = id("thread-$threadSerialNumber")
+      )
+    )
 
     val stackFrameId = newHProfObjectId(32) // Some approximation
     hprofProfileRecords.add(
@@ -372,13 +399,17 @@ data class Converter(
         methodSignatureStringId = id("()V"),
         sourceFileNameStringId = 0,
         classSerialNumber = 0,
-        lineNumber = 0))
+        lineNumber = 0
+      )
+    )
 
     hprofProfileRecords.add(
       HProfStackTrace(
         serialNumber = stackTraceSerialNumber,
         threadSerialNumber = threadSerialNumber,
-        stackFrameIds = longArrayOf(stackFrameId)))
+        stackFrameIds = longArrayOf(stackFrameId)
+      )
+    )
 
     hprofHeapDumpRecords.add(
       HProfInstanceDump(
@@ -396,14 +427,18 @@ data class Converter(
       HProfRootThreadObject(
         threadObjectId = threadObjectId,
         threadSerialNumber = threadSerialNumber,
-        stackTraceSerialNumber = stackTraceSerialNumber))
+        stackTraceSerialNumber = stackTraceSerialNumber
+      )
+    )
   }
 
   fun addItem(globalRoot: GlobalRoot) {
     hprofHeapDumpRecords.add(
       HProfRootJniGlobal(
         objectId = hprofObjectReferenceId(globalRoot.objectId),
-        refId = hprofObjectReferenceId(globalRoot.objectId)))
+        refId = hprofObjectReferenceId(globalRoot.objectId)
+      )
+    )
   }
 
   fun addItem(threadRoot: ThreadRoot) {
@@ -411,7 +446,9 @@ data class Converter(
       HProfRootJavaFrame(
         objectId = hprofObjectReferenceId(threadRoot.objectId),
         threadSerialNumber = threadSerialNumber(threadRoot.threadId),
-        frameNumber = 0))
+        frameNumber = 0
+      )
+    )
   }
 
   fun addItem(type: Type) {
@@ -419,12 +456,15 @@ data class Converter(
       is Type.Body.Array -> {
         // All array types are synthesized.
       }
+
       is Type.Body.Object -> {
         hprofProfileRecords.add(hprofLoadClass(type))
 
         hprofHeapDumpRecords.add(
           HProfRootStickyClass(
-            objectId = hprofClassObjectId(type)))
+            objectId = hprofClassObjectId(type)
+          )
+        )
 
         hprofHeapDumpRecords.add(hprofClassDump(type))
       }
@@ -440,7 +480,8 @@ data class Converter(
       classSerialNumber = nextClassSerialNumber(),
       classObjectId = hprofClassObjectId(type),
       stackTraceSerialNumber = 0,
-      classNameStringId = id(className))
+      classNameStringId = id(className)
+    )
   }
 
   fun hprofClassDump(type: Type): HProfClassDump =
@@ -450,7 +491,8 @@ data class Converter(
           HProfClassDump(
             classObjectId = hprofClassObjectId(type),
             stackTraceSerialNumber = 0,
-            superClassObjectId = superType(type)?.let { hprofClassObjectId(it) } ?: extraClassObjectId(ClassName.OBJECT),
+            superClassObjectId = superType(type)?.let { hprofClassObjectId(it) }
+              ?: extraClassObjectId(ClassName.OBJECT),
             classLoaderObjectId = 0L,
             signersObjectId = 0L,
             protectionDomainObjectId = 0L,
@@ -460,6 +502,7 @@ data class Converter(
             constants = listOf(),
             staticFields = listOf(),
             instanceFields = hprofInstanceFields(type))
+
         is Type.Body.Array ->
           throw IllegalStateException("Array classes are synthesized.")
       }
@@ -475,7 +518,8 @@ data class Converter(
     field.type.hprofTypes.map { hprofType ->
       HProfInstanceField(
         nameStringId = id(field.name), // TODO: Add prefix to each vector component
-        type = hprofType)
+        type = hprofType
+      )
     }
 
   fun directFields(type: Type): List<Field> =
@@ -516,10 +560,18 @@ data class Converter(
     } else when (type.relativeName) {
       "Array" ->
         hprofObjectArrayDump(objectId, hprofClassObjectId(type), byteArray, offset, count)
+
       else -> {
         val (runtimeElementType, hprofElementType) =
           type.relativeName.primitiveArrayClassNameToElementTypePair()
-        hprofPrimitiveArrayDump(objectId, hprofElementType, byteArray, offset, count, runtimeElementType)
+        hprofPrimitiveArrayDump(
+          objectId,
+          hprofElementType,
+          byteArray,
+          offset,
+          count,
+          runtimeElementType
+        )
       }
     }
   }

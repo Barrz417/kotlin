@@ -81,7 +81,8 @@ fun HProfWriter.write(type: Type) {
       Type.LONG -> Binary.Type.LONG
       Type.FLOAT -> Binary.Type.FLOAT
       Type.DOUBLE -> Binary.Type.DOUBLE
-    }.toByte())
+    }.toByte()
+  )
 }
 
 fun HProfWriter.writeProfileRecord(tag: Int, fn: HProfWriter.() -> Unit) {
@@ -97,13 +98,23 @@ fun HProfWriter.writeProfileRecord(tag: Int, fn: HProfWriter.() -> Unit) {
 fun HProfWriter.write(it: Profile.Record) {
   when (it) {
     is UnknownRecord -> writeProfileRecord(it.tag) { writeBody(it) }
-    is StringConstant -> writeProfileRecord(Binary.Profile.Record.Tag.STRING_CONSTANT) { writeBody(it) }
+    is StringConstant -> writeProfileRecord(Binary.Profile.Record.Tag.STRING_CONSTANT) {
+      writeBody(
+        it
+      )
+    }
+
     is LoadClass -> writeProfileRecord(Binary.Profile.Record.Tag.LOAD_CLASS) { writeBody(it) }
     is StackFrame -> writeProfileRecord(Binary.Profile.Record.Tag.STACK_FRAME) { writeBody(it) }
     is StackTrace -> writeProfileRecord(Binary.Profile.Record.Tag.STACK_TRACE) { writeBody(it) }
     is StartThread -> writeProfileRecord(Binary.Profile.Record.Tag.START_THREAD) { writeBody(it) }
     is HeapDump -> writeProfileRecord(Binary.Profile.Record.Tag.HEAP_DUMP) { writeBody(it) }
-    is HeapDumpSection -> writeProfileRecord(Binary.Profile.Record.Tag.HEAP_DUMP_SECTION) { writeBody(it) }
+    is HeapDumpSection -> writeProfileRecord(Binary.Profile.Record.Tag.HEAP_DUMP_SECTION) {
+      writeBody(
+        it
+      )
+    }
+
     is HeapDumpEnd -> writeProfileRecord(Binary.Profile.Record.Tag.HEAP_DUMP_END) { writeBody(it) }
   }
 }
@@ -164,15 +175,44 @@ fun HProfWriter.writeBody(@Suppress("UNUSED_PARAMETER") it: HeapDumpEnd) {
 fun HProfWriter.write(it: HeapDump.Record) {
   when (it) {
     is RootUnknown -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.ROOT_UNKNOWN) { writeBody(it) }
-    is RootJniGlobal -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.ROOT_JNI_GLOBAL) { writeBody(it) }
+    is RootJniGlobal -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.ROOT_JNI_GLOBAL) {
+      writeBody(
+        it
+      )
+    }
+
     is RootJniLocal -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.ROOT_JNI_LOCAL) { writeBody(it) }
-    is RootJavaFrame -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.ROOT_JAVA_FRAME) { writeBody(it) }
-    is RootStickyClass -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.ROOT_STICKY_CLASS) { writeBody(it) }
-    is RootThreadObject -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.ROOT_THREAD_OBJECT) { writeBody(it) }
+    is RootJavaFrame -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.ROOT_JAVA_FRAME) {
+      writeBody(
+        it
+      )
+    }
+
+    is RootStickyClass -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.ROOT_STICKY_CLASS) {
+      writeBody(
+        it
+      )
+    }
+
+    is RootThreadObject -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.ROOT_THREAD_OBJECT) {
+      writeBody(
+        it
+      )
+    }
+
     is ClassDump -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.CLASS_DUMP) { writeBody(it) }
     is InstanceDump -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.INSTANCE_DUMP) { writeBody(it) }
-    is ObjectArrayDump -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.OBJECT_ARRAY_DUMP) { writeBody(it) }
-    is PrimitiveArrayDump -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.PRIMITIVE_ARRAY_DUMP) { writeBody(it) }
+    is ObjectArrayDump -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.OBJECT_ARRAY_DUMP) {
+      writeBody(
+        it
+      )
+    }
+
+    is PrimitiveArrayDump -> writeHeapDumpRecord(Binary.HeapDump.Record.Tag.PRIMITIVE_ARRAY_DUMP) {
+      writeBody(
+        it
+      )
+    }
   }
 }
 

@@ -3,7 +3,7 @@ package text
 fun appendableString(fn: Appendable.() -> Unit) = StringBuilder().apply { fn() }.toString()
 
 /** Appendable with default char-sequence functions. */
-interface CharAppendable: Appendable {
+interface CharAppendable : Appendable {
   override fun append(csq: CharSequence?) = apply {
     (csq ?: "null").forEach { append(it) }
   }

@@ -37,13 +37,13 @@ data class Type(
   val packageName: String,
   val relativeName: String,
   val body: Body,
-): Item() {
+) : Item() {
   sealed class Body {
-    data class Object(val instanceSize: Int, val extra: Extra?): Body() {
+    data class Object(val instanceSize: Int, val extra: Extra?) : Body() {
       data class Extra(val fields: List<Field>)
     }
 
-    data class Array(val elementSize: Int, val extra: Extra?): Body() {
+    data class Array(val elementSize: Int, val extra: Extra?) : Body() {
       data class Extra(val elementType: RuntimeType)
     }
   }
@@ -51,30 +51,31 @@ data class Type(
   val isArray: Boolean get() = body is Body.Array
 
   // TODO: Remove when not needed
-  val fields: List<Field>? get() = when (body) {
-    is Body.Object -> body.extra?.fields
-    is Body.Array -> null
-  }
+  val fields: List<Field>?
+    get() = when (body) {
+      is Body.Object -> body.extra?.fields
+      is Body.Array -> null
+    }
 }
 
 data class ObjectItem(
   val id: Long,
   val typeId: Long,
   val byteArray: ByteArray,
-): Item()
+) : Item()
 
 data class ArrayItem(
   val id: Long,
   val typeId: Long,
   val count: Int,
   val byteArray: ByteArray,
-): Item()
+) : Item()
 
 data class ExtraObject(
   val id: Long,
   val baseObjectId: Long,
   val associatedObjectId: Long,
-): Item()
+) : Item()
 
 data class Field(
   val offset: Int,
@@ -84,12 +85,12 @@ data class Field(
 
 data class Thread(
   val id: Long,
-): Item()
+) : Item()
 
 data class GlobalRoot(
   val source: Source,
   val objectId: Long,
-): Item() {
+) : Item() {
   enum class Source { GLOBAL, STABLE_REF }
 }
 
@@ -97,6 +98,6 @@ data class ThreadRoot(
   val threadId: Long,
   val source: Source,
   val objectId: Long,
-): Item() {
+) : Item() {
   enum class Source { STACK, THREAD_LOCAL }
 }

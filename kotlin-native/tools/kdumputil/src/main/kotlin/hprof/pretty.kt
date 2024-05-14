@@ -17,12 +17,15 @@ fun Pretty.item(record: Profile.Record) {
       struct("heap dump") {
         record.records.forEach { item(it) }
       }
+
     HeapDumpEnd ->
       struct("head dump end") {}
+
     is HeapDumpSection ->
       struct("heap dump section") {
         record.records.forEach { item(it) }
       }
+
     is LoadClass ->
       struct("load class") {
         field("class serial number") { decimal(record.classSerialNumber) }
@@ -30,6 +33,7 @@ fun Pretty.item(record: Profile.Record) {
         field("stack trace serial number") { decimal(record.stackTraceSerialNumber) }
         field("class name string id") { hexadecimal(record.classNameStringId) }
       }
+
     is StackFrame ->
       struct("stack frame") {
         field("stack frame id") { hexadecimal(record.stackFrameId) }
@@ -39,12 +43,14 @@ fun Pretty.item(record: Profile.Record) {
         field("class serial number") { decimal(record.classSerialNumber) }
         field("line number") { decimal(record.lineNumber) }
       }
+
     is StackTrace ->
       struct("stack trace") {
         field("serial number") { decimal(record.serialNumber) }
         field("thread serial number") { decimal(record.threadSerialNumber) }
         struct("stack frame ids") { record.stackFrameIds.forEach { hexadecimal(it) } }
       }
+
     is StartThread ->
       struct("start thread") {
         field("thread serial number") { decimal(record.threadSerialNumber) }
@@ -53,11 +59,13 @@ fun Pretty.item(record: Profile.Record) {
         field("thread group name id") { hexadecimal(record.threadGroupNameId) }
         field("thread parent group name id ") { hexadecimal(record.threadParentGroupNameId) }
       }
+
     is StringConstant ->
       struct("string constant") {
         field("id") { hexadecimal(record.id) }
         field("string") { literal(record.string) }
       }
+
     is UnknownRecord ->
       struct("unknown record") {
         field("tag") { hexadecimal(record.tag) }
@@ -83,6 +91,7 @@ fun Pretty.item(record: HeapDump.Record) {
         struct("static fields") { record.staticFields.forEach { item(it) } }
         struct("instance fields") { record.instanceFields.forEach { item(it) } }
       }
+
     is InstanceDump ->
       struct("instance dump") {
         field("object id") { hexadecimal(record.objectId) }
@@ -90,6 +99,7 @@ fun Pretty.item(record: HeapDump.Record) {
         field("class object id") { hexadecimal(record.classObjectId) }
         field("byte array") { binary(record.byteArray) }
       }
+
     is ObjectArrayDump ->
       struct("object array dump") {
         field("array object id") { hexadecimal(record.arrayObjectId) }
@@ -98,6 +108,7 @@ fun Pretty.item(record: HeapDump.Record) {
         field("array class object id") { hexadecimal(record.arrayClassObjectId) }
         field("byte array") { binary(record.byteArray) }
       }
+
     is PrimitiveArrayDump ->
       struct("primitive array dump") {
         field("array object id") { hexadecimal(record.arrayObjectId) }
@@ -106,33 +117,39 @@ fun Pretty.item(record: HeapDump.Record) {
         field("array element type") { name(record.arrayElementType) }
         field("byte array") { binary(record.byteArray) }
       }
+
     is RootJavaFrame ->
       struct("root java frame") {
         field("object id") { hexadecimal(record.objectId) }
         field("thread serial number") { decimal(record.threadSerialNumber) }
         field("frame number") { decimal(record.frameNumber) }
       }
+
     is RootJniGlobal ->
       struct("root jni global") {
         field("object id") { hexadecimal(record.objectId) }
         field("ref id") { decimal(record.refId) }
       }
+
     is RootJniLocal ->
       struct("root jni local") {
         field("object id") { hexadecimal(record.objectId) }
         field("thread serial number") { decimal(record.threadSerialNumber) }
         field("thread frame number") { decimal(record.threadFrameNumber) }
       }
+
     is RootStickyClass ->
       struct("root sticky class") {
         field("object id") { hexadecimal(record.objectId) }
       }
+
     is RootThreadObject ->
       struct("root thread object") {
         field("thread object id") { hexadecimal(record.threadObjectId) }
         field("thread serial number") { decimal(record.threadSerialNumber) }
         field("stack trace serial number") { decimal(record.stackTraceSerialNumber) }
       }
+
     is RootUnknown ->
       struct("root unknown") {
         field("object id") { hexadecimal(record.objectId) }

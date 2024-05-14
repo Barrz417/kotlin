@@ -140,7 +140,8 @@ fun Reader.readStackFrame(): StackFrame {
     methodSignatureStringId,
     sourceFileNameStringId,
     classSerialNumber,
-    lineNumber)
+    lineNumber
+  )
 }
 
 fun Reader.readStackTrace(): StackTrace {
@@ -164,7 +165,8 @@ fun Reader.readStartThread(): StartThread {
     stackTraceSerialNumber,
     threadNameStringId,
     threadGroupNameId,
-    threadParentGroupNameId)
+    threadParentGroupNameId
+  )
 }
 
 fun Reader.readHeapDump(): HeapDump {
@@ -257,7 +259,8 @@ fun Reader.readClassDump(): ClassDump {
     instanceSize,
     constants,
     staticFields,
-    instanceFields)
+    instanceFields
+  )
 }
 
 fun Reader.readConstant(): Constant {
@@ -295,7 +298,13 @@ fun Reader.readObjectArrayDump(): ObjectArrayDump {
   val numberOfElement = readInt()
   val arrayClassObjectId = readId()
   val byteArray = readByteArray(Type.OBJECT.size(idSize) * numberOfElement)
-  return ObjectArrayDump(arrayObjectId, stackTraceSerialNumber, numberOfElement, arrayClassObjectId, byteArray)
+  return ObjectArrayDump(
+    arrayObjectId,
+    stackTraceSerialNumber,
+    numberOfElement,
+    arrayClassObjectId,
+    byteArray
+  )
 }
 
 fun Reader.readPrimitiveArrayDump(): PrimitiveArrayDump {
@@ -304,5 +313,11 @@ fun Reader.readPrimitiveArrayDump(): PrimitiveArrayDump {
   val numberOfElement = readInt()
   val arrayElementType = readType()
   val byteArray = readByteArray(arrayElementType.size(idSize) * numberOfElement)
-  return PrimitiveArrayDump(arrayObjectId, stackTraceSerialNumber, numberOfElement, arrayElementType, byteArray)
+  return PrimitiveArrayDump(
+    arrayObjectId,
+    stackTraceSerialNumber,
+    numberOfElement,
+    arrayElementType,
+    byteArray
+  )
 }

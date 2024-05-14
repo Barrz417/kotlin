@@ -18,6 +18,7 @@ fun OutputStream.writeShort(s: Short, endianness: Endianness) {
       write(s.toInt().shr(0).and(0xff))
       write(s.toInt().shr(8).and(0xff))
     }
+
     Endianness.BIG -> {
       write(s.toInt().shr(8).and(0xff))
       write(s.toInt().shr(0).and(0xff))
@@ -33,6 +34,7 @@ fun OutputStream.writeInt(i: Int, endianness: Endianness) {
       write(i shr 16 and 0xff)
       write(i shr 24 and 0xff)
     }
+
     Endianness.BIG -> {
       write(i shr 24 and 0xff)
       write(i shr 16 and 0xff)
@@ -54,6 +56,7 @@ fun OutputStream.writeLong(i: Long, endianness: Endianness) {
       write((i shr 48 and 0xff).toInt())
       write((i shr 56 and 0xff).toInt())
     }
+
     Endianness.BIG -> {
       write((i shr 56 and 0xff).toInt())
       write((i shr 48 and 0xff).toInt())

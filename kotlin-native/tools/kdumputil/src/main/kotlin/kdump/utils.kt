@@ -1,12 +1,13 @@
 package kdump
 
-val IdSize.byteCount: Int get() =
-  when (this) {
-    IdSize.BITS_8 -> 1
-    IdSize.BITS_16 -> 2
-    IdSize.BITS_32 -> 4
-    IdSize.BITS_64 -> 8
-  }
+val IdSize.byteCount: Int
+  get() =
+    when (this) {
+      IdSize.BITS_8 -> 1
+      IdSize.BITS_16 -> 2
+      IdSize.BITS_32 -> 4
+      IdSize.BITS_64 -> 8
+    }
 
 fun RuntimeType.size(idSize: IdSize): Int =
   when (this) {
@@ -33,16 +34,18 @@ fun Item.size(idSize: IdSize): Int? =
     is ThreadRoot -> null
   }
 
-val Type.isKotlinString: Boolean get() =
-  packageName == "kotlin" && relativeName == "String"
+val Type.isKotlinString: Boolean
+  get() =
+    packageName == "kotlin" && relativeName == "String"
 
-val Item.idOrNull: Long? get() =
-  when (this) {
-    is Type -> id
-    is ObjectItem -> id
-    is ArrayItem -> id
-    is ExtraObject -> id
-    is Thread -> id
-    is GlobalRoot -> null
-    is ThreadRoot -> null
-  }
+val Item.idOrNull: Long?
+  get() =
+    when (this) {
+      is Type -> id
+      is ObjectItem -> id
+      is ArrayItem -> id
+      is ExtraObject -> id
+      is Thread -> id
+      is GlobalRoot -> null
+      is ThreadRoot -> null
+    }

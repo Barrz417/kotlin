@@ -112,7 +112,8 @@ fun Reader.readItem(): Item =
           }
           Type.Body.Array(
             elementSize = elementSize,
-            extra = extra)
+            extra = extra
+          )
         } else {
           val instanceSize = readInt()
           val extra = nullUnless(hasExtra) {
@@ -121,15 +122,18 @@ fun Reader.readItem(): Item =
           }
           Type.Body.Object(
             instanceSize = instanceSize,
-            extra = extra)
+            extra = extra
+          )
         }
       Type(
         id,
         superTypeId,
         packageName,
         relativeName,
-        body)
+        body
+      )
     }
+
     RecordTag.OBJECT -> {
       val id = readLong()
       val typeId = readLong()
@@ -137,6 +141,7 @@ fun Reader.readItem(): Item =
       val byteArray = readByteArray(size)
       ObjectItem(id, typeId, byteArray)
     }
+
     RecordTag.ARRAY -> {
       val id = readLong()
       val typeId = readLong()
@@ -145,21 +150,25 @@ fun Reader.readItem(): Item =
       val byteArray = readByteArray(size)
       ArrayItem(id, typeId, count, byteArray)
     }
+
     RecordTag.EXTRA_OBJECT -> {
       val id = readLong()
       val baseObjectId = readLong()
       val associatedObjectId = readLong()
       ExtraObject(id, baseObjectId, associatedObjectId)
     }
+
     RecordTag.THREAD -> {
       val id = readLong()
       Thread(id)
     }
+
     RecordTag.GLOBAL_ROOT -> {
       val source = readRootSource()
       val objectId = readLong()
       GlobalRoot(source, objectId)
     }
+
     RecordTag.THREAD_ROOT -> {
       val threadId = readLong()
       val source = readThreadRootSource()
@@ -182,17 +191,18 @@ fun Reader.readRuntimeType(): RuntimeType =
     runtimeTypeOrNull ?: throw IOException("Invalid runtime type: $this")
   }
 
-val Int.runtimeTypeOrNull: RuntimeType? get() =
-  when (this) {
-     1 -> RuntimeType.OBJECT
-     2 -> RuntimeType.INT_8
-     3 -> RuntimeType.INT_16
-     4 -> RuntimeType.INT_32
-     5 -> RuntimeType.INT_64
-     6 -> RuntimeType.FLOAT_32
-     7 -> RuntimeType.FLOAT_64
-     8 -> RuntimeType.NATIVE_PTR
-     9 -> RuntimeType.BOOLEAN
-     10 -> RuntimeType.VECTOR_128
-     else -> null
-  }
+val Int.runtimeTypeOrNull: RuntimeType?
+  get() =
+    when (this) {
+      1 -> RuntimeType.OBJECT
+      2 -> RuntimeType.INT_8
+      3 -> RuntimeType.INT_16
+      4 -> RuntimeType.INT_32
+      5 -> RuntimeType.INT_64
+      6 -> RuntimeType.FLOAT_32
+      7 -> RuntimeType.FLOAT_64
+      8 -> RuntimeType.NATIVE_PTR
+      9 -> RuntimeType.BOOLEAN
+      10 -> RuntimeType.VECTOR_128
+      else -> null
+    }
