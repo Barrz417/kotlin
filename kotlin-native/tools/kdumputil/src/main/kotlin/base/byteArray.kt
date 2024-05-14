@@ -3,8 +3,9 @@ package base
 import base.Endianness.BIG
 import base.Endianness.LITTLE
 
-fun ByteArray.getByteInt(index: Int): Int =
-  get(index).toInt().and(0xff)
+fun ByteArray.getByte(index: Int): Byte = this[index]
+
+fun ByteArray.getByteInt(index: Int): Int = getByte(index).toInt().and(0xff)
 
 fun ByteArray.getShortInt(index: Int, endianness: Endianness): Int =
   when (endianness) {

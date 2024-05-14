@@ -65,7 +65,7 @@ data class Converter(
 
   fun getId(byteArray: ByteArray, index: Int): Long =
     when (idSize) {
-      IdSize.BITS_8 -> byteArray.get(index).toLong().and(0xffL)
+      IdSize.BITS_8 -> byteArray.getByte(index).toLong().and(0xffL)
       IdSize.BITS_16 -> byteArray.getShort(index, endianness).toLong().and(0xffffL)
       IdSize.BITS_32 -> byteArray.getInt(index, endianness).toLong().and(0xffffffffL)
       IdSize.BITS_64 -> byteArray.getLong(index, endianness)
@@ -219,6 +219,11 @@ data class Converter(
           }
       }
     }
+
+  fun hprofSuperClassObjectId(type: Type): Long =
+    superType(type)
+      ?.let { hprofClassObjectId(it) }
+      ?: extraClassObjectId(ClassName.OBJECT)
 
   fun nextClassSerialNumber(): Int =
     lastClassSerialNumber.inc().also { lastClassSerialNumber = it }
@@ -490,8 +495,7 @@ data class Converter(
           HProfClassDump(
             classObjectId = hprofClassObjectId(type),
             stackTraceSerialNumber = 0,
-            superClassObjectId = superType(type)?.let { hprofClassObjectId(it) }
-              ?: extraClassObjectId(ClassName.OBJECT),
+            superClassObjectId = hprofSuperClassObjectId(type),
             classLoaderObjectId = 0L,
             signersObjectId = 0L,
             protectionDomainObjectId = 0L,
