@@ -1,11 +1,7 @@
 package kdump
 
 import base.Endianness
-import text.Pretty
-import text.appendNonISOControl
-import text.binary
-import text.decimal
-import text.name
+import text.*
 
 fun Pretty.literal(string: String) = item {
   append('"')
@@ -103,6 +99,7 @@ fun Pretty.item(body: Type.Body) {
   when (body) {
     is Type.Body.Array -> struct("array") {
       field("element size") { decimal(body.elementSize) }
+      field("is object array") { boolean(body.isObjectArray) }
       body.extra?.let { item(it) }
     }
 

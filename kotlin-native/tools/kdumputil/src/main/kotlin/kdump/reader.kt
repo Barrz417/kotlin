@@ -32,8 +32,10 @@ fun InputStream.readIdSize(): IdSize {
 
 fun InputStream.readDump(): MemoryDump {
   val headerString = readCString().also {
-    if (it != "Kotlin/Native dump 1.0.6") {
-      throw IOException("invalid header \"$it\"")
+    "Kotlin/Native dump 1.0.7".let { header ->
+      if (it != header) {
+        throw IOException("invalid header \"$it\", expected \"$header\"")
+      }
     }
   }
   val endianness = readEndianness()
@@ -110,6 +112,7 @@ fun Reader.readItem(): Item =
       val flags = readByteInt()
       val isArray = flags.and(0x01) != 0
       val hasExtra = flags.and(0x02) != 0
+      val isObjectArray = flags.and(0x04) != 0
       val superTypeId = readLong()
       val packageName = readString()
       val relativeName = readString()
@@ -122,6 +125,7 @@ fun Reader.readItem(): Item =
           }
           Type.Body.Array(
             elementSize = elementSize,
+            isObjectArray = isObjectArray,
             extra = extra
           )
         } else {

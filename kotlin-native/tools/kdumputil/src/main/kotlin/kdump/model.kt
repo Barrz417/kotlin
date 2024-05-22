@@ -49,6 +49,7 @@ data class Type(
 
     data class Array(
       val elementSize: Int,
+      val isObjectArray: Boolean,
       val extra: Extra?,
     ) : Body() {
       data class Extra(val elementType: RuntimeType)

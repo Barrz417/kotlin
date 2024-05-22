@@ -62,6 +62,10 @@ fun Pretty.name(enum: Enum<*>) = item {
   append(enum.name)
 }
 
+fun Pretty.boolean(boolean: Boolean) = item {
+  append(if (boolean) "true" else "false")
+}
+
 fun Pretty.decimal(int: Int) = item {
   append(int.toString())
 }
