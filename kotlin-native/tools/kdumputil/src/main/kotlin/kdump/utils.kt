@@ -88,4 +88,7 @@ private fun buildFieldsFromObjectOffsets(objectOffsets: IntArray, objectSize: In
 }
 
 fun Type.Body.Object.buildSyntheticFields(idSize: IdSize): List<Field> =
-  buildFieldsFromObjectOffsets(objectOffsets, instanceSize - idSize.byteCount, idSize)
+  buildFieldsFromObjectOffsets(
+    objectOffsets,
+    instanceSize - idSize.byteCount, // decrement by the size of type pointer.
+    idSize)
