@@ -1,7 +1,6 @@
 package kdump.hprof
 
 import hprof.Type as HProfType
-import kdump.Field
 import kdump.RuntimeType
 import kdump.Type
 
