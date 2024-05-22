@@ -66,6 +66,7 @@ class Converter(
   private val hprofHeapDumpRecords: MutableList<HProfHeapDump.Record> = mutableListOf()
   private val extraClassObjectIds: MutableMap<String, Long> = mutableMapOf()
   private val kotlinStringIdToJavaLangStringIdMutableMap: MutableMap<Long, Long> = mutableMapOf()
+  private val typeIdToSyntheticFieldsMap: MutableMap<Long, List<Field>> = mutableMapOf()
   private var lastClassSerialNumber: Int = 0
   private val threadIdToSerialNumberMap: MutableMap<Long, Int> = mutableMapOf()
   private var nextFreeHProfObjectAddress: Long = 0x20000000L
@@ -259,6 +260,12 @@ class Converter(
 
   fun superType(type: Type): Type? =
     type.superTypeId.takeIf { it != 0L }?.let { type(it) }
+
+  fun syntheticFields(typeId: Long, objectTypeBody: Type.Body.Object): List<Field> =
+    typeIdToSyntheticFieldsMap.getOrPut(typeId) { objectTypeBody.buildSyntheticFields(idSize) }
+
+  fun fields(typeId: Long, objectTypeBody: Type.Body.Object): List<Field> =
+    objectTypeBody.extra?.fields ?: syntheticFields(typeId, objectTypeBody)
 
   fun buildProfile(): HProfProfile =
     HProfProfile(
