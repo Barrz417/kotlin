@@ -1,24 +1,25 @@
 package kdump.hprof
 
-import hprof.Type
+import hprof.Type as HProfType
 import kdump.Field
 import kdump.RuntimeType
+import kdump.Type
 
-fun String.primitiveArrayClassNameToElementTypePair(): Pair<RuntimeType, Type> =
+fun String.primitiveArrayClassNameToElementTypePair(): Pair<RuntimeType, HProfType> =
   when (this) {
-    "String" -> RuntimeType.INT_16 to Type.CHAR
-    "ByteArray" -> RuntimeType.INT_8 to Type.BYTE
-    "ShortArray" -> RuntimeType.INT_16 to Type.SHORT
-    "IntArray" -> RuntimeType.INT_32 to Type.INT
-    "LongArray" -> RuntimeType.INT_64 to Type.LONG
-    "FloatArray" -> RuntimeType.FLOAT_32 to Type.FLOAT
-    "DoubleArray" -> RuntimeType.FLOAT_64 to Type.DOUBLE
-    "CharArray" -> RuntimeType.INT_16 to Type.CHAR
-    "BooleanArray" -> RuntimeType.BOOLEAN to Type.BOOLEAN
+    "String" -> RuntimeType.INT_16 to HProfType.CHAR
+    "ByteArray" -> RuntimeType.INT_8 to HProfType.BYTE
+    "ShortArray" -> RuntimeType.INT_16 to HProfType.SHORT
+    "IntArray" -> RuntimeType.INT_32 to HProfType.INT
+    "LongArray" -> RuntimeType.INT_64 to HProfType.LONG
+    "FloatArray" -> RuntimeType.FLOAT_32 to HProfType.FLOAT
+    "DoubleArray" -> RuntimeType.FLOAT_64 to HProfType.DOUBLE
+    "CharArray" -> RuntimeType.INT_16 to HProfType.CHAR
+    "BooleanArray" -> RuntimeType.BOOLEAN to HProfType.BOOLEAN
     else -> throw IllegalArgumentException("Invalid primitive array class name $this")
   }
 
-val kdump.Type.hprofClassName: String
+val Type.hprofClassName: String
   get() =
     if (!isArray) {
       hprofMappedClassName ?: hprofDefaultClassName
@@ -40,7 +41,7 @@ val kdump.Type.hprofClassName: String
       throw IllegalArgumentException("Invalid array package name: $packageName")
     }
 
-val kdump.Type.hprofMappedClassName: String?
+val Type.hprofMappedClassName: String?
   get() =
     when (packageName) {
       "kotlin" ->
@@ -52,35 +53,33 @@ val kdump.Type.hprofMappedClassName: String?
       else -> null
     }
 
-val kdump.Type.hprofDefaultClassName: String
+val Type.hprofDefaultClassName: String
   get() =
     hprofPackageName + hprofPackageSeparator + hprofRelativeName
 
-val kdump.Type.hprofPackageName: String
+val Type.hprofPackageName: String
   get() =
     packageName.replace(".", "/")
 
-val kdump.Type.hprofPackageSeparator: String
+val Type.hprofPackageSeparator: String
   get() =
     if (packageName.isEmpty()) "" else "/"
 
-val kdump.Type.hprofRelativeName: String
+val Type.hprofRelativeName: String
   get() =
     relativeName.replace(".", "$")
 
-val kdump.Type.forceFields: List<Field> get() = fields ?: listOf() //throw IOException("No fields")
-
-val RuntimeType.hprofTypes: List<Type>
+val RuntimeType.hprofTypes: List<HProfType>
   get() =
     when (this) {
-      RuntimeType.OBJECT -> listOf(Type.OBJECT)
-      RuntimeType.INT_8 -> listOf(Type.BYTE)
-      RuntimeType.INT_16 -> listOf(Type.SHORT)
-      RuntimeType.INT_32 -> listOf(Type.INT)
-      RuntimeType.INT_64 -> listOf(Type.LONG)
-      RuntimeType.FLOAT_32 -> listOf(Type.FLOAT)
-      RuntimeType.FLOAT_64 -> listOf(Type.DOUBLE)
-      RuntimeType.NATIVE_PTR -> listOf(Type.LONG)
-      RuntimeType.BOOLEAN -> listOf(Type.BOOLEAN)
-      RuntimeType.VECTOR_128 -> List(4) { Type.INT }
+      RuntimeType.OBJECT -> listOf(HProfType.OBJECT)
+      RuntimeType.INT_8 -> listOf(HProfType.BYTE)
+      RuntimeType.INT_16 -> listOf(HProfType.SHORT)
+      RuntimeType.INT_32 -> listOf(HProfType.INT)
+      RuntimeType.INT_64 -> listOf(HProfType.LONG)
+      RuntimeType.FLOAT_32 -> listOf(HProfType.FLOAT)
+      RuntimeType.FLOAT_64 -> listOf(HProfType.DOUBLE)
+      RuntimeType.NATIVE_PTR -> listOf(HProfType.LONG)
+      RuntimeType.BOOLEAN -> listOf(HProfType.BOOLEAN)
+      RuntimeType.VECTOR_128 -> List(4) { HProfType.INT }
     }
