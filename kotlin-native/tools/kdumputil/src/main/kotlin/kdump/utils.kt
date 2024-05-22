@@ -54,7 +54,11 @@ val MemoryDump.idToItemMap: Map<Long, Item>
   get() =
     items.asSequence().mapNotNull { item -> item.idOrNull?.let { id -> id to item } }.toMap()
 
-private fun buildFieldsFromObjectOffsets(objectOffsets: IntArray, objectSize: Int, idSize: IdSize): List<Field> {
+private fun buildFieldsFromObjectOffsets(
+  objectOffsets: IntArray,
+  objectSize: Int,
+  idSize: IdSize,
+): List<Field> {
   var offset = 0
   var byteFieldIndex = 0
   var objectFieldIndex = 0
@@ -90,5 +94,6 @@ private fun buildFieldsFromObjectOffsets(objectOffsets: IntArray, objectSize: In
 fun Type.Body.Object.buildSyntheticFields(idSize: IdSize): List<Field> =
   buildFieldsFromObjectOffsets(
     objectOffsets,
-    instanceSize - idSize.byteCount, // decrement by the size of type pointer.
-    idSize)
+    instanceSize - idSize.byteCount, // object size = instance size - size of type pointer.
+    idSize
+  )
