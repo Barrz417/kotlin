@@ -74,8 +74,10 @@ class Converter(
 
   fun size(type: RuntimeType): Int = type.size(idSize)
 
-  fun hprofInstanceSize(type: Type): Int =
-    type.forceFields.fold(0) { acc, field -> acc + field.type.hprofTypes.map { it.size }.sum() }
+  fun hprofInstanceSize(typeId: Long, objectTypeBody: Type.Body.Object): Int =
+    fields(typeId, objectTypeBody).fold(0) { acc, field ->
+      acc + field.type.hprofTypes.sumOf { it.size }
+    }
 
   fun getId(byteArray: ByteArray, index: Int): Long =
     when (idSize) {
@@ -216,7 +218,7 @@ class Converter(
       when (typeBody) {
         is Type.Body.Array ->
           extraClassObjectId(
-            when (typeBody.extra!!.elementType) {
+            when (typeBody.extra?.elementType) {
               RuntimeType.OBJECT -> ClassName.Array.OBJECT
               RuntimeType.INT_8 -> ClassName.Array.BYTE
               RuntimeType.INT_16 -> ClassName.Array.SHORT
@@ -227,6 +229,13 @@ class Converter(
               RuntimeType.NATIVE_PTR -> ClassName.Array.LONG
               RuntimeType.BOOLEAN -> ClassName.Array.BOOLEAN
               RuntimeType.VECTOR_128 -> ClassName.Array.INT
+              else -> when (typeBody.elementSize) {
+                1 -> ClassName.Array.BYTE
+                2 -> ClassName.Array.SHORT
+                4 -> ClassName.Array.INT
+                8 -> ClassName.Array.LONG
+                else -> ClassName.Array.BYTE // Map everything else to byte array
+              }
             }
           )
 
@@ -266,6 +275,9 @@ class Converter(
 
   fun fields(typeId: Long, objectTypeBody: Type.Body.Object): List<Field> =
     objectTypeBody.extra?.fields ?: syntheticFields(typeId, objectTypeBody)
+
+  fun fields(type: Type): List<Field> =
+    fields(type.id, type.body as Type.Body.Object)
 
   fun buildProfile(): HProfProfile =
     HProfProfile(
@@ -508,7 +520,7 @@ class Converter(
           HProfClassDump(
             classObjectId = hprofClassObjectId(type),
             superClassObjectId = hprofSuperClassObjectId(type),
-            instanceSize = hprofInstanceSize(type),
+            instanceSize = hprofInstanceSize(type.id, body),
             instanceFields = hprofInstanceFields(type)
           )
 
@@ -532,7 +544,7 @@ class Converter(
     }
 
   fun directFields(type: Type): List<Field> =
-    type.forceFields.drop(superType(type)?.forceFields?.size ?: 0)
+    fields(type).drop(superType(type)?.let(::fields)?.size ?: 0)
 
   fun addItem(objectItem: ObjectItem) {
     hprofHeapDumpRecords.add(hprofDumpRecord(objectItem))

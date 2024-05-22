@@ -54,38 +54,38 @@ val MemoryDump.idToItemMap: Map<Long, Item>
   get() =
     items.asSequence().mapNotNull { item -> item.idOrNull?.let { id -> id to item } }.toMap()
 
-private fun fieldsFromObjectOffsets(objectOffsets: IntArray, instanceSize: Int, idSize: IdSize): List<Field> {
+private fun buildFieldsFromObjectOffsets(objectOffsets: IntArray, objectSize: Int, idSize: IdSize): List<Field> {
   var offset = 0
-  var byteIndex = 0
-  var objectIndex = 0
+  var byteFieldIndex = 0
+  var objectFieldIndex = 0
 
   return buildList {
     fun addByteField() {
-      add(Field(offset, RuntimeType.INT_8, "byte_$byteIndex"))
+      add(Field(offset, RuntimeType.INT_8, "byte_$byteFieldIndex"))
       offset += 1
-      byteIndex += 1
+      byteFieldIndex += 1
     }
 
     fun addObjectField() {
-      add(Field(offset, RuntimeType.OBJECT, "object_$objectIndex"))
+      add(Field(offset, RuntimeType.OBJECT, "object_$objectFieldIndex"))
       offset += idSize.byteCount
-      objectIndex += 1
+      objectFieldIndex += 1
     }
 
-    fun addByteFields(nextOffset: Int) {
+    fun addByteFieldsToOffset(nextOffset: Int) {
       while (offset < nextOffset) {
         addByteField()
       }
     }
 
     objectOffsets.forEach { objectOffset ->
-      addByteFields(objectOffset)
+      addByteFieldsToOffset(objectOffset)
       addObjectField()
     }
 
-    addByteFields(instanceSize)
+    addByteFieldsToOffset(objectSize)
   }
 }
 
 fun Type.Body.Object.buildSyntheticFields(idSize: IdSize): List<Field> =
-  fieldsFromObjectOffsets(objectOffsets, instanceSize, idSize)
+  buildFieldsFromObjectOffsets(objectOffsets, instanceSize - idSize.byteCount, idSize)
