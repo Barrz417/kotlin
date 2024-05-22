@@ -108,6 +108,7 @@ fun Pretty.item(body: Type.Body) {
 
     is Type.Body.Object -> struct("object") {
       field("instance size") { decimal(body.instanceSize) }
+      struct("object offsets") { body.objectOffsets.forEach { decimal(it) } }
       body.extra?.let { item(it) }
     }
   }

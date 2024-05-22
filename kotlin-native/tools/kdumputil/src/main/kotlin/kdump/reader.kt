@@ -32,7 +32,7 @@ fun InputStream.readIdSize(): IdSize {
 
 fun InputStream.readDump(): MemoryDump {
   val headerString = readCString().also {
-    if (it != "Kotlin/Native dump 1.0.5") {
+    if (it != "Kotlin/Native dump 1.0.6") {
       throw IOException("invalid header \"$it\"")
     }
   }
@@ -126,13 +126,15 @@ fun Reader.readItem(): Item =
           )
         } else {
           val instanceSize = readInt()
+          val objectOffsets = readList(readInt()) { readInt() }.toIntArray()
           val extra = nullUnless(hasExtra) {
             val fields = readList(readInt()) { readField() }
             Type.Body.Object.Extra(fields = fields)
           }
           Type.Body.Object(
             instanceSize = instanceSize,
-            extra = extra
+            objectOffsets = objectOffsets,
+            extra = extra,
           )
         }
       Type(

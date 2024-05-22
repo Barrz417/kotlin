@@ -39,11 +39,18 @@ data class Type(
   val body: Body,
 ) : Item() {
   sealed class Body {
-    data class Object(val instanceSize: Int, val extra: Extra?) : Body() {
+    data class Object(
+      val instanceSize: Int,
+      val objectOffsets: IntArray,
+      val extra: Extra?,
+    ) : Body() {
       data class Extra(val fields: List<Field>)
     }
 
-    data class Array(val elementSize: Int, val extra: Extra?) : Body() {
+    data class Array(
+      val elementSize: Int,
+      val extra: Extra?,
+    ) : Body() {
       data class Extra(val elementType: RuntimeType)
     }
   }
