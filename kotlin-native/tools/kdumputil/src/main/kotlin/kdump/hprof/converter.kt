@@ -8,6 +8,7 @@ import base.getFloat
 import base.getInt
 import base.getLong
 import base.getShort
+import base.runIf
 import hprof.ClassDump as HProfClassDump
 import hprof.HeapDump as HProfHeapDump
 import hprof.IdSize as HProfIdSize
@@ -535,13 +536,17 @@ class Converter(
   fun hprofInstanceFields(fields: List<Field>): List<HProfInstanceField> =
     fields.flatMap { hprofInstanceFields(it) }
 
-  fun hprofInstanceFields(field: Field): List<HProfInstanceField> =
-    field.type.hprofTypes.map { hprofType ->
+  fun hprofInstanceFields(field: Field): List<HProfInstanceField> = run {
+    val hprofTypes = field.type.hprofTypes
+    val isVector = hprofTypes.size > 1
+    hprofTypes.mapIndexed { index, hprofType ->
+      val name = field.name.runIf(isVector) { plus("_$index") }
       HProfInstanceField(
-        nameStringId = id(field.name), // TODO: Add prefix to each vector component
-        type = hprofType
+        nameStringId = id(name),
+        type = hprofType,
       )
     }
+  }
 
   fun directFields(type: Type): List<Field> =
     fields(type).drop(superType(type)?.let(::fields)?.size ?: 0)
