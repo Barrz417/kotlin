@@ -38,7 +38,7 @@ import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import kdump.*
 
-const val ADD_JAVA_LANG_STRINGS = true
+const val ADD_JAVA_LANG_STRINGS = false
 
 private val hprofIdSize = HProfIdSize.LONG
 
@@ -202,10 +202,8 @@ class Converter(
       newHProfObjectId(64)
     }
 
-  fun getReferenceId(id: Long): Long = id
-
   fun hprofObjectReferenceId(id: Long): Long =
-    hprofObjectId(getReferenceId(id)).let { hprofId ->
+    hprofObjectId(id).let { hprofId ->
       kotlinStringIdToJavaLangStringIdMutableMap[hprofId] ?: hprofId
     }
 
@@ -360,7 +358,7 @@ class Converter(
         objectId = hprofJavaLangStringId,
         stackTraceSerialNumber = 0,
         classObjectId = extraClassObjectId(ClassName.STRING),
-        ByteArrayOutputStream()
+        byteArray = ByteArrayOutputStream()
           .apply { writeLong(hprofObjectId(arrayItem.id), Endianness.BIG) }
           .toByteArray()))
   }
@@ -410,7 +408,7 @@ class Converter(
         objectId = hprofObjectId(extraObject.id),
         stackTraceSerialNumber = 0,
         classObjectId = extraClassObjectId(ClassName.EXTRA_OBJECT),
-        ByteArrayOutputStream()
+        byteArray = ByteArrayOutputStream()
           .apply {
             writeLong(hprofObjectReferenceId(extraObject.baseObjectId), Endianness.BIG)
             writeLong(extraObject.associatedObjectId, Endianness.BIG)
@@ -611,7 +609,7 @@ class Converter(
       objectId = hprofObjectId,
       stackTraceSerialNumber = 0,
       classObjectId = hprofClassObjectId(type),
-      ByteArrayOutputStream()
+      byteArray = ByteArrayOutputStream()
         .apply { writeHProfFieldValues(this, byteArray, type) }
         .toByteArray())
   }
@@ -629,7 +627,7 @@ class Converter(
       stackTraceSerialNumber = 0,
       numberOfElements = count,
       arrayElementType = hprofElementType,
-      ByteArrayOutputStream()
+      byteArray = ByteArrayOutputStream()
         .apply { writeHProfArray(this, byteArray, offset, count, elementRuntimeType) }
         .toByteArray())
   }
