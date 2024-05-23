@@ -36,7 +36,7 @@ import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.Companion.kotlinPro
 import org.jetbrains.kotlin.gradle.plugin.internal.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.internal.initSwiftExportClasspathConfigurations
-import org.jetbrains.kotlin.gradle.plugin.mpp.internal.setupProjectStructureMetadataConsumableConfiguration
+import org.jetbrains.kotlin.gradle.plugin.mpp.internal.setupProjectStructureMetadataOutgoingArtifacts
 import org.jetbrains.kotlin.gradle.plugin.mpp.resources.resolve.KotlinTargetResourcesResolutionStrategy
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSetFactory
 import org.jetbrains.kotlin.gradle.plugin.statistics.BuildFusService
@@ -389,7 +389,7 @@ abstract class AbstractKotlinMultiplatformPluginWrapper : KotlinBasePluginWrappe
     override fun apply(project: Project) {
         super.apply(project)
 
-        setupProjectStructureMetadataConsumableConfiguration(project)
+        setupProjectStructureMetadataOutgoingArtifacts(project)
     }
 }
 

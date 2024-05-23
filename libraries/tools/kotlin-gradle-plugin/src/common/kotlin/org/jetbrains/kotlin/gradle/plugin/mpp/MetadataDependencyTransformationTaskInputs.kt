@@ -8,7 +8,9 @@ import org.gradle.api.tasks.*
 import org.gradle.work.NormalizeLineEndings
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.Companion.kotlinPropertiesProvider
+import org.jetbrains.kotlin.gradle.plugin.mpp.internal.projectStructureMetadataConfiguration
 import org.jetbrains.kotlin.gradle.plugin.sources.internal
+import org.jetbrains.kotlin.gradle.utils.LazyResolvedConfiguration
 import org.jetbrains.kotlin.gradle.utils.currentBuild
 import org.jetbrains.kotlin.gradle.utils.filesProvider
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
@@ -26,10 +28,19 @@ internal class MetadataDependencyTransformationTaskInputs(
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:IgnoreEmptyDirectories
     @get:NormalizeLineEndings
+    val projectStructureMetadataFileCollection: FileCollection =
+        LazyResolvedConfiguration(kotlinSourceSet.internal.projectStructureMetadataConfiguration).files
+
+    @Suppress("unused") // Gradle input
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:IgnoreEmptyDirectories
+    @get:NormalizeLineEndings
     val configurationToResolve: FileCollection = kotlinSourceSet
         .internal
         .resolvableMetadataConfiguration
         .applyIf(!keepProjectDependencies) { withoutProjectDependencies() }
+
 
     @Suppress("unused") // Gradle input
     @get:InputFiles
