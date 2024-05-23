@@ -13,6 +13,7 @@ import org.gradle.api.file.FileCollection
 import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.hierarchy.orNull
+import org.jetbrains.kotlin.gradle.plugin.mpp.internal.projectStructureMetadataResolvableConfiguration
 import org.jetbrains.kotlin.gradle.plugin.sources.*
 import org.jetbrains.kotlin.gradle.utils.*
 
@@ -75,7 +76,7 @@ internal val InternalKotlinSourceSet.compileDependenciesConfigurations: List<Con
 internal fun resolvableMetadataConfigurationForEachSourSet(project: Project): List<FileCollection> {
     return project.multiplatformExtension.sourceSets.mapNotNull { sourceSet ->
         if (sourceSet is InternalKotlinSourceSet) {
-            LazyResolvedConfiguration(sourceSet.resolvableMetadataConfiguration).files
+            LazyResolvedConfiguration(sourceSet.projectStructureMetadataResolvableConfiguration).files
         } else null
     }
 }

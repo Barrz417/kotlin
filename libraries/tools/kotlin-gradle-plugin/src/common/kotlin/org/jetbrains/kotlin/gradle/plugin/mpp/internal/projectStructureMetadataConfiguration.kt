@@ -12,7 +12,6 @@ import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.Usage
 import org.jetbrains.kotlin.gradle.dsl.awaitMetadataTarget
 import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.PSM_CONSUMABLE_CONFIGURATION_NAME
 import org.jetbrains.kotlin.gradle.plugin.PSM_RESOLVABLE_CONFIGURATION_NAME
 import org.jetbrains.kotlin.gradle.plugin.categoryByName
@@ -67,7 +66,7 @@ internal fun setupProjectStructureMetadataOutgoingArtifacts(project: Project) {
 
 }
 
-internal val InternalKotlinSourceSet.projectStructureMetadataConfiguration: Configuration by extrasStoredProperty {
+internal val InternalKotlinSourceSet.projectStructureMetadataResolvableConfiguration: Configuration by extrasStoredProperty {
     project.configurations.maybeCreateResolvable(projectStructureMetadataConfigurationName) {
         extendsProjectDependenciesOnly(project, resolvableMetadataConfiguration)
         configurePsmDependenciesAttributes(project)
