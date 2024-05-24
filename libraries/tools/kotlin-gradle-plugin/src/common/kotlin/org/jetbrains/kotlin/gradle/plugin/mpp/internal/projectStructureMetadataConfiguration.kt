@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.gradle.plugin.sources.disambiguateName
 import org.jetbrains.kotlin.gradle.plugin.usageByName
 import org.jetbrains.kotlin.gradle.targets.metadata.locateOrRegisterGenerateProjectStructureMetadataTask
 import org.jetbrains.kotlin.gradle.utils.*
-import org.jetbrains.kotlin.gradle.utils.extendsProjectDependenciesOnly
+import org.jetbrains.kotlin.gradle.utils.extendsDependenciesOnly
 import org.jetbrains.kotlin.gradle.utils.extrasStoredProperty
 import org.jetbrains.kotlin.gradle.utils.maybeCreateConsumable
 import org.jetbrains.kotlin.gradle.utils.maybeCreateResolvable
@@ -52,7 +52,7 @@ internal fun setupProjectStructureMetadataOutgoingArtifacts(project: Project) {
         val metadataTarget = project.multiplatformExtension.awaitMetadataTarget()
 
         // Adding transitive dependencies from metadata target to psm-consumable configuration
-        psmConsumableConfiguration.extendsProjectDependenciesOnly(
+        psmConsumableConfiguration.extendsDependenciesOnly(
             project,
             project.configurations.getByName(metadataTarget.apiElementsConfigurationName)
         )
@@ -68,7 +68,7 @@ internal fun setupProjectStructureMetadataOutgoingArtifacts(project: Project) {
 
 internal val InternalKotlinSourceSet.projectStructureMetadataResolvableConfiguration: Configuration by extrasStoredProperty {
     project.configurations.maybeCreateResolvable(projectStructureMetadataConfigurationName) {
-        extendsProjectDependenciesOnly(project, resolvableMetadataConfiguration)
+        extendsDependenciesOnly(project, resolvableMetadataConfiguration)
         configurePsmDependenciesAttributes(project)
     }
 }

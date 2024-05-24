@@ -215,7 +215,7 @@ internal class GranularMetadataTransformation(
         val compositeMetadataArtifact = params
             .resolvedMetadataConfiguration
             .getArtifacts(dependency)
-            .singleOrNull {it.file.name != "kotlin-project-structure-metadata.json"}
+            .singleOrNull {it.file.extension != "json"}
             // Make sure that resolved metadata artifact is actually Multiplatform one
             ?.takeIf { it.variant.attributes.containsMultiplatformMetadataAttributes}
         // expected only ony Composite Metadata Klib, but if dependency got resolved into platform variant

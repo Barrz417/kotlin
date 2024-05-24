@@ -53,6 +53,10 @@ internal open class JarMppDependencyProjectStructureMetadataExtractor(
 internal class IncludedBuildMppDependencyProjectStructureMetadataExtractor(
     primaryArtifact: File,
     private val projectStructureMetadataProvider: () -> KotlinProjectStructureMetadata?,
+    private val projectStructureMetadataFile: File? = null,
 ) : JarMppDependencyProjectStructureMetadataExtractor(primaryArtifact) {
-    override fun getProjectStructureMetadata(): KotlinProjectStructureMetadata? = projectStructureMetadataProvider()
+    override fun getProjectStructureMetadata(): KotlinProjectStructureMetadata? =
+        projectStructureMetadataFile?.let {
+            parseKotlinSourceSetMetadataFromJson(projectStructureMetadataFile.reader().readText())
+        } ?: projectStructureMetadataProvider()
 }

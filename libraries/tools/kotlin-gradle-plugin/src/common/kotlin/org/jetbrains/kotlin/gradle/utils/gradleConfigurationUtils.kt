@@ -8,7 +8,6 @@ package org.jetbrains.kotlin.gradle.utils
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.LibraryElements
 import org.gradle.api.attributes.Usage
@@ -31,7 +30,7 @@ fun NamedDomainObjectProvider<Configuration>.extendsFrom(other: NamedDomainObjec
 }
 
 internal fun Configuration.addGradlePluginMetadataAttributes(
-    project: Project
+    project: Project,
 ) {
     attributes {
         it.setAttribute(Category.CATEGORY_ATTRIBUTE, project.objects.named(Category.LIBRARY))
@@ -47,15 +46,13 @@ internal fun Configuration.addGradlePluginMetadataAttributes(
 }
 
 /**
- * Extends the dependencies of this configuration by adding the specified [configurations]'s projects' dependencies only.
+ * Extends the dependencies of this configuration by adding the specified [configurations]'s dependencies only.
  *
  * @param project The project on which the configuration is applied.
  * @param configurations The configurations whose projects' dependencies will be added to this configuration.
  */
-internal fun Configuration.extendsProjectDependenciesOnly(project: Project, vararg configurations: Configuration) {
+internal fun Configuration.extendsDependenciesOnly(project: Project, vararg configurations: Configuration) {
     return dependencies.addAllLater(project.listProvider {
-        configurations.flatMap { val dependencies = it.allDependencies.filterIsInstance<ProjectDependency>()
-            dependencies
-        }
+        configurations.flatMap { it.allDependencies }
     })
 }
