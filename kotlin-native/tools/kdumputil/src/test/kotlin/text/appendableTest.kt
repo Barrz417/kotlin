@@ -12,8 +12,8 @@ class AppendableTest {
   @Test
   fun appendIndented() {
     assertEquals(
-            "one\n  two\n  three",
-            appendableString { appendIndented { append("one\ntwo\nthree") } })
+      "one\n  two\n  three",
+      appendableString { appendIndented { append("one\ntwo\nthree") } })
   }
 
   @Test
@@ -25,7 +25,7 @@ class AppendableTest {
   @Test
   fun appendNonISOControl() {
     assertEquals(
-            "one.two.three.",
-            appendableString { appendNonISOControl { append("one\ntwo\nthree\u0000") } })
+      "one.two.three.",
+      appendableString { appendNonISOControl { append("one\ntwo\nthree\u0000") } })
   }
 }

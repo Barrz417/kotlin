@@ -66,7 +66,8 @@ class Converter(
   private val hprofProfileRecords: MutableList<HProfProfile.Record> = mutableListOf()
   private val hprofHeapDumpRecords: MutableList<HProfHeapDump.Record> = mutableListOf()
   private val hprofExtraClassObjectIds: MutableMap<String, Long> = mutableMapOf()
-  private val hprofKotlinStringIdToJavaLangStringIdMutableMap: MutableMap<Long, Long> = mutableMapOf()
+  private val hprofKotlinStringIdToJavaLangStringIdMutableMap: MutableMap<Long, Long> =
+    mutableMapOf()
   private val typeIdToSyntheticFieldsMap: MutableMap<Id, List<Field>> = mutableMapOf()
   private var lastClassSerialNumber: Int = 0
   private val threadIdToSerialNumberMap: MutableMap<Id, Int> = mutableMapOf()
