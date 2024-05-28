@@ -67,40 +67,46 @@ private fun buildFieldsFromObjectOffsets(
   idSize: IdSize,
 ): List<Field> {
   var offset = 0
-  var byteFieldIndex = 0
+  var dataFieldIndex = 0
   var objectFieldIndex = 0
 
   return buildList {
-    fun addByteField() {
-      add(Field(offset, RuntimeType.INT_8, "byte_$byteFieldIndex"))
-      offset += 1
-      byteFieldIndex += 1
-    }
-
     fun addObjectField() {
       add(Field(offset, RuntimeType.OBJECT, "object_$objectFieldIndex"))
       offset += idSize.byteCount
       objectFieldIndex += 1
     }
 
-    fun addByteFieldsToOffset(nextOffset: Int) {
-      while (offset < nextOffset) {
-        addByteField()
-      }
+    fun addDataFields(nextOffset: Int) {
+      do {
+        val delta = nextOffset - offset
+        if (delta == 0) break
+        when {
+          delta >= 8 ->
+            add(Field(offset, RuntimeType.INT_64, "data_$dataFieldIndex")).also { offset += 8 }
+          delta >= 4 ->
+            add(Field(offset, RuntimeType.INT_32, "data_$dataFieldIndex")).also { offset += 4 }
+          delta >= 2 ->
+            add(Field(offset, RuntimeType.INT_16, "data_$dataFieldIndex")).also { offset += 2 }
+          else ->
+            add(Field(offset, RuntimeType.INT_8, "data_$dataFieldIndex")).also { offset += 1 }
+        }
+        dataFieldIndex += 1
+      } while (true)
     }
 
     objectOffsets.forEach { objectOffset ->
-      addByteFieldsToOffset(objectOffset)
+      addDataFields(objectOffset)
       addObjectField()
     }
 
-    addByteFieldsToOffset(objectSize)
+    addDataFields(objectSize)
   }
 }
 
 fun Type.Body.Object.buildSyntheticFields(idSize: IdSize): List<Field> =
   buildFieldsFromObjectOffsets(
-    objectOffsets,
+    objectOffsets.sortedArray(),
     instanceSize - idSize.byteCount, // object size = instance size - size of type pointer.
     idSize
   )
