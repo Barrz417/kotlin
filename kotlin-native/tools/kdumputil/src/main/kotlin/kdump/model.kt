@@ -45,17 +45,17 @@ data class Type(
     data class Object(
       val instanceSize: Int,
       val objectOffsets: IntArray,
-      val extra: Extra?,
+      val debug: Debug?,
     ) : Body() {
-      data class Extra(val fields: List<Field>)
+      data class Debug(val fields: List<Field>)
     }
 
     data class Array(
       val elementSize: Int,
       val isObjectArray: Boolean,
-      val extra: Extra?,
+      val debug: Debug?,
     ) : Body() {
-      data class Extra(val elementType: RuntimeType)
+      data class Debug(val elementType: RuntimeType)
     }
   }
 
@@ -64,7 +64,7 @@ data class Type(
   // TODO: Remove when not needed
   val fields: List<Field>?
     get() = when (body) {
-      is Body.Object -> body.extra?.fields
+      is Body.Object -> body.debug?.fields
       is Body.Array -> null
     }
 }

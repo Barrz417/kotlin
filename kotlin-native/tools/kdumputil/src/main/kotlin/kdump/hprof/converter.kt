@@ -218,7 +218,7 @@ class Converter(
       when (typeBody) {
         is Type.Body.Array ->
           extraClassObjectId(
-            when (typeBody.extra?.elementType) {
+            when (typeBody.debug?.elementType) {
               RuntimeType.OBJECT -> ClassName.Array.OBJECT
               RuntimeType.INT_8 -> ClassName.Array.BYTE
               RuntimeType.INT_16 -> ClassName.Array.SHORT
@@ -274,7 +274,7 @@ class Converter(
     typeIdToSyntheticFieldsMap.getOrPut(typeId) { objectTypeBody.buildSyntheticFields(idSize) }
 
   fun fields(typeId: Id, objectTypeBody: Type.Body.Object): List<Field> =
-    objectTypeBody.extra?.fields ?: syntheticFields(typeId, objectTypeBody)
+    objectTypeBody.debug?.fields ?: syntheticFields(typeId, objectTypeBody)
 
   fun fields(type: Type): List<Field> =
     fields(type.id, type.body as Type.Body.Object)

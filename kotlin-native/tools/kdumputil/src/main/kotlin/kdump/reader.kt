@@ -128,26 +128,26 @@ fun Reader.readItem(): Item =
       val body =
         if (isArray) {
           val elementSize = readInt()
-          val extra = nullUnless(hasExtra) {
+          val debug = nullUnless(hasExtra) {
             val elementType = readRuntimeType()
-            Type.Body.Array.Extra(elementType = elementType)
+            Type.Body.Array.Debug(elementType = elementType)
           }
           Type.Body.Array(
             elementSize = elementSize,
             isObjectArray = isObjectArray,
-            extra = extra
+            debug = debug
           )
         } else {
           val instanceSize = readInt()
           val objectOffsets = readList(readInt()) { readInt() }.toIntArray()
-          val extra = nullUnless(hasExtra) {
+          val debug = nullUnless(hasExtra) {
             val fields = readList(readInt()) { readField() }
-            Type.Body.Object.Extra(fields = fields)
+            Type.Body.Object.Debug(fields = fields)
           }
           Type.Body.Object(
             instanceSize = instanceSize,
             objectOffsets = objectOffsets,
-            extra = extra,
+            debug = debug,
           )
         }
       Type(
