@@ -5,7 +5,7 @@ import base.Endianness.LITTLE
 
 fun ByteArray.getByte(index: Int): Byte = this[index]
 
-fun ByteArray.getByteInt(index: Int): Int = getByte(index).toInt().and(0xff)
+fun ByteArray.getByteInt(index: Int): Int = getByte(index).toIntUnsigned()
 
 fun ByteArray.getShortInt(index: Int, endianness: Endianness): Int =
   when (endianness) {
@@ -23,7 +23,7 @@ fun ByteArray.getInt(index: Int, endianness: Endianness): Int =
   }
 
 fun ByteArray.getIntLong(index: Int, endianness: Endianness): Long =
-  getInt(index, endianness).toLong().and(0xffffffffL)
+  getInt(index, endianness).toLongUnsigned()
 
 fun ByteArray.getLong(index: Int, endianness: Endianness): Long =
   when (endianness) {

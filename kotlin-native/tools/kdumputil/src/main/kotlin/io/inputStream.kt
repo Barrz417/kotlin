@@ -3,6 +3,7 @@ package io
 import base.Endianness
 import base.Endianness.BIG
 import base.Endianness.LITTLE
+import base.toLongUnsigned
 import java.io.ByteArrayOutputStream
 import java.io.EOFException
 import java.io.InputStream
@@ -60,8 +61,8 @@ fun InputStream.readInt(endianness: Endianness): Int {
 }
 
 fun InputStream.readLong(endianness: Endianness): Long {
-  val l1 = readInt(endianness).toLong().and(0xffffffffL)
-  val l2 = readInt(endianness).toLong().and(0xffffffffL)
+  val l1 = readInt(endianness).toLongUnsigned()
+  val l2 = readInt(endianness).toLongUnsigned()
   return when (endianness) {
     LITTLE -> l2.shl(32).or(l1)
     BIG -> l1.shl(32).or(l2)

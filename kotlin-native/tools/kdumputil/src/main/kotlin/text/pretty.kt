@@ -1,5 +1,6 @@
 package text
 
+import base.toIntUnsigned
 import kotlin.math.min
 
 @DslMarker
@@ -87,13 +88,13 @@ fun Pretty.binary(byteArray: ByteArray) {
     item {
       appendFixedSize(16 * 3 + 3) {
         for (index in segment..<min(segment + 16, byteArray.size)) {
-          append(String.format("%02x", byteArray[index].toInt().and(0xff)))
+          append(String.format("%02x", byteArray[index].toIntUnsigned()))
           append(" ")
         }
       }
       appendNonISOControl {
         for (index in segment..<min(segment + 16, byteArray.size)) {
-          append(byteArray[index].toInt().and(0xff).toChar())
+          append(byteArray[index].toIntUnsigned().toChar())
         }
       }
     }

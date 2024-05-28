@@ -73,10 +73,10 @@ fun Reader.readLong(): Long =
 
 fun Reader.readId(): Id =
   when (idSize) {
-    IdSize.BITS_8 -> readByte().id
-    IdSize.BITS_16 -> readShort().id
-    IdSize.BITS_32 -> readInt().id
-    IdSize.BITS_64 -> readLong().id
+    IdSize.BITS_8 -> id(readByte())
+    IdSize.BITS_16 -> id(readShort())
+    IdSize.BITS_32 -> id(readInt())
+    IdSize.BITS_64 -> id(readLong())
   }
 
 fun Reader.readByteArray(size: Int): ByteArray =

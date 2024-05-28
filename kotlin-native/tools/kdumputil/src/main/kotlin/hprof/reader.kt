@@ -1,6 +1,8 @@
 package hprof
 
 import base.Endianness
+import base.toIntUnsigned
+import base.toLongUnsigned
 import io.readByte
 import io.readByteArray
 import io.readCString
@@ -58,9 +60,9 @@ fun InputStream.readIdSize(): IdSize = run {
 
 fun Reader.readId(): Long =
   when (idSize) {
-    IdSize.BYTE -> readByte().toInt().and(0xff).toLong()
-    IdSize.SHORT -> readShort().toInt().and(0xffff).toLong()
-    IdSize.INT -> readInt().toLong().and(0xffffffffL)
+    IdSize.BYTE -> readByte().toLongUnsigned()
+    IdSize.SHORT -> readShort().toLongUnsigned()
+    IdSize.INT -> readInt().toLongUnsigned()
     IdSize.LONG -> readLong()
   }
 
@@ -98,7 +100,7 @@ fun InputStream.readProfile(): Profile {
 }
 
 fun Reader.readRecord(): Profile.Record {
-  val tag = readByte().toInt().and(0xff)
+  val tag = readByte().toIntUnsigned()
   /* val time = */ readInt()
   val length = readInt()
   return readWithSize(length) { readRecord(tag) }
@@ -193,7 +195,7 @@ fun Reader.readHeapDumpEnd(): HeapDumpEnd {
 }
 
 fun Reader.readHeapDumpRecord(): HeapDump.Record {
-  val tag = readByte().toInt().and(0xff)
+  val tag = readByte().toIntUnsigned()
   return when (tag) {
     Binary.HeapDump.Record.Tag.ROOT_JNI_GLOBAL -> readRootJniGlobal()
     Binary.HeapDump.Record.Tag.ROOT_JNI_LOCAL -> readRootJniLocal()
@@ -250,11 +252,11 @@ fun Reader.readClassDump(): ClassDump {
   val reservedId1 = readId()
   val reservedId2 = readId()
   val instanceSize = readInt()
-  val constantsCount = readShort().toInt().and(0xffff)
+  val constantsCount = readShort().toIntUnsigned()
   val constants = inputStream.readList(constantsCount) { readConstant() }
-  val staticFieldsCount = readShort().toInt().and(0xffff)
+  val staticFieldsCount = readShort().toIntUnsigned()
   val staticFields = inputStream.readList(staticFieldsCount) { readStaticField() }
-  val instanceFieldCount = readShort().toInt().and(0xffff)
+  val instanceFieldCount = readShort().toIntUnsigned()
   val instanceFields = inputStream.readList(instanceFieldCount) { readInstanceField() }
   return ClassDump(
     classObjectId,
