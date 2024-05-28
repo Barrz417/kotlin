@@ -81,67 +81,67 @@ class Converter(
       acc + field.type.hprofTypes.sumOf { it.size }
     }
 
-  fun getId(byteArray: ByteArray, index: Int): Id =
+  fun getId(byteArray: ByteArray, offset: Int): Id =
     when (idSize) {
-      IdSize.BITS_8 -> id(byteArray.getByte(index))
-      IdSize.BITS_16 -> id(byteArray.getShort(index, endianness))
-      IdSize.BITS_32 -> id(byteArray.getInt(index, endianness))
-      IdSize.BITS_64 -> id(byteArray.getLong(index, endianness))
+      IdSize.BITS_8 -> id(byteArray.getByte(offset))
+      IdSize.BITS_16 -> id(byteArray.getShort(offset, endianness))
+      IdSize.BITS_32 -> id(byteArray.getInt(offset, endianness))
+      IdSize.BITS_64 -> id(byteArray.getLong(offset, endianness))
     }
 
-  fun writeHProfObjectValue(outputStream: OutputStream, byteArray: ByteArray, index: Int) {
-    outputStream.writeLong(hprofObjectReferenceId(getId(byteArray, index)), Endianness.BIG)
+  fun writeHProfObjectValue(outputStream: OutputStream, byteArray: ByteArray, offset: Int) {
+    outputStream.writeLong(hprofObjectReferenceId(getId(byteArray, offset)), Endianness.BIG)
   }
 
   fun writeHProfValue(
     outputStream: OutputStream,
     byteArray: ByteArray,
-    index: Int,
+    offset: Int,
     runtimeType: RuntimeType,
   ) {
     when (runtimeType) {
       RuntimeType.OBJECT ->
-        writeHProfObjectValue(outputStream, byteArray, index)
+        writeHProfObjectValue(outputStream, byteArray, offset)
 
       RuntimeType.INT_8 ->
-        outputStream.writeByte(byteArray.get(index))
+        outputStream.writeByte(byteArray.get(offset))
 
       RuntimeType.INT_16 ->
-        outputStream.writeShort(byteArray.getShort(index, endianness), Endianness.BIG)
+        outputStream.writeShort(byteArray.getShort(offset, endianness), Endianness.BIG)
 
       RuntimeType.INT_32 ->
-        outputStream.writeInt(byteArray.getInt(index, endianness), Endianness.BIG)
+        outputStream.writeInt(byteArray.getInt(offset, endianness), Endianness.BIG)
 
       RuntimeType.INT_64 ->
-        outputStream.writeLong(byteArray.getLong(index, endianness), Endianness.BIG)
+        outputStream.writeLong(byteArray.getLong(offset, endianness), Endianness.BIG)
 
       RuntimeType.FLOAT_32 ->
-        outputStream.writeFloat(byteArray.getFloat(index, endianness), Endianness.BIG)
+        outputStream.writeFloat(byteArray.getFloat(offset, endianness), Endianness.BIG)
 
       RuntimeType.FLOAT_64 ->
-        outputStream.writeDouble(byteArray.getDouble(index, endianness), Endianness.BIG)
+        outputStream.writeDouble(byteArray.getDouble(offset, endianness), Endianness.BIG)
 
       RuntimeType.NATIVE_PTR ->
         // TODO: Convert to ID.
-        outputStream.writeLong(byteArray.getLong(index, endianness), Endianness.BIG)
+        outputStream.writeLong(byteArray.getLong(offset, endianness), Endianness.BIG)
 
       RuntimeType.BOOLEAN ->
-        outputStream.writeByte(byteArray.get(index))
+        outputStream.writeByte(byteArray.get(offset))
 
       RuntimeType.VECTOR_128 ->
         when (endianness) {
           Endianness.BIG -> {
-            outputStream.writeInt(byteArray.getInt(index + 0, endianness), Endianness.BIG)
-            outputStream.writeInt(byteArray.getInt(index + 4, endianness), Endianness.BIG)
-            outputStream.writeInt(byteArray.getInt(index + 8, endianness), Endianness.BIG)
-            outputStream.writeInt(byteArray.getInt(index + 12, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(offset + 0, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(offset + 4, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(offset + 8, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(offset + 12, endianness), Endianness.BIG)
           }
 
           Endianness.LITTLE -> {
-            outputStream.writeInt(byteArray.getInt(index + 12, endianness), Endianness.BIG)
-            outputStream.writeInt(byteArray.getInt(index + 8, endianness), Endianness.BIG)
-            outputStream.writeInt(byteArray.getInt(index + 4, endianness), Endianness.BIG)
-            outputStream.writeInt(byteArray.getInt(index + 0, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(offset + 12, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(offset + 8, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(offset + 4, endianness), Endianness.BIG)
+            outputStream.writeInt(byteArray.getInt(offset + 0, endianness), Endianness.BIG)
           }
         }
     }
