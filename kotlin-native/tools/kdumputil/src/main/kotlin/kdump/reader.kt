@@ -72,13 +72,12 @@ fun Reader.readLong(): Long =
   inputStream.readLong(endianness)
 
 fun Reader.readId(): Id =
-  Id(
-    when (idSize) {
-      IdSize.BITS_8 -> readByte().toLong().and(0xFF)
-      IdSize.BITS_16 -> readShort().toLong().and(0xFFFF)
-      IdSize.BITS_32 -> readInt().toLong().and(0xFFFFFFFF)
-      IdSize.BITS_64 -> readLong()
-    })
+  when (idSize) {
+    IdSize.BITS_8 -> readByte().id
+    IdSize.BITS_16 -> readShort().id
+    IdSize.BITS_32 -> readInt().id
+    IdSize.BITS_64 -> readLong().id
+  }
 
 fun Reader.readByteArray(size: Int): ByteArray =
   inputStream.readByteArray(size)

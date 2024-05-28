@@ -81,13 +81,12 @@ class Converter(
     }
 
   fun getId(byteArray: ByteArray, index: Int): Id =
-    Id(
-      when (idSize) {
-        IdSize.BITS_8 -> byteArray.getByte(index).toLong().and(0xffL)
-        IdSize.BITS_16 -> byteArray.getShort(index, endianness).toLong().and(0xffffL)
-        IdSize.BITS_32 -> byteArray.getInt(index, endianness).toLong().and(0xffffffffL)
-        IdSize.BITS_64 -> byteArray.getLong(index, endianness)
-      })
+    when (idSize) {
+      IdSize.BITS_8 -> byteArray.getByte(index).id
+      IdSize.BITS_16 -> byteArray.getShort(index, endianness).id
+      IdSize.BITS_32 -> byteArray.getInt(index, endianness).id
+      IdSize.BITS_64 -> byteArray.getLong(index, endianness).id
+    }
 
   fun writeHProfObjectValue(outputStream: OutputStream, byteArray: ByteArray, index: Int) {
     outputStream.writeLong(hprofObjectReferenceId(getId(byteArray, index)), Endianness.BIG)

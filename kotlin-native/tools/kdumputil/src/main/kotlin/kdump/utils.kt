@@ -9,6 +9,11 @@ val IdSize.byteCount: Int
       IdSize.BITS_64 -> 8
     }
 
+val Byte.id: Id get() = Id(toLong().and(0xff))
+val Short.id: Id get() = Id(toLong().and(0xffff))
+val Int.id: Id get() = Id(toLong().and(0xffffffff))
+val Long.id: Id get() = Id(toLong())
+
 fun RuntimeType.size(idSize: IdSize): Int =
   when (this) {
     RuntimeType.OBJECT -> idSize.byteCount
