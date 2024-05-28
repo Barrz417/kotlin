@@ -38,7 +38,7 @@ val Type.isKotlinString: Boolean
   get() =
     packageName == "kotlin" && relativeName == "String"
 
-val Item.idOrNull: Long?
+val Item.idOrNull: Id?
   get() =
     when (this) {
       is Type -> id
@@ -50,7 +50,7 @@ val Item.idOrNull: Long?
       is ThreadRoot -> null
     }
 
-val MemoryDump.idToItemMap: Map<Long, Item>
+val MemoryDump.idToItemMap: Map<Id, Item>
   get() =
     items.asSequence().mapNotNull { item -> item.idOrNull?.let { id -> id to item } }.toMap()
 

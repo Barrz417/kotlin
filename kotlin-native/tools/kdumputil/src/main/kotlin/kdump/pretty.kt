@@ -9,8 +9,8 @@ fun Pretty.literal(string: String) = item {
   append('"')
 }
 
-fun Pretty.id(long: Long) = item {
-  append("0x${long.toULong().toString(16)}")
+fun Pretty.id(id: Id) = item {
+  append("0x${id.long.toULong().toString(16)}")
 }
 
 fun Pretty.item(memoryDump: MemoryDump) {

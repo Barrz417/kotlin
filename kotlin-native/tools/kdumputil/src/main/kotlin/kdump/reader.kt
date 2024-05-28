@@ -71,6 +71,15 @@ fun Reader.readInt(): Int =
 fun Reader.readLong(): Long =
   inputStream.readLong(endianness)
 
+fun Reader.readId(): Id =
+  Id(
+    when (idSize) {
+      IdSize.BITS_8 -> readByte().toLong().and(0xFF)
+      IdSize.BITS_16 -> readShort().toLong().and(0xFFFF)
+      IdSize.BITS_32 -> readInt().toLong().and(0xFFFFFFFF)
+      IdSize.BITS_64 -> readLong()
+    })
+
 fun Reader.readByteArray(size: Int): ByteArray =
   inputStream.readByteArray(size)
 
@@ -108,12 +117,12 @@ fun Reader.readThreadRootSource(): ThreadRoot.Source =
 fun Reader.readItem(): Item =
   when (val tag = readByteInt()) {
     RecordTag.TYPE -> {
-      val id = readLong()
+      val id = readId()
       val flags = readByteInt()
       val isArray = flags.and(0x01) != 0
       val hasExtra = flags.and(0x02) != 0
       val isObjectArray = flags.and(0x04) != 0
-      val superTypeId = readLong()
+      val superTypeId = readId()
       val packageName = readString()
       val relativeName = readString()
       val body =
@@ -151,16 +160,16 @@ fun Reader.readItem(): Item =
     }
 
     RecordTag.OBJECT -> {
-      val id = readLong()
-      val typeId = readLong()
+      val id = readId()
+      val typeId = readId()
       val size = readInt()
       val byteArray = readByteArray(size)
       ObjectItem(id, typeId, byteArray)
     }
 
     RecordTag.ARRAY -> {
-      val id = readLong()
-      val typeId = readLong()
+      val id = readId()
+      val typeId = readId()
       val count = readInt()
       val size = readInt()
       val byteArray = readByteArray(size)
@@ -168,27 +177,27 @@ fun Reader.readItem(): Item =
     }
 
     RecordTag.EXTRA_OBJECT -> {
-      val id = readLong()
-      val baseObjectId = readLong()
-      val associatedObjectId = readLong()
+      val id = readId()
+      val baseObjectId = readId()
+      val associatedObjectId = readId()
       ExtraObject(id, baseObjectId, associatedObjectId)
     }
 
     RecordTag.THREAD -> {
-      val id = readLong()
+      val id = readId()
       Thread(id)
     }
 
     RecordTag.GLOBAL_ROOT -> {
       val source = readRootSource()
-      val objectId = readLong()
+      val objectId = readId()
       GlobalRoot(source, objectId)
     }
 
     RecordTag.THREAD_ROOT -> {
-      val threadId = readLong()
+      val threadId = readId()
       val source = readThreadRootSource()
-      val objectId = readLong()
+      val objectId = readId()
       ThreadRoot(threadId, source, objectId)
     }
 

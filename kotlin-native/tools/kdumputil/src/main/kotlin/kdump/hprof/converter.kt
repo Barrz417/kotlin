@@ -57,36 +57,37 @@ fun MemoryDump.toHProfProfile(): HProfProfile =
 class Converter(
   private val endianness: Endianness,
   private val idSize: IdSize,
-  private val idToItemMap: Map<Long, Item>,
+  private val idToItemMap: Map<Id, Item>,
 ) {
   private val profileTime: Long = System.currentTimeMillis()
-  private val idToHProfIdMutableMap: MutableMap<Long, Long> = mutableMapOf()
+  private val idToHProfIdMutableMap: MutableMap<Id, Long> = mutableMapOf()
   private val stringToIdMutableMap: MutableMap<String, Long> = mutableMapOf()
-  private val idToStringMutableMap: MutableMap<Long, String> = mutableMapOf()
+  private val hprofIdToStringMutableMap: MutableMap<Long, String> = mutableMapOf()
   private val hprofProfileRecords: MutableList<HProfProfile.Record> = mutableListOf()
   private val hprofHeapDumpRecords: MutableList<HProfHeapDump.Record> = mutableListOf()
-  private val extraClassObjectIds: MutableMap<String, Long> = mutableMapOf()
-  private val kotlinStringIdToJavaLangStringIdMutableMap: MutableMap<Long, Long> = mutableMapOf()
-  private val typeIdToSyntheticFieldsMap: MutableMap<Long, List<Field>> = mutableMapOf()
+  private val hprofExtraClassObjectIds: MutableMap<String, Long> = mutableMapOf()
+  private val hprofKotlinStringIdToJavaLangStringIdMutableMap: MutableMap<Long, Long> = mutableMapOf()
+  private val typeIdToSyntheticFieldsMap: MutableMap<Id, List<Field>> = mutableMapOf()
   private var lastClassSerialNumber: Int = 0
-  private val threadIdToSerialNumberMap: MutableMap<Long, Int> = mutableMapOf()
+  private val threadIdToSerialNumberMap: MutableMap<Id, Int> = mutableMapOf()
   private var nextFreeHProfObjectAddress: Long = 0x20000000L
   private val syntheticClassNames: MutableSet<String> = mutableSetOf()
 
   fun size(type: RuntimeType): Int = type.size(idSize)
 
-  fun hprofInstanceSize(typeId: Long, objectTypeBody: Type.Body.Object): Int =
+  fun hprofInstanceSize(typeId: Id, objectTypeBody: Type.Body.Object): Int =
     fields(typeId, objectTypeBody).fold(0) { acc, field ->
       acc + field.type.hprofTypes.sumOf { it.size }
     }
 
-  fun getId(byteArray: ByteArray, index: Int): Long =
-    when (idSize) {
-      IdSize.BITS_8 -> byteArray.getByte(index).toLong().and(0xffL)
-      IdSize.BITS_16 -> byteArray.getShort(index, endianness).toLong().and(0xffffL)
-      IdSize.BITS_32 -> byteArray.getInt(index, endianness).toLong().and(0xffffffffL)
-      IdSize.BITS_64 -> byteArray.getLong(index, endianness)
-    }
+  fun getId(byteArray: ByteArray, index: Int): Id =
+    Id(
+      when (idSize) {
+        IdSize.BITS_8 -> byteArray.getByte(index).toLong().and(0xffL)
+        IdSize.BITS_16 -> byteArray.getShort(index, endianness).toLong().and(0xffffL)
+        IdSize.BITS_32 -> byteArray.getInt(index, endianness).toLong().and(0xffffffffL)
+        IdSize.BITS_64 -> byteArray.getLong(index, endianness)
+      })
 
   fun writeHProfObjectValue(outputStream: OutputStream, byteArray: ByteArray, index: Int) {
     outputStream.writeLong(hprofObjectReferenceId(getId(byteArray, index)), Endianness.BIG)
@@ -184,13 +185,13 @@ class Converter(
         .times(8)
         .or(0x100000000L)
         .also { id ->
-          idToStringMutableMap[id] = string
+          hprofIdToStringMutableMap[id] = string
           hprofProfileRecords.add(HProfStringConstant(id, string))
         }
     }
 
-  fun hprofObjectId(id: Long): Long =
-    when (id) {
+  fun hprofObjectId(id: Id): Long =
+    when (id.long) {
       0L -> 0L
       else -> idToHProfIdMutableMap.getOrPut(id) {
         newHProfObjectId(item(id).size(idSize)!!)
@@ -198,13 +199,13 @@ class Converter(
     }
 
   fun extraClassObjectId(className: String): Long =
-    extraClassObjectIds.getOrPut(className) {
+    hprofExtraClassObjectIds.getOrPut(className) {
       newHProfObjectId(64)
     }
 
-  fun hprofObjectReferenceId(id: Long): Long =
+  fun hprofObjectReferenceId(id: Id): Long =
     hprofObjectId(id).let { hprofId ->
-      kotlinStringIdToJavaLangStringIdMutableMap[hprofId] ?: hprofId
+      hprofKotlinStringIdToJavaLangStringIdMutableMap[hprofId] ?: hprofId
     }
 
   fun newHProfObjectId(size: Int): Long =
@@ -253,26 +254,26 @@ class Converter(
   fun nextClassSerialNumber(): Int =
     lastClassSerialNumber.inc().also { lastClassSerialNumber = it }
 
-  fun threadSerialNumber(threadId: Long): Int =
+  fun threadSerialNumber(threadId: Id): Int =
     threadIdToSerialNumberMap.getOrPut(threadId) {
       threadIdToSerialNumberMap.size.inc()
     }
 
   fun hprofStringConstants(): List<HProfStringConstant> =
-    idToStringMutableMap.map { (id, string) -> HProfStringConstant(id, string) }
+    hprofIdToStringMutableMap.map { (id, string) -> HProfStringConstant(id, string) }
 
-  fun type(id: Long): Type = item(id) as Type
+  fun type(id: Id): Type = item(id) as Type
 
-  fun item(id: Long): Item =
+  fun item(id: Id): Item =
     idToItemMap[id] ?: throw IllegalArgumentException("No item for id: $id")
 
   fun superType(type: Type): Type? =
-    type.superTypeId.takeIf { it != 0L }?.let { type(it) }
+    type.superTypeId.takeIf { it.long != 0L }?.let { type(it) }
 
-  fun syntheticFields(typeId: Long, objectTypeBody: Type.Body.Object): List<Field> =
+  fun syntheticFields(typeId: Id, objectTypeBody: Type.Body.Object): List<Field> =
     typeIdToSyntheticFieldsMap.getOrPut(typeId) { objectTypeBody.buildSyntheticFields(idSize) }
 
-  fun fields(typeId: Long, objectTypeBody: Type.Body.Object): List<Field> =
+  fun fields(typeId: Id, objectTypeBody: Type.Body.Object): List<Field> =
     objectTypeBody.extra?.fields ?: syntheticFields(typeId, objectTypeBody)
 
   fun fields(type: Type): List<Field> =
@@ -346,7 +347,7 @@ class Converter(
         if (type.isKotlinString) {
           val hprofObjectId = hprofObjectId(item.id)
           val hprofStringObjectId = newHProfObjectId(idSize.byteCount * 2)
-          kotlinStringIdToJavaLangStringIdMutableMap[hprofObjectId] = hprofStringObjectId
+          hprofKotlinStringIdToJavaLangStringIdMutableMap[hprofObjectId] = hprofStringObjectId
         }
       }
     }
@@ -411,7 +412,7 @@ class Converter(
         byteArray = ByteArrayOutputStream()
           .apply {
             writeLong(hprofObjectReferenceId(extraObject.baseObjectId), Endianness.BIG)
-            writeLong(extraObject.associatedObjectId, Endianness.BIG)
+            writeLong(extraObject.associatedObjectId.long, Endianness.BIG)
           }
           .toByteArray()))
   }
@@ -556,7 +557,7 @@ class Converter(
   fun addItem(arrayItem: ArrayItem) {
     if (ADD_JAVA_LANG_STRINGS) {
       val hprofObjectId = hprofObjectId(arrayItem.id)
-      val hprofStringId = kotlinStringIdToJavaLangStringIdMutableMap[hprofObjectId]
+      val hprofStringId = hprofKotlinStringIdToJavaLangStringIdMutableMap[hprofObjectId]
       if (hprofStringId != null) {
         addJavaLangStringRecords(arrayItem, hprofStringId)
       }

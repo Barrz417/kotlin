@@ -22,6 +22,9 @@ enum class RuntimeType {
   VECTOR_128,
 }
 
+@JvmInline
+value class Id(val long: Long)
+
 data class MemoryDump(
   val headerString: String,
   val endianness: Endianness,
@@ -32,8 +35,8 @@ data class MemoryDump(
 sealed class Item
 
 data class Type(
-  val id: Long,
-  val superTypeId: Long,
+  val id: Id,
+  val superTypeId: Id,
   val packageName: String,
   val relativeName: String,
   val body: Body,
@@ -67,22 +70,22 @@ data class Type(
 }
 
 data class ObjectItem(
-  val id: Long,
-  val typeId: Long,
+  val id: Id,
+  val typeId: Id,
   val byteArray: ByteArray,
 ) : Item()
 
 data class ArrayItem(
-  val id: Long,
-  val typeId: Long,
+  val id: Id,
+  val typeId: Id,
   val count: Int,
   val byteArray: ByteArray,
 ) : Item()
 
 data class ExtraObject(
-  val id: Long,
-  val baseObjectId: Long,
-  val associatedObjectId: Long,
+  val id: Id,
+  val baseObjectId: Id,
+  val associatedObjectId: Id,
 ) : Item()
 
 data class Field(
@@ -92,20 +95,20 @@ data class Field(
 )
 
 data class Thread(
-  val id: Long,
+  val id: Id,
 ) : Item()
 
 data class GlobalRoot(
   val source: Source,
-  val objectId: Long,
+  val objectId: Id,
 ) : Item() {
   enum class Source { GLOBAL, STABLE_REF }
 }
 
 data class ThreadRoot(
-  val threadId: Long,
+  val threadId: Id,
   val source: Source,
-  val objectId: Long,
+  val objectId: Id,
 ) : Item() {
   enum class Source { STACK, THREAD_LOCAL }
 }
