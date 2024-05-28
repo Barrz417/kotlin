@@ -95,7 +95,7 @@ private fun buildFieldsFromObjectOffsets(
       } while (true)
     }
 
-    objectOffsets.forEach { objectOffset ->
+    objectOffsets.sortedArray().forEach { objectOffset ->
       addDataFields(objectOffset)
       addObjectField()
     }
@@ -106,7 +106,7 @@ private fun buildFieldsFromObjectOffsets(
 
 fun Type.Body.Object.buildSyntheticFields(idSize: IdSize): List<Field> =
   buildFieldsFromObjectOffsets(
-    objectOffsets.sortedArray(),
+    objectOffsets,
     instanceSize - idSize.byteCount, // object size = instance size - size of type pointer.
     idSize
   )
