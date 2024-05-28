@@ -17,9 +17,9 @@ class AppendableTest {
   }
 
   @Test
-  fun appendPadded() {
-    assertEquals("123  ", appendableString { appendPadded(5) { append("123") } })
-    assertEquals("12345", appendableString { appendPadded(5) { append("12345667890") } })
+  fun appendFixedSize() {
+    assertEquals("123  ", appendableString { appendFixedSize(5) { append("123") } })
+    assertEquals("12345", appendableString { appendFixedSize(5) { append("12345667890") } })
   }
 
   @Test

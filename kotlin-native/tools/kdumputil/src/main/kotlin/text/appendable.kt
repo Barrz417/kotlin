@@ -41,10 +41,10 @@ fun Appendable.appendIndented(fn: Appendable.() -> Unit) = also { appendable ->
   }.fn()
 }
 
-/** Appendable which pads or truncates to the char count. */
-fun Appendable.appendPadded(charCount: Int, fn: Appendable.() -> Unit) = also { appendable ->
+/** Appendable which pads with spaces or truncates to the given size. */
+fun Appendable.appendFixedSize(size: Int, fn: Appendable.() -> Unit) = also { appendable ->
   object : CharAppendable {
-    var remaining = charCount
+    var remaining = size
 
     override fun append(char: Char) = apply {
       if (remaining > 0) {

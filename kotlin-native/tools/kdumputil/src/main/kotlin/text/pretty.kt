@@ -85,7 +85,7 @@ fun Pretty.hexadecimal(long: Long) = item {
 fun Pretty.binary(byteArray: ByteArray) {
   for (segment in byteArray.indices step 16) {
     item {
-      appendPadded(16 * 3 + 3) {
+      appendFixedSize(16 * 3 + 3) {
         for (index in segment..<min(segment + 16, byteArray.size)) {
           append(String.format("%02x", byteArray[index].toInt().and(0xff)))
           append(" ")
