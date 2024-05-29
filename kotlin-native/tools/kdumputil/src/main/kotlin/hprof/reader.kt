@@ -67,6 +67,9 @@ fun Reader.readId(): Id =
       IdSize.LONG -> readLong()
     })
 
+fun Reader.readSerialNumber(): SerialNumber =
+  SerialNumber(readInt())
+
 fun Reader.readType(): Type {
   val int = readByte().toInt().and(0xFF)
   return when (int) {
@@ -132,9 +135,9 @@ fun Reader.readStringConstant(): StringConstant {
 }
 
 fun Reader.readLoadClass(): LoadClass {
-  val classSerialNumber = readInt()
+  val classSerialNumber = readSerialNumber()
   val classObjectId = readId()
-  val stackTraceSerialNumber = readInt()
+  val stackTraceSerialNumber = readSerialNumber()
   val classNameId = readId()
   return LoadClass(classSerialNumber, classObjectId, stackTraceSerialNumber, classNameId)
 }
@@ -144,7 +147,7 @@ fun Reader.readStackFrame(): StackFrame {
   val methodNameStringId = readId()
   val methodSignatureStringId = readId()
   val sourceFileNameStringId = readId()
-  val classSerialNumber = readInt()
+  val classSerialNumber = readSerialNumber()
   val lineNumber = readInt()
   return StackFrame(
     stackFrameId,
@@ -157,17 +160,17 @@ fun Reader.readStackFrame(): StackFrame {
 }
 
 fun Reader.readStackTrace(): StackTrace {
-  val stackTraceSerialNumber = readInt()
-  val threadSerialNumber = readInt()
+  val stackTraceSerialNumber = readSerialNumber()
+  val threadSerialNumber =readSerialNumber()
   val numberOfFrames = readInt()
   val stackFrameIds = inputStream.readList(numberOfFrames) { readId() }
   return StackTrace(stackTraceSerialNumber, threadSerialNumber, stackFrameIds)
 }
 
 fun Reader.readStartThread(): StartThread {
-  val threadSerialNumber = readInt()
+  val threadSerialNumber = readSerialNumber()
   val threadObjectId = readId()
-  val stackTraceSerialNumber = readInt()
+  val stackTraceSerialNumber = readSerialNumber()
   val threadNameStringId = readId()
   val threadGroupNameId = readId()
   val threadParentGroupNameId = readId()
@@ -219,7 +222,7 @@ fun Reader.readRootJniGlobal(): RootJniGlobal {
 
 fun Reader.readRootJniLocal(): RootJniLocal {
   val objectId = readId()
-  val threadSerialNumber = readInt()
+  val threadSerialNumber = readSerialNumber()
   val frameNumber = readInt()
   return RootJniLocal(objectId, threadSerialNumber, frameNumber)
 }
@@ -231,21 +234,21 @@ fun Reader.readRootStickyClass(): RootStickyClass {
 
 fun Reader.readRootJavaFrame(): RootJavaFrame {
   val objectId = readId()
-  val threadSerialNumber = readInt()
+  val threadSerialNumber = readSerialNumber()
   val frameNumber = readInt()
   return RootJavaFrame(objectId, threadSerialNumber, frameNumber)
 }
 
 fun Reader.readRootThreadObject(): RootThreadObject {
   val threadObjectId = readId()
-  val threadSerialNumber = readInt()
-  val stackTraceSerialNumber = readInt()
+  val threadSerialNumber = readSerialNumber()
+  val stackTraceSerialNumber = readSerialNumber()
   return RootThreadObject(threadObjectId, threadSerialNumber, stackTraceSerialNumber)
 }
 
 fun Reader.readClassDump(): ClassDump {
   val classObjectId = readId()
-  val stackTraceSerialNumber = readInt()
+  val stackTraceSerialNumber = readSerialNumber()
   val superClassObjectId = readId()
   val classLoaderObjectId = readId()
   val signersObjectId = readId()
@@ -297,7 +300,7 @@ fun Reader.readInstanceField(): InstanceField {
 
 fun Reader.readInstanceDump(): InstanceDump {
   val objectId = readId()
-  val stackTraceSerialNumber = readInt()
+  val stackTraceSerialNumber = readSerialNumber()
   val classObjectId = readId()
   val numberOfBytes = readInt()
   val byteArray = readByteArray(numberOfBytes)
@@ -306,7 +309,7 @@ fun Reader.readInstanceDump(): InstanceDump {
 
 fun Reader.readObjectArrayDump(): ObjectArrayDump {
   val arrayObjectId = readId()
-  val stackTraceSerialNumber = readInt()
+  val stackTraceSerialNumber = readSerialNumber()
   val numberOfElement = readInt()
   val arrayClassObjectId = readId()
   val byteArray = readByteArray(Type.OBJECT.size(idSize) * numberOfElement)
@@ -321,7 +324,7 @@ fun Reader.readObjectArrayDump(): ObjectArrayDump {
 
 fun Reader.readPrimitiveArrayDump(): PrimitiveArrayDump {
   val arrayObjectId = readId()
-  val stackTraceSerialNumber = readInt()
+  val stackTraceSerialNumber = readSerialNumber()
   val numberOfElement = readInt()
   val arrayElementType = readType()
   val byteArray = readByteArray(arrayElementType.size(idSize) * numberOfElement)

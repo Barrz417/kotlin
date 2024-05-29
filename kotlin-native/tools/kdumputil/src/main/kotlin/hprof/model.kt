@@ -14,6 +14,13 @@ value class Id(val long: Long) {
   }
 }
 
+@JvmInline
+value class SerialNumber(val int: Int) {
+  companion object {
+    val NULL = SerialNumber(0)
+  }
+}
+
 data class Profile(
   val idSize: IdSize,
   val time: Long,
@@ -33,9 +40,9 @@ data class StringConstant(
 ) : Profile.Record()
 
 data class LoadClass(
-  val classSerialNumber: Int,
+  val classSerialNumber: SerialNumber,
   val classObjectId: Id,
-  val stackTraceSerialNumber: Int = 0,
+  val stackTraceSerialNumber: SerialNumber = SerialNumber.NULL,
   val classNameStringId: Id,
 ) : Profile.Record()
 
@@ -44,20 +51,20 @@ data class StackFrame(
   val methodNameStringId: Id,
   val methodSignatureStringId: Id,
   val sourceFileNameStringId: Id = Id.NULL,
-  val classSerialNumber: Int = 0,
+  val classSerialNumber: SerialNumber = SerialNumber.NULL,
   val lineNumber: Int = 0,
 ) : Profile.Record()
 
 data class StackTrace(
-  val serialNumber: Int,
-  val threadSerialNumber: Int,
+  val serialNumber: SerialNumber,
+  val threadSerialNumber: SerialNumber,
   val stackFrameIds: List<Id>,
 ) : Profile.Record()
 
 data class StartThread(
-  val threadSerialNumber: Int,
+  val threadSerialNumber: SerialNumber,
   val threadObjectId: Id,
-  val stackTraceSerialNumber: Int = 0,
+  val stackTraceSerialNumber: SerialNumber = SerialNumber.NULL,
   val threadNameStringId: Id = Id.NULL,
   val threadGroupNameId: Id = Id.NULL,
   val threadParentGroupNameId: Id = Id.NULL,
@@ -86,7 +93,7 @@ data class RootJniGlobal(
 
 data class RootJniLocal(
   val objectId: Id,
-  val threadSerialNumber: Int,
+  val threadSerialNumber: SerialNumber,
   val threadFrameNumber: Int,
 ) : HeapDump.Record()
 
@@ -96,19 +103,19 @@ data class RootStickyClass(
 
 data class RootJavaFrame(
   val objectId: Id,
-  val threadSerialNumber: Int,
+  val threadSerialNumber: SerialNumber,
   val frameNumber: Int = 0,
 ) : HeapDump.Record()
 
 data class RootThreadObject(
   val threadObjectId: Id,
-  val threadSerialNumber: Int,
-  val stackTraceSerialNumber: Int,
+  val threadSerialNumber: SerialNumber,
+  val stackTraceSerialNumber: SerialNumber,
 ) : HeapDump.Record()
 
 data class ClassDump(
   val classObjectId: Id,
-  val stackTraceSerialNumber: Int = 0,
+  val stackTraceSerialNumber: SerialNumber = SerialNumber.NULL,
   val superClassObjectId: Id = Id.NULL,
   val classLoaderObjectId: Id = Id.NULL,
   val signersObjectId: Id = Id.NULL,
@@ -152,14 +159,14 @@ enum class Type {
 
 data class InstanceDump(
   val objectId: Id,
-  val stackTraceSerialNumber: Int = 0,
+  val stackTraceSerialNumber: SerialNumber = SerialNumber.NULL,
   val classObjectId: Id,
   val byteArray: ByteArray = byteArrayOf(),
 ) : HeapDump.Record()
 
 data class ObjectArrayDump(
   val arrayObjectId: Id,
-  val stackTraceSerialNumber: Int = 0,
+  val stackTraceSerialNumber: SerialNumber = SerialNumber.NULL,
   val numberOfElements: Int,
   val arrayClassObjectId: Id,
   val byteArray: ByteArray,
@@ -167,7 +174,7 @@ data class ObjectArrayDump(
 
 data class PrimitiveArrayDump(
   val arrayObjectId: Id,
-  val stackTraceSerialNumber: Int = 0,
+  val stackTraceSerialNumber: SerialNumber = SerialNumber.NULL,
   val numberOfElements: Int,
   val arrayElementType: Type,
   val byteArray: ByteArray,

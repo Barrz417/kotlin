@@ -32,9 +32,9 @@ fun Pretty.item(record: Profile.Record) {
 
     is LoadClass ->
       struct("load class") {
-        field("class serial number") { decimal(record.classSerialNumber) }
+        field("class serial number") { item(record.classSerialNumber) }
         field("class object id") { item(record.classObjectId) }
-        field("stack trace serial number") { decimal(record.stackTraceSerialNumber) }
+        field("stack trace serial number") { item(record.stackTraceSerialNumber) }
         field("class name string id") { item(record.classNameStringId) }
       }
 
@@ -44,20 +44,20 @@ fun Pretty.item(record: Profile.Record) {
         field("method name string id") { item(record.methodNameStringId) }
         field("method signature string id") { item(record.methodSignatureStringId) }
         field("source filename string id") { item(record.sourceFileNameStringId) }
-        field("class serial number") { decimal(record.classSerialNumber) }
+        field("class serial number") { item(record.classSerialNumber) }
         field("line number") { decimal(record.lineNumber) }
       }
 
     is StackTrace ->
       struct("stack trace") {
-        field("serial number") { decimal(record.serialNumber) }
-        field("thread serial number") { decimal(record.threadSerialNumber) }
+        field("serial number") { item(record.serialNumber) }
+        field("thread serial number") { item(record.threadSerialNumber) }
         struct("stack frame ids") { record.stackFrameIds.forEach { item(it) } }
       }
 
     is StartThread ->
       struct("start thread") {
-        field("thread serial number") { decimal(record.threadSerialNumber) }
+        field("thread serial number") { item(record.threadSerialNumber) }
         field("thread object id") { item(record.threadObjectId) }
         field("thread name string id") { item(record.threadNameStringId) }
         field("thread group name id") { item(record.threadGroupNameId) }
@@ -83,7 +83,7 @@ fun Pretty.item(record: HeapDump.Record) {
     is ClassDump ->
       struct("class dump") {
         field("class object id") { item(record.classObjectId) }
-        field("stack trace serial number") { decimal(record.stackTraceSerialNumber) }
+        field("stack trace serial number") { item(record.stackTraceSerialNumber) }
         field("super class object id") { item(record.superClassObjectId) }
         field("class loader object id") { item(record.classLoaderObjectId) }
         field("signers object id") { item(record.signersObjectId) }
@@ -99,7 +99,7 @@ fun Pretty.item(record: HeapDump.Record) {
     is InstanceDump ->
       struct("instance dump") {
         field("object id") { item(record.objectId) }
-        field("stack trace serial number") { decimal(record.stackTraceSerialNumber) }
+        field("stack trace serial number") { item(record.stackTraceSerialNumber) }
         field("class object id") { item(record.classObjectId) }
         field("byte array") { binary(record.byteArray) }
       }
@@ -107,7 +107,7 @@ fun Pretty.item(record: HeapDump.Record) {
     is ObjectArrayDump ->
       struct("object array dump") {
         field("array object id") { item(record.arrayObjectId) }
-        field("stack frame serial number") { decimal(record.stackTraceSerialNumber) }
+        field("stack frame serial number") { item(record.stackTraceSerialNumber) }
         field("number of elements") { decimal(record.numberOfElements) }
         field("array class object id") { item(record.arrayClassObjectId) }
         field("byte array") { binary(record.byteArray) }
@@ -116,7 +116,7 @@ fun Pretty.item(record: HeapDump.Record) {
     is PrimitiveArrayDump ->
       struct("primitive array dump") {
         field("array object id") { item(record.arrayObjectId) }
-        field("stack frame serial number") { decimal(record.stackTraceSerialNumber) }
+        field("stack frame serial number") { item(record.stackTraceSerialNumber) }
         field("number of elements") { decimal(record.numberOfElements) }
         field("array element type") { name(record.arrayElementType) }
         field("byte array") { binary(record.byteArray) }
@@ -125,7 +125,7 @@ fun Pretty.item(record: HeapDump.Record) {
     is RootJavaFrame ->
       struct("root java frame") {
         field("object id") { item(record.objectId) }
-        field("thread serial number") { decimal(record.threadSerialNumber) }
+        field("thread serial number") { item(record.threadSerialNumber) }
         field("frame number") { decimal(record.frameNumber) }
       }
 
@@ -138,7 +138,7 @@ fun Pretty.item(record: HeapDump.Record) {
     is RootJniLocal ->
       struct("root jni local") {
         field("object id") { item(record.objectId) }
-        field("thread serial number") { decimal(record.threadSerialNumber) }
+        field("thread serial number") { item(record.threadSerialNumber) }
         field("thread frame number") { decimal(record.threadFrameNumber) }
       }
 
@@ -150,8 +150,8 @@ fun Pretty.item(record: HeapDump.Record) {
     is RootThreadObject ->
       struct("root thread object") {
         field("thread object id") { item(record.threadObjectId) }
-        field("thread serial number") { decimal(record.threadSerialNumber) }
-        field("stack trace serial number") { decimal(record.stackTraceSerialNumber) }
+        field("thread serial number") { item(record.threadSerialNumber) }
+        field("stack trace serial number") { item(record.stackTraceSerialNumber) }
       }
 
     is RootUnknown ->
@@ -185,3 +185,4 @@ fun Pretty.item(instanceField: InstanceField) {
 }
 
 fun Pretty.item(id: Id) { hexadecimal(id.long) }
+fun Pretty.item(serialNumber: SerialNumber) { decimal(serialNumber.int) }

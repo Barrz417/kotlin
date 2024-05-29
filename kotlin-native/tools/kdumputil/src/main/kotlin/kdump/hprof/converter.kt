@@ -23,6 +23,7 @@ import hprof.RootJavaFrame as HProfRootJavaFrame
 import hprof.RootJniGlobal as HProfRootJniGlobal
 import hprof.RootStickyClass as HProfRootStickyClass
 import hprof.RootThreadObject as HProfRootThreadObject
+import hprof.SerialNumber
 import hprof.StackFrame as HProfStackFrame
 import hprof.StackTrace as HProfStackTrace
 import hprof.StartThread as HProfStartThread
@@ -70,8 +71,8 @@ class Converter(
   private val hprofKotlinStringIdToJavaLangStringIdMutableMap: MutableMap<HProfId, HProfId> =
     mutableMapOf()
   private val typeIdToSyntheticFieldsMap: MutableMap<Id, List<Field>> = mutableMapOf()
-  private var lastClassSerialNumber: Int = 0
-  private val threadIdToSerialNumberMap: MutableMap<Id, Int> = mutableMapOf()
+  private var lastClassSerialNumber: SerialNumber = SerialNumber(0)
+  private val threadIdToSerialNumberMap: MutableMap<Id, SerialNumber> = mutableMapOf()
   private var nextFreeHProfObjectAddress: Long = 0x20000000L
   private val syntheticClassNames: MutableSet<String> = mutableSetOf()
 
@@ -258,12 +259,12 @@ class Converter(
       ?.let { hprofClassObjectId(it) }
       ?: extraClassObjectId(ClassName.OBJECT)
 
-  fun nextClassSerialNumber(): Int =
-    lastClassSerialNumber.inc().also { lastClassSerialNumber = it }
+  fun nextClassSerialNumber(): SerialNumber =
+    lastClassSerialNumber.int.inc().let(::SerialNumber).also { lastClassSerialNumber = it }
 
-  fun threadSerialNumber(threadId: Id): Int =
+  fun threadSerialNumber(threadId: Id): SerialNumber =
     threadIdToSerialNumberMap.getOrPut(threadId) {
-      threadIdToSerialNumberMap.size.inc()
+      threadIdToSerialNumberMap.size.inc().let(::SerialNumber)
     }
 
   fun hprofStringConstants(): List<HProfStringConstant> =
@@ -364,7 +365,6 @@ class Converter(
     hprofHeapDumpRecords.add(
       HProfInstanceDump(
         objectId = hprofJavaLangStringId,
-        stackTraceSerialNumber = 0,
         classObjectId = extraClassObjectId(ClassName.STRING),
         byteArray = ByteArrayOutputStream()
           .also { write(it, hprofObjectId(arrayItem.id)) }
@@ -383,7 +383,6 @@ class Converter(
       HProfLoadClass(
         classSerialNumber = nextClassSerialNumber(),
         classObjectId = classObjectId,
-        stackTraceSerialNumber = 0,
         classNameStringId = id(className)
       )
     )
@@ -414,7 +413,6 @@ class Converter(
     hprofHeapDumpRecords.add(
       HProfInstanceDump(
         objectId = hprofObjectId(extraObject.id),
-        stackTraceSerialNumber = 0,
         classObjectId = extraClassObjectId(ClassName.EXTRA_OBJECT),
         byteArray = ByteArrayOutputStream()
           .also {
@@ -615,7 +613,6 @@ class Converter(
   ): HProfInstanceDump {
     return HProfInstanceDump(
       objectId = hprofObjectId,
-      stackTraceSerialNumber = 0,
       classObjectId = hprofClassObjectId(type),
       byteArray = ByteArrayOutputStream()
         .apply { writeHProfFieldValues(this, byteArray, type) }
@@ -632,7 +629,6 @@ class Converter(
   ): HProfPrimitiveArrayDump {
     return HProfPrimitiveArrayDump(
       arrayObjectId = hprofObjectId,
-      stackTraceSerialNumber = 0,
       numberOfElements = count,
       arrayElementType = hprofElementType,
       byteArray = ByteArrayOutputStream()

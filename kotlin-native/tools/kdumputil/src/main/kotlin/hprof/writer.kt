@@ -69,6 +69,10 @@ fun HProfWriter.write(id: Id) {
   }
 }
 
+fun HProfWriter.write(serialNumber: SerialNumber) {
+  write(serialNumber.int)
+}
+
 fun HProfWriter.write(type: Type) {
   write(
     when (type) {
