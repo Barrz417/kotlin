@@ -23,26 +23,22 @@ val Type.hprofClassName: String
 
 val Type.hprofMappedClassName: String?
   get() =
-    if (isArray) {
-      when (packageName) {
-        "kotlin" ->
-          when (relativeName) {
-            "String" -> if (ADD_JAVA_LANG_STRINGS) ClassName.STRING else ClassName.Array.CHAR
-            "Array" -> ClassName.Array.OBJECT
-            "BooleanArray" -> ClassName.Array.BOOLEAN
-            "CharArray" -> ClassName.Array.CHAR
-            "ByteArray" -> ClassName.Array.BYTE
-            "ShortArray" -> ClassName.Array.SHORT
-            "IntArray" -> ClassName.Array.INT
-            "LongArray" -> ClassName.Array.LONG
-            "FloatArray" -> ClassName.Array.FLOAT
-            "DoubleArray" -> ClassName.Array.DOUBLE
-            else -> null
-          }
-        else -> null
-      }
-    } else {
-      null
+    when (packageName) {
+      "kotlin" ->
+        when (relativeName) {
+          "String" -> if (ADD_JAVA_LANG_STRINGS) ClassName.STRING else ClassName.Array.CHAR
+          "Array" -> ClassName.Array.OBJECT
+          "BooleanArray" -> ClassName.Array.BOOLEAN
+          "CharArray" -> ClassName.Array.CHAR
+          "ByteArray" -> ClassName.Array.BYTE
+          "ShortArray" -> ClassName.Array.SHORT
+          "IntArray" -> ClassName.Array.INT
+          "LongArray" -> ClassName.Array.LONG
+          "FloatArray" -> ClassName.Array.FLOAT
+          "DoubleArray" -> ClassName.Array.DOUBLE
+          else -> null
+        }
+      else -> null
     }
 
 val Type.hprofDefaultClassName: String
