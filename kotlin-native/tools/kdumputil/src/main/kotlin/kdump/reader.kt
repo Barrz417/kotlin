@@ -32,7 +32,7 @@ fun InputStream.readIdSize(): IdSize {
 
 fun InputStream.readDump(): MemoryDump {
   val headerString = readCString().also {
-    "Kotlin/Native dump 1.0.7".let { header ->
+    "Kotlin/Native dump 1.0.8".let { header ->
       if (it != header) {
         throw IOException("invalid header \"$it\", expected \"$header\"")
       }

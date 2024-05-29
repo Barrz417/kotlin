@@ -84,10 +84,13 @@ private fun buildFieldsFromObjectOffsets(
         when {
           delta >= 8 ->
             add(Field(offset, RuntimeType.INT_64, "data_$dataFieldIndex")).also { offset += 8 }
+
           delta >= 4 ->
             add(Field(offset, RuntimeType.INT_32, "data_$dataFieldIndex")).also { offset += 4 }
+
           delta >= 2 ->
             add(Field(offset, RuntimeType.INT_16, "data_$dataFieldIndex")).also { offset += 2 }
+
           else ->
             add(Field(offset, RuntimeType.INT_8, "data_$dataFieldIndex")).also { offset += 1 }
         }
@@ -105,8 +108,4 @@ private fun buildFieldsFromObjectOffsets(
 }
 
 fun Type.Body.Object.buildSyntheticFields(idSize: IdSize): List<Field> =
-  buildFieldsFromObjectOffsets(
-    objectOffsets,
-    instanceSize - idSize.byteCount, // object size = instance size - size of type pointer.
-    idSize
-  )
+  buildFieldsFromObjectOffsets(objectOffsets, instanceSize, idSize)
