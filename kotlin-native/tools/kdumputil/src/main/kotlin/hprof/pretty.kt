@@ -184,5 +184,10 @@ fun Pretty.item(instanceField: InstanceField) {
   }
 }
 
-fun Pretty.item(id: Id) { hexadecimal(id.long) }
-fun Pretty.item(serialNumber: SerialNumber) { decimal(serialNumber.int) }
+fun Pretty.item(id: Id) {
+  hexadecimal(id.long)
+}
+
+fun Pretty.item(serialNumber: SerialNumber) {
+  decimal(serialNumber.int)
+}

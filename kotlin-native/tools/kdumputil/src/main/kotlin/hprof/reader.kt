@@ -65,7 +65,8 @@ fun Reader.readId(): Id =
       IdSize.SHORT -> readShort().toLongUnsigned()
       IdSize.INT -> readInt().toLongUnsigned()
       IdSize.LONG -> readLong()
-    })
+    }
+  )
 
 fun Reader.readSerialNumber(): SerialNumber =
   SerialNumber(readInt())
@@ -161,7 +162,7 @@ fun Reader.readStackFrame(): StackFrame {
 
 fun Reader.readStackTrace(): StackTrace {
   val stackTraceSerialNumber = readSerialNumber()
-  val threadSerialNumber =readSerialNumber()
+  val threadSerialNumber = readSerialNumber()
   val numberOfFrames = readInt()
   val stackFrameIds = inputStream.readList(numberOfFrames) { readId() }
   return StackTrace(stackTraceSerialNumber, threadSerialNumber, stackFrameIds)

@@ -11,8 +11,8 @@ import base.getShort
 import base.runIf
 import hprof.ClassDump as HProfClassDump
 import hprof.HeapDump as HProfHeapDump
-import hprof.IdSize as HProfIdSize
 import hprof.Id as HProfId
+import hprof.IdSize as HProfIdSize
 import hprof.InstanceDump as HProfInstanceDump
 import hprof.InstanceField as HProfInstanceField
 import hprof.LoadClass as HProfLoadClass
@@ -68,8 +68,7 @@ class Converter(
   private val hprofProfileRecords: MutableList<HProfProfile.Record> = mutableListOf()
   private val hprofHeapDumpRecords: MutableList<HProfHeapDump.Record> = mutableListOf()
   private val hprofExtraClassObjectIds: MutableMap<String, HProfId> = mutableMapOf()
-  private val hprofKotlinStringIdToJavaLangStringIdMutableMap: MutableMap<HProfId, HProfId> =
-    mutableMapOf()
+  private val kotlinToJavaHprofIdMutableMap: MutableMap<HProfId, HProfId> = mutableMapOf()
   private val typeIdToSyntheticFieldsMap: MutableMap<Id, List<Field>> = mutableMapOf()
   private var lastClassSerialNumber: SerialNumber = SerialNumber(0)
   private val threadIdToSerialNumberMap: MutableMap<Id, SerialNumber> = mutableMapOf()
@@ -213,7 +212,7 @@ class Converter(
 
   fun hprofObjectReferenceId(id: Id): HProfId =
     hprofObjectId(id).let { hprofId ->
-      hprofKotlinStringIdToJavaLangStringIdMutableMap[hprofId] ?: hprofId
+      kotlinToJavaHprofIdMutableMap.getOrDefault(hprofId, hprofId)
     }
 
   fun newHProfObjectId(size: Int): HProfId =
@@ -355,7 +354,7 @@ class Converter(
         if (type.isKotlinString) {
           val hprofObjectId = hprofObjectId(item.id)
           val hprofStringObjectId = newHProfObjectId(idSize.byteCount * 2)
-          hprofKotlinStringIdToJavaLangStringIdMutableMap[hprofObjectId] = hprofStringObjectId
+          kotlinToJavaHprofIdMutableMap[hprofObjectId] = hprofStringObjectId
         }
       }
     }
@@ -562,7 +561,7 @@ class Converter(
   fun addItem(arrayItem: ArrayItem) {
     if (ADD_JAVA_LANG_STRINGS) {
       val hprofObjectId = hprofObjectId(arrayItem.id)
-      val hprofStringId = hprofKotlinStringIdToJavaLangStringIdMutableMap[hprofObjectId]
+      val hprofStringId = kotlinToJavaHprofIdMutableMap[hprofObjectId]
       if (hprofStringId != null) {
         addJavaLangStringRecords(arrayItem, hprofStringId)
       }
