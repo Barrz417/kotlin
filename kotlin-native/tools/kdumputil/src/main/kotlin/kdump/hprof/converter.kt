@@ -184,7 +184,7 @@ class Converter(
     }
   }
 
-  fun id(string: String): HProfId =
+  fun hprofId(string: String): HProfId =
     stringToIdMutableMap.getOrPut(string) {
       stringToIdMutableMap.size
         .toLong()
@@ -320,7 +320,7 @@ class Converter(
       extraClassObjectId(ClassName.OBJECT),
       listOf(
         HProfInstanceField(
-          nameStringId = id("value"),
+          nameStringId = hprofId("value"),
           type = HProfType.OBJECT
         )
       )
@@ -331,11 +331,11 @@ class Converter(
       extraClassObjectId(ClassName.OBJECT),
       listOf(
         HProfInstanceField(
-          nameStringId = id("baseObject"),
+          nameStringId = hprofId("baseObject"),
           type = HProfType.OBJECT
         ),
         HProfInstanceField(
-          nameStringId = id("associatedObject"),
+          nameStringId = hprofId("associatedObject"),
           type = HProfType.LONG
         )
       )
@@ -383,7 +383,7 @@ class Converter(
       HProfLoadClass(
         classSerialNumber = nextClassSerialNumber(),
         classObjectId = classObjectId,
-        classNameStringId = id(className)
+        classNameStringId = hprofId(className)
       )
     )
 
@@ -431,7 +431,7 @@ class Converter(
       HProfStartThread(
         threadSerialNumber = threadSerialNumber,
         threadObjectId = threadObjectId,
-        threadNameStringId = id("thread-$threadSerialNumber"),
+        threadNameStringId = hprofId("thread-$threadSerialNumber"),
       )
     )
 
@@ -439,8 +439,8 @@ class Converter(
     hprofProfileRecords.add(
       HProfStackFrame(
         stackFrameId = stackFrameId,
-        methodNameStringId = id("start"),
-        methodSignatureStringId = id("()V"),
+        methodNameStringId = hprofId("start"),
+        methodSignatureStringId = hprofId("()V"),
       )
     )
 
@@ -514,7 +514,7 @@ class Converter(
     return HProfLoadClass(
       classSerialNumber = nextClassSerialNumber(),
       classObjectId = hprofClassObjectId(type),
-      classNameStringId = id(className)
+      classNameStringId = hprofId(className)
     )
   }
 
@@ -546,7 +546,7 @@ class Converter(
     hprofTypes.mapIndexed { index, hprofType ->
       val name = field.name.runIf(isVector) { plus("_$index") }
       HProfInstanceField(
-        nameStringId = id(name),
+        nameStringId = hprofId(name),
         type = hprofType,
       )
     }
