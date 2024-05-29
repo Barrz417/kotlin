@@ -7,6 +7,13 @@ enum class IdSize {
   LONG,
 }
 
+@JvmInline
+value class Id(val long: Long) {
+  companion object {
+    val NULL = Id(0)
+  }
+}
+
 data class Profile(
   val idSize: IdSize,
   val time: Long,
@@ -21,22 +28,22 @@ data class UnknownRecord(
 ) : Profile.Record()
 
 data class StringConstant(
-  val id: Long,
+  val id: Id,
   val string: String,
 ) : Profile.Record()
 
 data class LoadClass(
   val classSerialNumber: Int,
-  val classObjectId: Long,
+  val classObjectId: Id,
   val stackTraceSerialNumber: Int = 0,
-  val classNameStringId: Long,
+  val classNameStringId: Id,
 ) : Profile.Record()
 
 data class StackFrame(
-  val stackFrameId: Long,
-  val methodNameStringId: Long,
-  val methodSignatureStringId: Long,
-  val sourceFileNameStringId: Long = 0,
+  val stackFrameId: Id,
+  val methodNameStringId: Id,
+  val methodSignatureStringId: Id,
+  val sourceFileNameStringId: Id = Id.NULL,
   val classSerialNumber: Int = 0,
   val lineNumber: Int = 0,
 ) : Profile.Record()
@@ -44,16 +51,16 @@ data class StackFrame(
 data class StackTrace(
   val serialNumber: Int,
   val threadSerialNumber: Int,
-  val stackFrameIds: LongArray,
+  val stackFrameIds: List<Id>,
 ) : Profile.Record()
 
 data class StartThread(
   val threadSerialNumber: Int,
-  val threadObjectId: Long,
+  val threadObjectId: Id,
   val stackTraceSerialNumber: Int = 0,
-  val threadNameStringId: Long = 0,
-  val threadGroupNameId: Long = 0,
-  val threadParentGroupNameId: Long = 0,
+  val threadNameStringId: Id = Id.NULL,
+  val threadGroupNameId: Id = Id.NULL,
+  val threadParentGroupNameId: Id = Id.NULL,
 ) : Profile.Record()
 
 data class HeapDump(
@@ -69,45 +76,45 @@ data class HeapDumpSection(
 data object HeapDumpEnd : Profile.Record()
 
 data class RootUnknown(
-  val objectId: Long,
+  val objectId: Id,
 ) : HeapDump.Record()
 
 data class RootJniGlobal(
-  val objectId: Long,
-  val refId: Long,
+  val objectId: Id,
+  val refId: Id,
 ) : HeapDump.Record()
 
 data class RootJniLocal(
-  val objectId: Long,
+  val objectId: Id,
   val threadSerialNumber: Int,
   val threadFrameNumber: Int,
 ) : HeapDump.Record()
 
 data class RootStickyClass(
-  val objectId: Long,
+  val objectId: Id,
 ) : HeapDump.Record()
 
 data class RootJavaFrame(
-  val objectId: Long,
+  val objectId: Id,
   val threadSerialNumber: Int,
   val frameNumber: Int = 0,
 ) : HeapDump.Record()
 
 data class RootThreadObject(
-  val threadObjectId: Long,
+  val threadObjectId: Id,
   val threadSerialNumber: Int,
   val stackTraceSerialNumber: Int,
 ) : HeapDump.Record()
 
 data class ClassDump(
-  val classObjectId: Long,
+  val classObjectId: Id,
   val stackTraceSerialNumber: Int = 0,
-  val superClassObjectId: Long = 0L,
-  val classLoaderObjectId: Long = 0L,
-  val signersObjectId: Long = 0L,
-  val protectionDomainObjectId: Long = 0L,
-  val reservedId1: Long = 0L,
-  val reservedId2: Long = 0L,
+  val superClassObjectId: Id = Id.NULL,
+  val classLoaderObjectId: Id = Id.NULL,
+  val signersObjectId: Id = Id.NULL,
+  val protectionDomainObjectId: Id = Id.NULL,
+  val reservedId1: Id = Id.NULL,
+  val reservedId2: Id = Id.NULL,
   val instanceSize: Int = 0,
   val constants: List<Constant> = listOf(),
   val staticFields: List<StaticField> = listOf(),
@@ -121,13 +128,13 @@ data class Constant(
 )
 
 data class StaticField(
-  val nameStringId: Long,
+  val nameStringId: Id,
   val type: Type,
   val byteArray: ByteArray,
 )
 
 data class InstanceField(
-  val nameStringId: Long,
+  val nameStringId: Id,
   val type: Type,
 )
 
@@ -144,22 +151,22 @@ enum class Type {
 }
 
 data class InstanceDump(
-  val objectId: Long,
+  val objectId: Id,
   val stackTraceSerialNumber: Int = 0,
-  val classObjectId: Long,
+  val classObjectId: Id,
   val byteArray: ByteArray = byteArrayOf(),
 ) : HeapDump.Record()
 
 data class ObjectArrayDump(
-  val arrayObjectId: Long,
+  val arrayObjectId: Id,
   val stackTraceSerialNumber: Int = 0,
   val numberOfElements: Int,
-  val arrayClassObjectId: Long,
+  val arrayClassObjectId: Id,
   val byteArray: ByteArray,
 ) : HeapDump.Record()
 
 data class PrimitiveArrayDump(
-  val arrayObjectId: Long,
+  val arrayObjectId: Id,
   val stackTraceSerialNumber: Int = 0,
   val numberOfElements: Int,
   val arrayElementType: Type,

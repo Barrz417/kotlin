@@ -58,13 +58,14 @@ fun InputStream.readIdSize(): IdSize = run {
   }
 }
 
-fun Reader.readId(): Long =
-  when (idSize) {
-    IdSize.BYTE -> readByte().toLongUnsigned()
-    IdSize.SHORT -> readShort().toLongUnsigned()
-    IdSize.INT -> readInt().toLongUnsigned()
-    IdSize.LONG -> readLong()
-  }
+fun Reader.readId(): Id =
+  Id(
+    when (idSize) {
+      IdSize.BYTE -> readByte().toLongUnsigned()
+      IdSize.SHORT -> readShort().toLongUnsigned()
+      IdSize.INT -> readInt().toLongUnsigned()
+      IdSize.LONG -> readLong()
+    })
 
 fun Reader.readType(): Type {
   val int = readByte().toInt().and(0xFF)
@@ -160,7 +161,7 @@ fun Reader.readStackTrace(): StackTrace {
   val threadSerialNumber = readInt()
   val numberOfFrames = readInt()
   val stackFrameIds = inputStream.readList(numberOfFrames) { readId() }
-  return StackTrace(stackTraceSerialNumber, threadSerialNumber, stackFrameIds.toLongArray())
+  return StackTrace(stackTraceSerialNumber, threadSerialNumber, stackFrameIds)
 }
 
 fun Reader.readStartThread(): StartThread {

@@ -60,12 +60,12 @@ fun <T> HProfWriter.writeWithShortSize(list: List<T>, fn: HProfWriter.(T) -> Uni
   list.forEach { fn(it) }
 }
 
-fun HProfWriter.writeId(id: Long) {
+fun HProfWriter.write(id: Id) {
   when (idSize) {
-    IdSize.BYTE -> write(id.toByte())
-    IdSize.SHORT -> write(id.toShort())
-    IdSize.INT -> write(id.toInt())
-    IdSize.LONG -> write(id)
+    IdSize.BYTE -> write(id.long.toByte())
+    IdSize.SHORT -> write(id.long.toShort())
+    IdSize.INT -> write(id.long.toInt())
+    IdSize.LONG -> write(id.long)
   }
 }
 
@@ -124,22 +124,22 @@ fun HProfWriter.writeBody(it: UnknownRecord) {
 }
 
 fun HProfWriter.writeBody(it: StringConstant) {
-  writeId(it.id)
+  write(it.id)
   write(it.string.toByteArray(Charsets.UTF_8))
 }
 
 fun HProfWriter.writeBody(it: LoadClass) {
   write(it.classSerialNumber)
-  writeId(it.classObjectId)
+  write(it.classObjectId)
   write(it.stackTraceSerialNumber)
-  writeId(it.classNameStringId)
+  write(it.classNameStringId)
 }
 
 fun HProfWriter.writeBody(it: StackFrame) {
-  writeId(it.stackFrameId)
-  writeId(it.methodNameStringId)
-  writeId(it.methodSignatureStringId)
-  writeId(it.sourceFileNameStringId)
+  write(it.stackFrameId)
+  write(it.methodNameStringId)
+  write(it.methodSignatureStringId)
+  write(it.sourceFileNameStringId)
   write(it.classSerialNumber)
   write(it.lineNumber)
 }
@@ -222,45 +222,45 @@ fun HProfWriter.writeHeapDumpRecord(tag: Int, fn: HProfWriter.() -> Unit) {
 }
 
 fun HProfWriter.writeBody(it: RootUnknown) {
-  writeId(it.objectId)
+  write(it.objectId)
 }
 
 fun HProfWriter.writeBody(it: RootJniGlobal) {
-  writeId(it.objectId)
-  writeId(it.refId)
+  write(it.objectId)
+  write(it.refId)
 }
 
 fun HProfWriter.writeBody(it: RootJniLocal) {
-  writeId(it.objectId)
+  write(it.objectId)
   write(it.threadSerialNumber)
   write(it.threadFrameNumber)
 }
 
 fun HProfWriter.writeBody(it: RootStickyClass) {
-  writeId(it.objectId)
+  write(it.objectId)
 }
 
 fun HProfWriter.writeBody(it: RootJavaFrame) {
-  writeId(it.objectId)
+  write(it.objectId)
   write(it.threadSerialNumber)
   write(it.frameNumber)
 }
 
 fun HProfWriter.writeBody(it: RootThreadObject) {
-  writeId(it.threadObjectId)
+  write(it.threadObjectId)
   write(it.threadSerialNumber)
   write(it.stackTraceSerialNumber)
 }
 
 fun HProfWriter.writeBody(it: ClassDump) {
-  writeId(it.classObjectId)
+  write(it.classObjectId)
   write(it.stackTraceSerialNumber)
-  writeId(it.superClassObjectId)
-  writeId(it.classLoaderObjectId)
-  writeId(it.signersObjectId)
-  writeId(it.protectionDomainObjectId)
-  writeId(it.reservedId1)
-  writeId(it.reservedId2)
+  write(it.superClassObjectId)
+  write(it.classLoaderObjectId)
+  write(it.signersObjectId)
+  write(it.protectionDomainObjectId)
+  write(it.reservedId1)
+  write(it.reservedId2)
   write(it.instanceSize)
   writeWithShortSize(it.constants) { write(it) }
   writeWithShortSize(it.staticFields) { write(it) }
@@ -274,33 +274,33 @@ fun HProfWriter.write(it: Constant) {
 }
 
 fun HProfWriter.write(it: StaticField) {
-  writeId(it.nameStringId)
+  write(it.nameStringId)
   write(it.type)
   write(it.byteArray)
 }
 
 fun HProfWriter.write(it: InstanceField) {
-  writeId(it.nameStringId)
+  write(it.nameStringId)
   write(it.type)
 }
 
 fun HProfWriter.writeBody(it: InstanceDump) {
-  writeId(it.objectId)
+  write(it.objectId)
   write(it.stackTraceSerialNumber)
-  writeId(it.classObjectId)
+  write(it.classObjectId)
   writeWithSize(it.byteArray)
 }
 
 fun HProfWriter.writeBody(it: ObjectArrayDump) {
-  writeId(it.arrayObjectId)
+  write(it.arrayObjectId)
   write(it.stackTraceSerialNumber)
   write(it.numberOfElements)
-  writeId(it.arrayClassObjectId)
+  write(it.arrayClassObjectId)
   write(it.byteArray)
 }
 
 fun HProfWriter.writeBody(it: PrimitiveArrayDump) {
-  writeId(it.arrayObjectId)
+  write(it.arrayObjectId)
   write(it.stackTraceSerialNumber)
   write(it.numberOfElements)
   write(it.arrayElementType)
