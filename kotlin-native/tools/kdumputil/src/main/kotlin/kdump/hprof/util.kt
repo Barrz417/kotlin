@@ -19,37 +19,30 @@ fun String.primitiveArrayClassNameToElementTypePair(): Pair<RuntimeType, HProfTy
   }
 
 val Type.hprofClassName: String
-  get() =
-    if (!isArray) {
-      hprofMappedClassName ?: hprofDefaultClassName
-    } else if (packageName == "kotlin") {
-      when (relativeName) {
-        "String" -> if (ADD_JAVA_LANG_STRINGS) ClassName.STRING else ClassName.Array.CHAR
-        "Array" -> ClassName.Array.OBJECT
-        "BooleanArray" -> ClassName.Array.BOOLEAN
-        "CharArray" -> ClassName.Array.CHAR
-        "ByteArray" -> ClassName.Array.BYTE
-        "ShortArray" -> ClassName.Array.SHORT
-        "IntArray" -> ClassName.Array.INT
-        "LongArray" -> ClassName.Array.LONG
-        "FloatArray" -> ClassName.Array.FLOAT
-        "DoubleArray" -> ClassName.Array.DOUBLE
-        else -> throw IllegalArgumentException("Invalid array relative name: $relativeName")
-      }
-    } else {
-      throw IllegalArgumentException("Invalid array package name: $packageName")
-    }
+  get() = hprofMappedClassName ?: hprofDefaultClassName
 
 val Type.hprofMappedClassName: String?
   get() =
-    when (packageName) {
-      "kotlin" ->
-        when (relativeName) {
-          "String" -> ClassName.STRING
-          else -> null
-        }
-
-      else -> null
+    if (isArray) {
+      when (packageName) {
+        "kotlin" ->
+          when (relativeName) {
+            "String" -> if (ADD_JAVA_LANG_STRINGS) ClassName.STRING else ClassName.Array.CHAR
+            "Array" -> ClassName.Array.OBJECT
+            "BooleanArray" -> ClassName.Array.BOOLEAN
+            "CharArray" -> ClassName.Array.CHAR
+            "ByteArray" -> ClassName.Array.BYTE
+            "ShortArray" -> ClassName.Array.SHORT
+            "IntArray" -> ClassName.Array.INT
+            "LongArray" -> ClassName.Array.LONG
+            "FloatArray" -> ClassName.Array.FLOAT
+            "DoubleArray" -> ClassName.Array.DOUBLE
+            else -> null
+          }
+        else -> null
+      }
+    } else {
+      null
     }
 
 val Type.hprofDefaultClassName: String
