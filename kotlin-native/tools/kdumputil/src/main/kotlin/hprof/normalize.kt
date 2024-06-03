@@ -16,7 +16,6 @@ private fun Profile.Record.normalize(): Profile.Record =
     is UnknownRecord -> this
   }
 
-
 private fun HeapDump.Record.classOrder(): Int =
   when (this) {
     is ClassDump -> 1
