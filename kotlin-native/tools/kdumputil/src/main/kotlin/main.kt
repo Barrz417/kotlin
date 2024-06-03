@@ -1,5 +1,6 @@
 import collections.nextOrNull
 import hprof.item
+import hprof.normalize
 import hprof.readProfile
 import hprof.write
 import java.io.File
@@ -71,5 +72,6 @@ fun mainConvertKdumpHprof(inPathname: String, outPathname: String) {
     .let { PushbackInputStream(it) }
     .readDump()
     .toHProfProfile()
+    .normalize()
     .run { File(outPathname).write(this) }
 }
