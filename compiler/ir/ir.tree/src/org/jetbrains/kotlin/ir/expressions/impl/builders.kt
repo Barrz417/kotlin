@@ -103,6 +103,7 @@ fun IrCatchImpl(
     startOffset = startOffset,
     endOffset = endOffset,
     catchParameter = catchParameter,
+    origin = null
 )
 
 fun IrCatchImpl(
@@ -110,11 +111,13 @@ fun IrCatchImpl(
     endOffset: Int,
     catchParameter: IrVariable,
     result: IrExpression,
+    origin: IrStatementOrigin? = null
 ) = IrCatchImpl(
     constructorIndicator = null,
     startOffset = startOffset,
     endOffset = endOffset,
     catchParameter = catchParameter,
+    origin = origin
 ).apply {
     this.result = result
 }
