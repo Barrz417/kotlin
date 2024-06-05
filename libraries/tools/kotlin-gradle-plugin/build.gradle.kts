@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("gradle-plugin-common-configuration")
-    id("org.jetbrains.kotlinx.binary-compatibility-validator")
+    id("gradle_build_conventions.bcv-compat")
 }
 
 repositories {
@@ -46,12 +46,29 @@ kotlin {
     }
 }
 
-apiValidation {
-    publicMarkers.add("org.jetbrains.kotlin.gradle.ExternalKotlinTargetApi")
-    publicMarkers.add("org.jetbrains.kotlin.gradle.ComposeKotlinGradlePluginApi")
-    publicMarkers.add("org.jetbrains.kotlin.gradle.dsl.KotlinGradlePluginPublicDsl")
-    nonPublicMarkers.add("org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi")
-    additionalSourceSets.add("common")
+binaryCompatibilityValidator {
+    targets.configureEach {
+        ignoredPackages.add("**.internal.**")
+        ignoredMarkers.add("org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi")
+
+        inputClasses.from(project.sourceSets.main.map { it.output.classesDirs })
+        inputClasses.from(project.sourceSets.common.map { it.output.classesDirs })
+    }
+
+    val externalApiMarkers = setOf(
+        "org.jetbrains.kotlin.gradle.ExternalKotlinTargetApi",
+        "org.jetbrains.kotlin.gradle.ComposeKotlinGradlePluginApi",
+        "org.jetbrains.kotlin.gradle.dsl.KotlinGradlePluginPublicDsl",
+    )
+
+    // create a target for all non-external declarations
+    targets.register("all") {
+        ignoredMarkers.addAll(externalApiMarkers)
+    }
+
+    targets.register("external") {
+        publicMarkers.addAll(externalApiMarkers)
+    }
 }
 
 dependencies {
