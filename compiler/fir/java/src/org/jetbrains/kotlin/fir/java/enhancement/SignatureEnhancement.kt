@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.builtins.StandardNames.DEFAULT_VALUE_PARAMETER
 import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Modality
+import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.fakeElement
 import org.jetbrains.kotlin.fir.*
 import org.jetbrains.kotlin.fir.caches.FirCache
@@ -31,15 +32,10 @@ import org.jetbrains.kotlin.fir.expressions.unexpandedClassId
 import org.jetbrains.kotlin.fir.java.FirJavaFacade
 import org.jetbrains.kotlin.fir.java.FirJavaTypeConversionMode
 import org.jetbrains.kotlin.fir.java.JavaTypeParameterStack
-import org.jetbrains.kotlin.fir.java.declarations.FirJavaClass
-import org.jetbrains.kotlin.fir.java.declarations.FirJavaConstructor
-import org.jetbrains.kotlin.fir.java.declarations.FirJavaExternalAnnotation
-import org.jetbrains.kotlin.fir.java.declarations.FirJavaField
-import org.jetbrains.kotlin.fir.java.declarations.FirJavaMethod
-import org.jetbrains.kotlin.fir.java.declarations.FirJavaTypeParameter
-import org.jetbrains.kotlin.fir.java.declarations.buildJavaField
+import org.jetbrains.kotlin.fir.java.declarations.*
 import org.jetbrains.kotlin.fir.java.symbols.FirJavaOverriddenSyntheticPropertySymbol
 import org.jetbrains.kotlin.fir.java.toConeKotlinTypeProbablyFlexible
+import org.jetbrains.kotlin.fir.resolve.getSuperTypes
 import org.jetbrains.kotlin.fir.resolve.providers.symbolProvider
 import org.jetbrains.kotlin.fir.resolve.substitution.ConeSubstitutor
 import org.jetbrains.kotlin.fir.resolve.substitution.ConeSubstitutorByMap
@@ -58,6 +54,7 @@ import org.jetbrains.kotlin.fir.types.impl.ConeTypeParameterTypeImpl
 import org.jetbrains.kotlin.fir.types.impl.FirImplicitTypeRefImplWithoutSource
 import org.jetbrains.kotlin.fir.types.jvm.FirJavaTypeRef
 import org.jetbrains.kotlin.fir.utils.exceptions.withFirEntry
+import org.jetbrains.kotlin.lexer.KtTokens.PRIVATE_KEYWORD
 import org.jetbrains.kotlin.load.java.*
 import org.jetbrains.kotlin.load.java.AnnotationQualifierApplicabilityType.VALUE_PARAMETER
 import org.jetbrains.kotlin.load.java.typeEnhancement.*
@@ -91,6 +88,10 @@ class FirSignatureEnhancement(
     // While in one of the cases FirSignatureEnhancement is created just one step before annotations resolution
     private val contextQualifiers: JavaTypeQualifiersByElementType? by lazy(LazyThreadSafetyMode.NONE) {
         typeQualifierResolver.extractDefaultQualifiers(owner)
+    }
+
+    private val hasKtPrivateClassSuperType: Boolean by lazy {
+        owner.symbol.getSuperTypes(session, substituteSuperTypes = false).any { it.toSymbol(session)?.fir?.visibility is Visibilities.Private }
     }
 
     private val enhancementsCache = session.enhancedSymbolStorage.cacheByOwner.getValue(owner.symbol, null)
@@ -231,6 +232,7 @@ class FirSignatureEnhancement(
         }
 
         val firMethod = original.fir
+        firMethod.javaClsInheritsKtPrivateCls = hasKtPrivateClassSuperType
         when (firMethod) {
             is FirJavaMethod -> performBoundsResolutionForJavaMethodOrConstructorTypeParameters(
                 firMethod.typeParameters, firMethod.source, firMethod::withTypeParameterBoundsResolveLock
@@ -622,7 +624,7 @@ class FirSignatureEnhancement(
 
     private inline fun List<FirTypeParameterRef>.replaceEnhancedBounds(
         secondRoundBounds: List<MutableList<FirResolvedTypeRef>>,
-        crossinline block: (FirTypeParameter, FirResolvedTypeRef) -> FirResolvedTypeRef
+        crossinline block: (FirTypeParameter, FirResolvedTypeRef) -> FirResolvedTypeRef,
     ) {
         var currentIndex = 0
         for (typeParameter in this) {
@@ -968,7 +970,7 @@ private class EnhancementSignatureParts(
 
     override fun getDefaultNullability(
         referencedParameterBoundsNullability: NullabilityQualifierWithMigrationStatus?,
-        defaultTypeQualifiers: JavaDefaultQualifiers?
+        defaultTypeQualifiers: JavaDefaultQualifiers?,
     ): NullabilityQualifierWithMigrationStatus? {
         return referencedParameterBoundsNullability?.takeIf { it.qualifier == NullabilityQualifier.NOT_NULL }
             ?: defaultTypeQualifiers?.nullabilityQualifier

@@ -634,6 +634,12 @@ internal val KT_DIAGNOSTIC_CONVERTER = KaDiagnosticConverterBuilder.buildConvert
             token,
         )
     }
+    add(FirJvmErrors.JAVA_CLASS_INHERITS_KT_PRIVATE_CLASS) { firDiagnostic ->
+        JavaClassInheritsKtPrivateClassImpl(
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
     add(FirErrors.NOT_A_SUPERTYPE) { firDiagnostic ->
         NotASupertypeImpl(
             firDiagnostic as KtPsiDiagnostic,

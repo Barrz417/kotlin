@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.fir.checkers.generator.diagnostics
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.config.LanguageFeature.*
-import org.jetbrains.kotlin.diagnostics.Severity
 import org.jetbrains.kotlin.fir.checkers.generator.diagnostics.model.DiagnosticList
 import org.jetbrains.kotlin.fir.checkers.generator.diagnostics.model.PositioningStrategy
 import org.jetbrains.kotlin.fir.symbols.impl.FirCallableSymbol
@@ -122,6 +121,7 @@ object JVM_DIAGNOSTICS_LIST : DiagnosticList("FirJvmErrors") {
 
     val SUPER by object : DiagnosticGroup("Super") {
         val INTERFACE_CANT_CALL_DEFAULT_METHOD_VIA_SUPER by error<PsiElement>(PositioningStrategy.REFERENCE_BY_QUALIFIED)
+        val JAVA_CLASS_INHERITS_KT_PRIVATE_CLASS by error<KtElement>()
     }
 
     val RECORDS by object : DiagnosticGroup("JVM Records") {

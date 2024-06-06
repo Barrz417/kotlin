@@ -804,8 +804,22 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(VAL_OR_VAR_ON_SECONDARY_CONSTRUCTOR_PARAMETER, "''{0}'' on secondary constructor parameter is prohibited.", TO_STRING)
         map.put(DEPRECATION, "''{0}'' is deprecated.{1}", SYMBOL, OPTIONAL_SENTENCE)
         map.put(DEPRECATION_ERROR, "''{0}'' is deprecated.{1}", SYMBOL, OPTIONAL_SENTENCE)
-        map.put(VERSION_REQUIREMENT_DEPRECATION, "''{0}''{1} should not be used in Kotlin {2}.{3}", SYMBOL, REQUIRE_KOTLIN_VERSION, STRING, OPTIONAL_SENTENCE)
-        map.put(VERSION_REQUIREMENT_DEPRECATION_ERROR, "''{0}''{1} cannot be used in Kotlin {2}.{3}", SYMBOL, REQUIRE_KOTLIN_VERSION, STRING, OPTIONAL_SENTENCE)
+        map.put(
+            VERSION_REQUIREMENT_DEPRECATION,
+            "''{0}''{1} should not be used in Kotlin {2}.{3}",
+            SYMBOL,
+            REQUIRE_KOTLIN_VERSION,
+            STRING,
+            OPTIONAL_SENTENCE
+        )
+        map.put(
+            VERSION_REQUIREMENT_DEPRECATION_ERROR,
+            "''{0}''{1} cannot be used in Kotlin {2}.{3}",
+            SYMBOL,
+            REQUIRE_KOTLIN_VERSION,
+            STRING,
+            OPTIONAL_SENTENCE
+        )
         map.put(TYPEALIAS_EXPANSION_DEPRECATION, "''{0}'' uses ''{1}'', which is deprecated. {2}.", SYMBOL, SYMBOL, STRING)
         map.put(TYPEALIAS_EXPANSION_DEPRECATION_ERROR, "''{0}'' uses ''{1}'', which is an error. {2}.", SYMBOL, SYMBOL, STRING)
 
@@ -914,7 +928,9 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(FUNCTION_CALL_EXPECTED, "Function invocation ''{0}({1})'' expected.", TO_STRING, FUNCTION_PARAMETERS)
         map.put(
             FUNCTION_EXPECTED,
-            "Expression ''{0}'' of type ''{1}'' cannot be invoked as a function. Function ''invoke()'' is not found.", TO_STRING, RENDER_TYPE
+            "Expression ''{0}'' of type ''{1}'' cannot be invoked as a function. Function ''invoke()'' is not found.",
+            TO_STRING,
+            RENDER_TYPE
         )
         map.put(INTERFACE_AS_FUNCTION, "Interface ''{0}'' does not have constructors.", SYMBOL)
         map.put(EXPECT_CLASS_AS_FUNCTION, "Expected class ''{0}'' does not have default constructor.", SYMBOL)
@@ -1016,7 +1032,11 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(NON_PRIVATE_OR_PROTECTED_CONSTRUCTOR_IN_SEALED, "Constructor must be private or protected in sealed class.")
         map.put(CYCLIC_CONSTRUCTOR_DELEGATION_CALL, "There's a cycle in the delegation calls chain.")
         map.put(PRIMARY_CONSTRUCTOR_DELEGATION_CALL_EXPECTED, "Primary constructor call expected.")
-        map.put(PROTECTED_CONSTRUCTOR_NOT_IN_SUPER_CALL, "Protected constructor ''{0}'' from other classes can only be used in super-call.", SYMBOL)
+        map.put(
+            PROTECTED_CONSTRUCTOR_NOT_IN_SUPER_CALL,
+            "Protected constructor ''{0}'' from other classes can only be used in super-call.",
+            SYMBOL
+        )
         map.put(SUPERTYPE_INITIALIZED_WITHOUT_PRIMARY_CONSTRUCTOR, "Supertype initialization is impossible without a primary constructor.")
         map.put(DELEGATION_SUPER_CALL_IN_ENUM_CONSTRUCTOR, "Calls to super in enum constructors are prohibited.")
         map.put(
@@ -1240,8 +1260,20 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(EXPOSED_RECEIVER_TYPE, "Member ''{0}'' exposes its ''{2}'' receiver type ''{1}''.", TO_STRING, DECLARATION_NAME, TO_STRING)
         map.put(EXPOSED_PROPERTY_TYPE, "Property ''{0}'' exposes its ''{2}'' type ''{1}''.", TO_STRING, DECLARATION_NAME, TO_STRING)
         map.put(EXPOSED_PROPERTY_TYPE_IN_CONSTRUCTOR, "Property ''{0}'' exposes its ''{2}'' type ''{1}''.", TO_STRING, TO_STRING, TO_STRING)
-        map.put(EXPOSED_PARAMETER_TYPE, "Function ''{0}'' exposes its ''{2}'' parameter type ''{1}''.", TO_STRING, DECLARATION_NAME, TO_STRING)
-        map.put(EXPOSED_SUPER_INTERFACE, "Sub-interface ''{0}'' exposes its ''{2}'' supertype ''{1}''.", TO_STRING, DECLARATION_NAME, TO_STRING)
+        map.put(
+            EXPOSED_PARAMETER_TYPE,
+            "Function ''{0}'' exposes its ''{2}'' parameter type ''{1}''.",
+            TO_STRING,
+            DECLARATION_NAME,
+            TO_STRING
+        )
+        map.put(
+            EXPOSED_SUPER_INTERFACE,
+            "Sub-interface ''{0}'' exposes its ''{2}'' supertype ''{1}''.",
+            TO_STRING,
+            DECLARATION_NAME,
+            TO_STRING
+        )
         map.put(EXPOSED_SUPER_CLASS, "Subclass ''{0}'' exposes its ''{2}'' supertype ''{1}''.", TO_STRING, DECLARATION_NAME, TO_STRING)
         map.put(
             EXPOSED_TYPE_PARAMETER_BOUND,
@@ -1306,7 +1338,11 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(REDUNDANT_SPREAD_OPERATOR_IN_NAMED_FORM_IN_ANNOTATION, "Redundant spread (*) operator.")
         map.put(REDUNDANT_SPREAD_OPERATOR_IN_NAMED_FORM_IN_FUNCTION, "Redundant spread (*) operator.")
         map.put(INFERENCE_UNSUCCESSFUL_FORK, "Unsuccessful inference fork at position ''{0}''.", TO_STRING)
-        map.put(NESTED_CLASS_ACCESSED_VIA_INSTANCE_REFERENCE, "Nested {0} accessed via instance reference", RENDER_CLASS_OR_OBJECT_NAME_QUOTED)
+        map.put(
+            NESTED_CLASS_ACCESSED_VIA_INSTANCE_REFERENCE,
+            "Nested {0} accessed via instance reference",
+            RENDER_CLASS_OR_OBJECT_NAME_QUOTED
+        )
         map.put(
             INFERRED_TYPE_VARIABLE_INTO_EMPTY_INTERSECTION,
             "Type argument for type parameter ''{0}'' cannot be inferred because it has incompatible upper bounds: {1} ({2}{3}).",
@@ -1343,7 +1379,12 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
             SYMBOL
         )
         map.put(THROWABLE_TYPE_MISMATCH, "Throwable type mismatch: actual type is ''{0}''.", RENDER_TYPE, NOT_RENDERED)
-        map.put(CONDITION_TYPE_MISMATCH, "Condition type mismatch: inferred type is ''{0}'' but ''Boolean'' was expected.", RENDER_TYPE, NOT_RENDERED)
+        map.put(
+            CONDITION_TYPE_MISMATCH,
+            "Condition type mismatch: inferred type is ''{0}'' but ''Boolean'' was expected.",
+            RENDER_TYPE,
+            NOT_RENDERED
+        )
         map.put(
             ARGUMENT_TYPE_MISMATCH,
             "Argument type mismatch: actual type is ''{1}'', but ''{0}'' was expected.",
@@ -1367,12 +1408,24 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
 
         map.put(ITERATOR_MISSING, "For-loop range must have an 'iterator()' method.")
         map.put(ITERATOR_ON_NULLABLE, "Non-nullable value required to call an 'iterator()' method in a for-loop.")
-        map.put(ITERATOR_AMBIGUITY, "Method ''iterator()'' is ambiguous for this expression. Applicable candidates:{0}", SYMBOLS_ON_NEXT_LINES)
+        map.put(
+            ITERATOR_AMBIGUITY,
+            "Method ''iterator()'' is ambiguous for this expression. Applicable candidates:{0}",
+            SYMBOLS_ON_NEXT_LINES
+        )
 
         map.put(NEXT_MISSING, "Method 'next()' cannot be called on 'iterator()'.")
         map.put(NEXT_AMBIGUITY, "Method ''next()'' is ambiguous for this expression. Applicable candidates:{0}", SYMBOLS_ON_NEXT_LINES)
-        map.put(AMBIGUOUS_FUNCTION_TYPE_KIND, "Multiple function type conversions are prohibited for a single type. Detected type conversions: {0}", FUNCTIONAL_TYPE_KINDS)
-        map.put(NEXT_NONE_APPLICABLE, "None of the ''next()'' functions is applicable for this expression. Candidates are:{0}", SYMBOLS_ON_NEXT_LINES)
+        map.put(
+            AMBIGUOUS_FUNCTION_TYPE_KIND,
+            "Multiple function type conversions are prohibited for a single type. Detected type conversions: {0}",
+            FUNCTIONAL_TYPE_KINDS
+        )
+        map.put(
+            NEXT_NONE_APPLICABLE,
+            "None of the ''next()'' functions is applicable for this expression. Candidates are:{0}",
+            SYMBOLS_ON_NEXT_LINES
+        )
 
         map.put(
             CONTEXT_RECEIVERS_DEPRECATED,
@@ -1412,8 +1465,16 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(OVERLOAD_RESOLUTION_AMBIGUITY, "Overload resolution ambiguity between candidates:{0}", SYMBOLS_ON_NEXT_LINES)
         map.put(ASSIGN_OPERATOR_AMBIGUITY, "Ambiguity between assign operator candidates:{0}", SYMBOLS_ON_NEXT_LINES)
         map.put(HAS_NEXT_MISSING, "'hasNext()' cannot be called on 'iterator()'.")
-        map.put(HAS_NEXT_FUNCTION_AMBIGUITY, "Method ''hasNext()'' is ambiguous for this expression. Applicable candidates:{0}", SYMBOLS_ON_NEXT_LINES)
-        map.put(HAS_NEXT_FUNCTION_NONE_APPLICABLE, "None of the ''hasNext()'' functions is applicable for this expression. Candidates are:{0}", SYMBOLS_ON_NEXT_LINES)
+        map.put(
+            HAS_NEXT_FUNCTION_AMBIGUITY,
+            "Method ''hasNext()'' is ambiguous for this expression. Applicable candidates:{0}",
+            SYMBOLS_ON_NEXT_LINES
+        )
+        map.put(
+            HAS_NEXT_FUNCTION_NONE_APPLICABLE,
+            "None of the ''hasNext()'' functions is applicable for this expression. Candidates are:{0}",
+            SYMBOLS_ON_NEXT_LINES
+        )
         map.put(
             UNRESOLVED_REFERENCE_WRONG_RECEIVER,
             "Unresolved reference. None of the following candidates is applicable because of a receiver type mismatch:{0}",
@@ -1440,7 +1501,10 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         )
 
         map.put(TYPE_ARGUMENTS_NOT_ALLOWED, "Type arguments are not allowed {0}.", STRING)
-        map.put(TYPE_ARGUMENTS_FOR_OUTER_CLASS_WHEN_NESTED_REFERENCED, "Type arguments for outer class are redundant when nested class is referenced")
+        map.put(
+            TYPE_ARGUMENTS_FOR_OUTER_CLASS_WHEN_NESTED_REFERENCED,
+            "Type arguments for outer class are redundant when nested class is referenced"
+        )
         val wrongNumberOfTypeArguments = "{0,choice,0#No type arguments|1#One type argument|1<{0,number,integer} type arguments} expected"
         map.put(
             WRONG_NUMBER_OF_TYPE_ARGUMENTS,
@@ -1648,7 +1712,10 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
             RENDER_TYPE
         )
         map.put(UNSUPPORTED_CLASS_LITERALS_WITH_EMPTY_LHS, "Class literals with empty left hand side are unsupported.")
-        map.put(MUTABLE_PROPERTY_WITH_CAPTURED_TYPE, "Captured type in mutable property reference. Usages of 'set' may lead to cast exceptions.")
+        map.put(
+            MUTABLE_PROPERTY_WITH_CAPTURED_TYPE,
+            "Captured type in mutable property reference. Usages of 'set' may lead to cast exceptions."
+        )
 
         // Value classes
         map.put(VALUE_CLASS_NOT_TOP_LEVEL, "Value class cannot be local or inner.")
@@ -1826,7 +1893,11 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
             DECLARATION_NAME,
             SYMBOL_WITH_CONTAINING_DECLARATION
         )
-        map.put(AMBIGUOUS_ANONYMOUS_TYPE_INFERRED, "Right-hand side has an anonymous type. Please specify the type explicitly.", NOT_RENDERED)
+        map.put(
+            AMBIGUOUS_ANONYMOUS_TYPE_INFERRED,
+            "Right-hand side has an anonymous type. Please specify the type explicitly.",
+            NOT_RENDERED
+        )
         map.put(
             MANY_IMPL_MEMBER_NOT_IMPLEMENTED,
             "{0} must override ''{1}'' because it inherits multiple implementations for it.",
@@ -1966,7 +2037,11 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(REDECLARATION, "Conflicting declarations:{0}", SYMBOLS_ON_NEXT_LINES)
         map.put(CLASSIFIER_REDECLARATION, "Redeclaration:{0}", SYMBOLS_ON_NEXT_LINES)
         map.put(PACKAGE_CONFLICTS_WITH_CLASSIFIER, "Package conflicts with classifier {0}", CLASS_ID)
-        map.put(EXPECT_AND_ACTUAL_IN_THE_SAME_MODULE, "{0}: expect and corresponding actual are declared in the same module", DECLARATION_NAME)
+        map.put(
+            EXPECT_AND_ACTUAL_IN_THE_SAME_MODULE,
+            "{0}: expect and corresponding actual are declared in the same module",
+            DECLARATION_NAME
+        )
 
         map.put(METHOD_OF_ANY_IMPLEMENTED_IN_INTERFACE, "Interfaces cannot implement a method of 'Any'.")
 
@@ -2007,7 +2082,10 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
             "Functional interface must have exactly one abstract function."
         )
         map.put(FUN_INTERFACE_CANNOT_HAVE_ABSTRACT_PROPERTIES, "Functional interface cannot have abstract properties.")
-        map.put(FUN_INTERFACE_ABSTRACT_METHOD_WITH_TYPE_PARAMETERS, "Functional interface cannot have an abstract method with type parameters.")
+        map.put(
+            FUN_INTERFACE_ABSTRACT_METHOD_WITH_TYPE_PARAMETERS,
+            "Functional interface cannot have an abstract method with type parameters."
+        )
         map.put(FUN_INTERFACE_ABSTRACT_METHOD_WITH_DEFAULT_VALUE, "Functional interface abstract method cannot have a default value.")
         map.put(FUN_INTERFACE_WITH_SUSPEND_FUNCTION, "Functional interface abstract method cannot have a suspend modifier.")
 
@@ -2022,7 +2100,10 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(DATA_OBJECT_CUSTOM_EQUALS_OR_HASH_CODE, "Data object cannot have a custom implementation of 'equals' or 'hashCode'.")
 
         // Parameter default values
-        map.put(DEFAULT_VALUE_NOT_ALLOWED_IN_OVERRIDE, "An overriding function is not allowed to specify default values for its parameters.")
+        map.put(
+            DEFAULT_VALUE_NOT_ALLOWED_IN_OVERRIDE,
+            "An overriding function is not allowed to specify default values for its parameters."
+        )
 
         // Fun interfaces
         map.put(FUN_INTERFACE_CONSTRUCTOR_REFERENCE, "Functional interface constructor references are prohibited.")
@@ -2046,16 +2127,28 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(VARIABLE_WITH_NO_TYPE_NO_INITIALIZER, "This variable must either have an explicit type or be initialized.")
 
         map.put(INITIALIZATION_BEFORE_DECLARATION, "Variable cannot be initialized before declaration.", SYMBOL)
-        map.put(TYPECHECKER_HAS_RUN_INTO_RECURSIVE_PROBLEM, "Type checking has run into a recursive problem. Easiest workaround: specify the types of your declarations explicitly.")
+        map.put(
+            TYPECHECKER_HAS_RUN_INTO_RECURSIVE_PROBLEM,
+            "Type checking has run into a recursive problem. Easiest workaround: specify the types of your declarations explicitly."
+        )
 
         map.put(MUST_BE_INITIALIZED, "Property must be initialized.")
         map.put(MUST_BE_INITIALIZED_WARNING, "Property must be initialized. This warning will become an error in future releases.")
         map.put(MUST_BE_INITIALIZED_OR_BE_FINAL, "Property must be initialized or be final.")
-        map.put(MUST_BE_INITIALIZED_OR_BE_FINAL_WARNING, "Property must be initialized or be final. This warning will become an error in future releases.")
+        map.put(
+            MUST_BE_INITIALIZED_OR_BE_FINAL_WARNING,
+            "Property must be initialized or be final. This warning will become an error in future releases."
+        )
         map.put(MUST_BE_INITIALIZED_OR_BE_ABSTRACT, "Property must be initialized or be abstract.")
-        map.put(MUST_BE_INITIALIZED_OR_BE_ABSTRACT_WARNING, "Property must be initialized or be abstract. This warning will become an error in future releases.")
+        map.put(
+            MUST_BE_INITIALIZED_OR_BE_ABSTRACT_WARNING,
+            "Property must be initialized or be abstract. This warning will become an error in future releases."
+        )
         map.put(MUST_BE_INITIALIZED_OR_FINAL_OR_ABSTRACT, "Property must be initialized, be final, or be abstract.")
-        map.put(MUST_BE_INITIALIZED_OR_FINAL_OR_ABSTRACT_WARNING, "Property must be initialized, be final, or be abstract. This warning will become an error in future releases.")
+        map.put(
+            MUST_BE_INITIALIZED_OR_FINAL_OR_ABSTRACT_WARNING,
+            "Property must be initialized, be final, or be abstract. This warning will become an error in future releases."
+        )
 
         map.put(EXTENSION_PROPERTY_MUST_HAVE_ACCESSORS_OR_BE_ABSTRACT, "Extension property must have accessors or be abstract.")
         map.put(UNNECESSARY_LATEINIT, "'Lateinit' is unnecessary: definitely initialized in constructors.")
@@ -2083,7 +2176,13 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
             "Extension property type parameter ''{0}'' cannot be used in delegates. See https://youtrack.jetbrains.com/issue/KT-24643",
             SYMBOL
         )
-        map.put(INITIALIZER_TYPE_MISMATCH, "Initializer type mismatch: expected ''{0}'', actual ''{1}''.", RENDER_TYPE, RENDER_TYPE, NOT_RENDERED)
+        map.put(
+            INITIALIZER_TYPE_MISMATCH,
+            "Initializer type mismatch: expected ''{0}'', actual ''{1}''.",
+            RENDER_TYPE,
+            RENDER_TYPE,
+            NOT_RENDERED
+        )
         map.put(GETTER_VISIBILITY_DIFFERS_FROM_PROPERTY_VISIBILITY, "Getter visibility must be the same as property visibility.")
         map.put(
             SETTER_VISIBILITY_INCONSISTENT_WITH_PROPERTY_VISIBILITY,
@@ -2161,7 +2260,11 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(CONST_VAL_NOT_TOP_LEVEL_OR_OBJECT, "Const 'val' is only allowed on top level, in named objects, or in companion objects.")
         map.put(CONST_VAL_WITH_GETTER, "Const 'val' cannot have a getter.")
         map.put(CONST_VAL_WITH_DELEGATE, "Const 'val' cannot have a delegate.")
-        map.put(TYPE_CANT_BE_USED_FOR_CONST_VAL, "Const ''val'' has type ''{0}''. Only primitive types and ''String'' are allowed.", RENDER_TYPE)
+        map.put(
+            TYPE_CANT_BE_USED_FOR_CONST_VAL,
+            "Const ''val'' has type ''{0}''. Only primitive types and ''String'' are allowed.",
+            RENDER_TYPE
+        )
         map.put(CONST_VAL_WITHOUT_INITIALIZER, "Const 'val' must have an initializer.")
         map.put(CONST_VAL_WITH_NON_CONST_INITIALIZER, "Const 'val' initializer should be a constant value.")
         map.put(NON_CONST_VAL_USED_IN_CONSTANT_EXPRESSION, "Only 'const val' can be used in constant expressions.")
@@ -2244,8 +2347,14 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
                     "You can use -Xexpect-actual-classes flag to suppress this warning. " +
                     "Also see: https://youtrack.jetbrains.com/issue/KT-61573"
         )
-        map.put(NOT_A_MULTIPLATFORM_COMPILATION, "'expect' and 'actual' declarations can be used only in multiplatform projects. Learn more about Kotlin Multiplatform: https://kotl.in/multiplatform-setup")
-        map.put(EXPECT_ACTUAL_OPT_IN_ANNOTATION, "Opt-in annotations are prohibited to be 'expect' or 'actual'. Instead, declare annotation once in common sources.")
+        map.put(
+            NOT_A_MULTIPLATFORM_COMPILATION,
+            "'expect' and 'actual' declarations can be used only in multiplatform projects. Learn more about Kotlin Multiplatform: https://kotl.in/multiplatform-setup"
+        )
+        map.put(
+            EXPECT_ACTUAL_OPT_IN_ANNOTATION,
+            "Opt-in annotations are prohibited to be 'expect' or 'actual'. Instead, declare annotation once in common sources."
+        )
         map.put(
             ACTUAL_TYPEALIAS_TO_SPECIAL_ANNOTATION,
             "''actual typealias'' to annotation which affects code compilation can lead to incorrect behavior. Instead, use ''{0}'' annotation directly.",
@@ -2577,7 +2686,7 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(
             CONSTRUCTOR_OR_SUPERTYPE_ON_TYPEALIAS_WITH_TYPE_PROJECTION,
             "Type alias with type projection ('in', 'out' or '*') in expanded type in constructor call or supertype position. " +
-            "See https://youtrack.jetbrains.com/issue/KT-60305."
+                    "See https://youtrack.jetbrains.com/issue/KT-60305."
         )
 
         // Returns
@@ -2731,7 +2840,7 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(
             MODIFIER_FORM_FOR_NON_BUILT_IN_SUSPEND_FUN,
             "Calls in the form of 'suspend fun' are deprecated because 'suspend' in the context will have the meaning of a modifier. Surround the argument of the call with parentheses: 'suspend(fun() { ... })'." +
-            " See https://youtrack.jetbrains.com/issue/KT-49264"
+                    " See https://youtrack.jetbrains.com/issue/KT-49264"
         )
         map.put(RETURN_FOR_BUILT_IN_SUSPEND, "Using implicit label for this lambda is prohibited.")
         map.put(MIXING_SUSPEND_AND_NON_SUSPEND_SUPERTYPES, "Mixing suspend and non-suspend supertypes is not allowed")
@@ -2784,7 +2893,10 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         map.put(CAN_BE_VAL, "The 'var' property is never written to, so it can be declared as 'val'.")
         map.put(CAN_BE_REPLACED_WITH_OPERATOR_ASSIGNMENT, "Assignment can be replaced with operator assignment.")
         map.put(REDUNDANT_CALL_OF_CONVERSION_METHOD, "Redundant call of conversion method.")
-        map.put(ARRAY_EQUALITY_OPERATOR_CAN_BE_REPLACED_WITH_EQUALS, "'==' compares only references. Replace '==' with 'contentEquals' to compare the arrays' contents.")
+        map.put(
+            ARRAY_EQUALITY_OPERATOR_CAN_BE_REPLACED_WITH_EQUALS,
+            "'==' compares only references. Replace '==' with 'contentEquals' to compare the arrays' contents."
+        )
         map.put(EMPTY_RANGE, "Range is empty.")
         map.put(REDUNDANT_SETTER_PARAMETER_TYPE, "Redundant setter parameter type.")
         map.put(UNUSED_VARIABLE, "Variable is unused.")
