@@ -1,0 +1,6 @@
+packages: 1
+  foo
+classifiers: 1
+  class AllOpenGenerated
+callables: 0
+constructors: 0

@@ -1,0 +1,34 @@
+packages: 1
+  KaPackageSymbol:
+    fqName: foo
+    location: TOP_LEVEL
+    origin: SOURCE
+classifiers: 1
+  KaNamedClassSymbol:
+    annotations: []
+    classId: foo/AllOpenGenerated
+    classKind: CLASS
+    companionObject: null
+    compilerVisibility: Public
+    contextReceivers: []
+    isActual: false
+    isData: false
+    isExpect: false
+    isExternal: false
+    isFun: false
+    isInline: false
+    isInner: false
+    location: TOP_LEVEL
+    modality: FINAL
+    name: AllOpenGenerated
+    origin: PLUGIN
+    superTypes: [
+      KaUsualClassType:
+        annotations: []
+        typeArguments: []
+        type: kotlin/Any
+    ]
+    typeParameters: []
+    visibility: PUBLIC
+callables: 0
+constructors: 0
