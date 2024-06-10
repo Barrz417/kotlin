@@ -1,11 +1,7 @@
 package hprof
 
 import kdump.literal
-import text.Pretty
-import text.binary
-import text.decimal
-import text.hexadecimal
-import text.name
+import text.*
 
 fun Pretty.item(profile: Profile) {
     struct("profile") {

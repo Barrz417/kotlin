@@ -1,14 +1,19 @@
+/*
+ * Copyright 2010-2024 JetBrains s.r.o. and Kotlin Programming Language contributors.
+ * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
+ */
+
 import collections.nextOrNull
 import hprof.item
 import hprof.normalize
 import hprof.readProfile
 import hprof.write
-import java.io.File
-import java.io.PushbackInputStream
 import kdump.hprof.toHProfProfile
 import kdump.item
 import kdump.readDump
 import text.prettyPrintln
+import java.io.File
+import java.io.PushbackInputStream
 
 fun main(args: Array<String>) {
     main(args.iterator())

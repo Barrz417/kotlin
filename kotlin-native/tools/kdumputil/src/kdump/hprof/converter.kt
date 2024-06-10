@@ -1,14 +1,11 @@
 package kdump.hprof
 
-import base.Endianness
-import base.align
-import base.getByte
-import base.getDouble
-import base.getFloat
-import base.getInt
-import base.getLong
-import base.getShort
-import base.runIf
+import base.*
+import hprof.SerialNumber
+import io.*
+import kdump.*
+import java.io.ByteArrayOutputStream
+import java.io.OutputStream
 import hprof.ClassDump as HProfClassDump
 import hprof.HeapDump as HProfHeapDump
 import hprof.Id as HProfId
@@ -23,22 +20,12 @@ import hprof.RootJavaFrame as HProfRootJavaFrame
 import hprof.RootJniGlobal as HProfRootJniGlobal
 import hprof.RootStickyClass as HProfRootStickyClass
 import hprof.RootThreadObject as HProfRootThreadObject
-import hprof.SerialNumber
 import hprof.StackFrame as HProfStackFrame
 import hprof.StackTrace as HProfStackTrace
 import hprof.StartThread as HProfStartThread
 import hprof.StringConstant as HProfStringConstant
 import hprof.Type as HProfType
 import hprof.size as hprofSize
-import io.writeByte
-import io.writeDouble
-import io.writeFloat
-import io.writeInt
-import io.writeLong
-import io.writeShort
-import java.io.ByteArrayOutputStream
-import java.io.OutputStream
-import kdump.*
 
 const val ADD_JAVA_LANG_STRINGS = false
 

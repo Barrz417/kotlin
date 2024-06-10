@@ -1,8 +1,8 @@
 package kdump.hprof
 
-import hprof.Type as HProfType
 import kdump.RuntimeType
 import kdump.Type
+import hprof.Type as HProfType
 
 fun String.primitiveArrayClassNameToElementTypePair(): Pair<RuntimeType, HProfType> =
         when (this) {
