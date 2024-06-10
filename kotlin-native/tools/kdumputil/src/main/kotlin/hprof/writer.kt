@@ -1,6 +1,5 @@
 package hprof
 
-import base.Endianness
 import io.*
 import java.io.*
 

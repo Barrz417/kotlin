@@ -1,16 +1,8 @@
 package hprof
 
-import base.Endianness
 import base.toIntUnsigned
 import base.toLongUnsigned
-import io.readByte
-import io.readByteArray
-import io.readCString
-import io.readInt
-import io.readList
-import io.readLong
-import io.readShort
-import io.readWithSize
+import io.*
 import java.io.IOException
 import java.io.InputStream
 import java.io.PushbackInputStream
