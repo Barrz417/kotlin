@@ -91,7 +91,7 @@ private fun Project.registerAssembleAppleFrameworkTask(framework: Framework, env
             task.description = "Packs $frameworkBuildType fat framework for Xcode"
             task.baseName = framework.baseName
             task.destinationDirProperty.fileProvider(appleFrameworkDir(frameworkTaskName, environment))
-            task.isEnabled = !project.kotlinPropertiesProvider.swiftExportEnabled && frameworkBuildType == envBuildType
+            task.isEnabled = frameworkBuildType == envBuildType
             task.dependsOn(symbolicLinkTask)
         }.also { taskProvider ->
             taskProvider.configure { task -> task.from(framework) }
@@ -100,7 +100,7 @@ private fun Project.registerAssembleAppleFrameworkTask(framework: Framework, env
         }
         else -> registerTask<FrameworkCopy>(frameworkTaskName) { task ->
             task.description = "Packs $frameworkBuildType ${frameworkTarget.name} framework for Xcode"
-            task.isEnabled = !project.kotlinPropertiesProvider.swiftExportEnabled && frameworkBuildType == envBuildType
+            task.isEnabled = frameworkBuildType == envBuildType
             task.sourceFramework.fileProvider(framework.linkTaskProvider.map { it.outputFile.get() })
             task.sourceDsym.fileProvider(dsymFile(task.sourceFramework.mapToFile()))
             task.destinationDirectory.fileProvider(appleFrameworkDir(frameworkTaskName, environment))
@@ -230,7 +230,7 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
     val embedAndSignTask = locateOrRegisterTask<EmbedAndSignTask>(frameworkTaskName) { task ->
         task.group = BasePlugin.BUILD_GROUP
         task.description = "Embed and sign ${framework.namePrefix} framework as requested by Xcode's environment variables"
-        task.isEnabled = !(project.kotlinPropertiesProvider.swiftExportEnabled || framework.isStatic)
+        task.isEnabled = !framework.isStatic
         task.inputs.apply {
             property("type", envBuildType)
             property("targets", envTargets)
@@ -242,18 +242,6 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
         }
     }
 
-    val swiftExportTask: TaskProvider<*>? =
-        if (project.kotlinPropertiesProvider.swiftExportEnabled &&
-            environment.targets.contains(framework.konanTarget) &&
-            framework.buildType == envBuildType
-        ) {
-            registerSwiftExportTask(framework).apply {
-                dependsOn(checkSandboxAndWriteProtectionTask)
-            }
-        } else {
-            null
-        }
-
     val assembleTask = registerAssembleAppleFrameworkTask(framework, environment)?.apply {
         dependsOn(checkSandboxAndWriteProtectionTask)
     } ?: return
@@ -262,11 +250,7 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
 
     embedAndSignTask.configure { task ->
         val frameworkFile = framework.outputFile
-        if (swiftExportTask != null) {
-            task.dependsOn(swiftExportTask)
-        } else {
-            task.dependsOn(assembleTask)
-        }
+        task.dependsOn(assembleTask)
         task.sourceFramework.fileProvider(appleFrameworkDir(frameworkTaskName, environment).map { it.resolve(frameworkFile.name) })
         task.destinationDirectory.set(envEmbeddedFrameworksDir)
         if (envSign != null) {
