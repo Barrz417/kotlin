@@ -24,6 +24,14 @@ fun Writer.write(long: Long) {
     outputStream.writeLong(long, HPROF_ENDIANNESS)
 }
 
+fun Writer.write(float: Float) {
+    outputStream.writeFloat(float, HPROF_ENDIANNESS)
+}
+
+fun Writer.write(double: Double) {
+    outputStream.writeDouble(double, HPROF_ENDIANNESS)
+}
+
 fun Writer.write(byteArray: ByteArray) {
     outputStream.write(byteArray)
 }

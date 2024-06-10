@@ -2,7 +2,7 @@ package kdump.hprof
 
 import base.*
 import hprof.SerialNumber
-import io.*
+import hprof.write
 import kdump.*
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
@@ -25,6 +25,7 @@ import hprof.StackTrace as HProfStackTrace
 import hprof.StartThread as HProfStartThread
 import hprof.StringConstant as HProfStringConstant
 import hprof.Type as HProfType
+import hprof.Writer as HProfWriter
 import hprof.size as hprofSize
 
 const val ADD_JAVA_LANG_STRINGS = false
@@ -62,6 +63,12 @@ class Converter(
     private var nextFreeHProfObjectAddress: Long = 0x20000000L
     private val syntheticClassNames: MutableSet<String> = mutableSetOf()
 
+    fun OutputStream.hprofWriter(): HProfWriter =
+            HProfWriter(this, hprofIdSize)
+
+    fun hprofByteArray(fn: HProfWriter.() -> Unit): ByteArray =
+            ByteArrayOutputStream().apply { hprofWriter().fn() }.toByteArray()
+
     fun size(type: RuntimeType): Int = type.size(idSize)
 
     fun hprofInstanceSize(typeId: Id, objectTypeBody: Type.Body.Object): Int =
@@ -77,87 +84,79 @@ class Converter(
                 IdSize.BITS_64 -> id(byteArray.getLong(offset, endianness))
             }
 
-    fun write(outputStream: OutputStream, id: HProfId) {
-        // Assumes HProfIdSize is 8.
-        outputStream.writeLong(id.long, Endianness.BIG)
+    fun HProfWriter.writeObjectValue(byteArray: ByteArray, offset: Int) {
+        write(hprofObjectReferenceId(getId(byteArray, offset)))
     }
 
-    fun writeHProfObjectValue(outputStream: OutputStream, byteArray: ByteArray, offset: Int) {
-        write(outputStream, hprofObjectReferenceId(getId(byteArray, offset)))
-    }
-
-    fun writeHProfValue(
-            outputStream: OutputStream,
+    fun HProfWriter.writeValue(
             byteArray: ByteArray,
             offset: Int,
             runtimeType: RuntimeType,
     ) {
         when (runtimeType) {
             RuntimeType.OBJECT ->
-                writeHProfObjectValue(outputStream, byteArray, offset)
+                writeObjectValue(byteArray, offset)
 
             RuntimeType.INT_8 ->
-                outputStream.writeByte(byteArray.get(offset))
+                write(byteArray[offset])
 
             RuntimeType.INT_16 ->
-                outputStream.writeShort(byteArray.getShort(offset, endianness), Endianness.BIG)
+                write(byteArray.getShort(offset, endianness))
 
             RuntimeType.INT_32 ->
-                outputStream.writeInt(byteArray.getInt(offset, endianness), Endianness.BIG)
+                write(byteArray.getInt(offset, endianness))
 
             RuntimeType.INT_64 ->
-                outputStream.writeLong(byteArray.getLong(offset, endianness), Endianness.BIG)
+                write(byteArray.getLong(offset, endianness))
 
             RuntimeType.FLOAT_32 ->
-                outputStream.writeFloat(byteArray.getFloat(offset, endianness), Endianness.BIG)
+                write(byteArray.getFloat(offset, endianness))
 
             RuntimeType.FLOAT_64 ->
-                outputStream.writeDouble(byteArray.getDouble(offset, endianness), Endianness.BIG)
+                write(byteArray.getDouble(offset, endianness))
 
             RuntimeType.NATIVE_PTR ->
-                // TODO: Convert to ID.
-                outputStream.writeLong(byteArray.getLong(offset, endianness), Endianness.BIG)
+                write(byteArray.getLong(offset, endianness))
 
             RuntimeType.BOOLEAN ->
-                outputStream.writeByte(byteArray.get(offset))
+                write(byteArray[offset])
 
             RuntimeType.VECTOR_128 ->
                 when (endianness) {
                     Endianness.BIG -> {
-                        outputStream.writeInt(byteArray.getInt(offset + 0, endianness), Endianness.BIG)
-                        outputStream.writeInt(byteArray.getInt(offset + 4, endianness), Endianness.BIG)
-                        outputStream.writeInt(byteArray.getInt(offset + 8, endianness), Endianness.BIG)
-                        outputStream.writeInt(byteArray.getInt(offset + 12, endianness), Endianness.BIG)
+                        write(byteArray.getInt(offset + 0, endianness))
+                        write(byteArray.getInt(offset + 4, endianness))
+                        write(byteArray.getInt(offset + 8, endianness))
+                        write(byteArray.getInt(offset + 12, endianness))
                     }
 
                     Endianness.LITTLE -> {
-                        outputStream.writeInt(byteArray.getInt(offset + 12, endianness), Endianness.BIG)
-                        outputStream.writeInt(byteArray.getInt(offset + 8, endianness), Endianness.BIG)
-                        outputStream.writeInt(byteArray.getInt(offset + 4, endianness), Endianness.BIG)
-                        outputStream.writeInt(byteArray.getInt(offset + 0, endianness), Endianness.BIG)
+                        write(byteArray.getInt(offset + 12, endianness))
+                        write(byteArray.getInt(offset + 8, endianness))
+                        write(byteArray.getInt(offset + 4, endianness))
+                        write(byteArray.getInt(offset + 0, endianness))
                     }
                 }
         }
     }
 
-    fun writeHProfValue(outputStream: OutputStream, byteArray: ByteArray, field: Field) =
-            writeHProfValue(outputStream, byteArray, field.offset, field.type)
+    fun HProfWriter.writeValue(byteArray: ByteArray, field: Field) =
+            writeValue(byteArray, field.offset, field.type)
 
-    fun writeHProfValues(outputStream: OutputStream, byteArray: ByteArray, fields: List<Field>) =
+    fun HProfWriter.writeValues(byteArray: ByteArray, fields: List<Field>) =
             fields.forEach { field ->
-                writeHProfValue(outputStream, byteArray, field)
+                writeValue(byteArray, field)
             }
 
-    fun writeHProfFieldValues(outputStream: OutputStream, byteArray: ByteArray, type: Type) {
-        writeHProfValues(outputStream, byteArray, directFields(type))
+    fun HProfWriter.writeFieldValues(byteArray: ByteArray, type: Type) {
+        writeValues(byteArray, directFields(type))
 
         superType(type)?.let { superType ->
-            writeHProfFieldValues(outputStream, byteArray, superType)
+            writeFieldValues(byteArray, superType)
         }
     }
 
-    fun writeHProfArray(
-            outputStream: OutputStream,
+    fun HProfWriter.writeArray(
             byteArray: ByteArray,
             offset: Int,
             count: Int,
@@ -165,7 +164,7 @@ class Converter(
     ) {
         size(elementType).let { elementSize ->
             repeat(count) { index ->
-                writeHProfValue(outputStream, byteArray, offset + index * elementSize, elementType)
+                writeValue(byteArray, offset + index * elementSize, elementType)
             }
         }
     }
@@ -352,9 +351,9 @@ class Converter(
                 HProfInstanceDump(
                         objectId = hprofJavaLangStringId,
                         classObjectId = extraClassObjectId(ClassName.STRING),
-                        byteArray = ByteArrayOutputStream()
-                                .also { write(it, hprofObjectId(arrayItem.id)) }
-                                .toByteArray()))
+                        byteArray = hprofByteArray {
+                            write(hprofObjectId(arrayItem.id))
+                        }))
     }
 
     fun addSyntheticClass(
@@ -400,12 +399,10 @@ class Converter(
                 HProfInstanceDump(
                         objectId = hprofObjectId(extraObject.id),
                         classObjectId = extraClassObjectId(ClassName.EXTRA_OBJECT),
-                        byteArray = ByteArrayOutputStream()
-                                .also {
-                                    write(it, hprofObjectReferenceId(extraObject.baseObjectId))
-                                    write(it, HProfId(extraObject.associatedObjectId.long))
-                                }
-                                .toByteArray()))
+                        byteArray = hprofByteArray {
+                            write(hprofObjectReferenceId(extraObject.baseObjectId))
+                            write(HProfId(extraObject.associatedObjectId.long))
+                        }))
     }
 
     fun addItem(thread: Thread) {
@@ -600,9 +597,9 @@ class Converter(
         return HProfInstanceDump(
                 objectId = hprofObjectId,
                 classObjectId = hprofClassObjectId(type),
-                byteArray = ByteArrayOutputStream()
-                        .apply { writeHProfFieldValues(this, byteArray, type) }
-                        .toByteArray())
+                byteArray = hprofByteArray {
+                    writeFieldValues(byteArray, type)
+                })
     }
 
     fun hprofPrimitiveArrayDump(
@@ -617,9 +614,9 @@ class Converter(
                 arrayObjectId = hprofObjectId,
                 numberOfElements = count,
                 arrayElementType = hprofElementType,
-                byteArray = ByteArrayOutputStream()
-                        .apply { writeHProfArray(this, byteArray, offset, count, elementRuntimeType) }
-                        .toByteArray())
+                byteArray = hprofByteArray {
+                    writeArray(byteArray, offset, count, elementRuntimeType)
+                })
     }
 
     fun hprofObjectArrayDump(
@@ -633,8 +630,8 @@ class Converter(
                 arrayObjectId = hprofObjectId,
                 numberOfElements = count,
                 arrayClassObjectId = hprofArrayClassObjectId,
-                byteArray = ByteArrayOutputStream()
-                        .apply { writeHProfArray(this, byteArray, offset, count, RuntimeType.OBJECT) }
-                        .toByteArray())
+                byteArray = hprofByteArray {
+                    writeArray(byteArray, offset, count, RuntimeType.OBJECT)
+                })
     }
 }
