@@ -5,13 +5,13 @@ import io.*
 import java.io.*
 
 fun OutputStream.write(idSize: IdSize) {
-    writeInt(idSize.size, Endianness.BIG)
+    writeInt(idSize.size, HPROF_ENDIANNESS)
 }
 
 fun OutputStream.write(it: Profile) {
     write("JAVA PROFILE 1.0.2")
     write(it.idSize)
-    writeLong(it.time, Endianness.BIG)
+    writeLong(it.time, HPROF_ENDIANNESS)
     HProfWriter(this, it.idSize).run {
         write(it.records) { write(it) }
     }
@@ -27,15 +27,15 @@ fun HProfWriter.write(byte: Byte) {
 }
 
 fun HProfWriter.write(short: Short) {
-    outputStream.writeShort(short, Endianness.BIG)
+    outputStream.writeShort(short, HPROF_ENDIANNESS)
 }
 
 fun HProfWriter.write(int: Int) {
-    outputStream.writeInt(int, Endianness.BIG)
+    outputStream.writeInt(int, HPROF_ENDIANNESS)
 }
 
 fun HProfWriter.write(long: Long) {
-    outputStream.writeLong(long, Endianness.BIG)
+    outputStream.writeLong(long, HPROF_ENDIANNESS)
 }
 
 fun HProfWriter.write(byteArray: ByteArray) {

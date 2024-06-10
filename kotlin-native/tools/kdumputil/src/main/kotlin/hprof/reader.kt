@@ -24,13 +24,13 @@ fun Reader.readByte(): Byte =
         inputStream.readByte()
 
 fun Reader.readShort(): Short =
-        inputStream.readShort(Endianness.BIG)
+        inputStream.readShort(HPROF_ENDIANNESS)
 
 fun Reader.readInt(): Int =
-        inputStream.readInt(Endianness.BIG)
+        inputStream.readInt(HPROF_ENDIANNESS)
 
 fun Reader.readLong(): Long =
-        inputStream.readLong(Endianness.BIG)
+        inputStream.readLong(HPROF_ENDIANNESS)
 
 fun Reader.readByteArray(size: Int): ByteArray =
         inputStream.readByteArray(size)
@@ -49,7 +49,7 @@ fun <T> Reader.readList(fn: Reader.() -> T): List<T> =
         }
 
 fun InputStream.readIdSize(): IdSize = run {
-    when (val idSizeInt = readInt(Endianness.BIG)) {
+    when (val idSizeInt = readInt(HPROF_ENDIANNESS)) {
         1 -> IdSize.BYTE
         2 -> IdSize.SHORT
         4 -> IdSize.INT
@@ -99,7 +99,7 @@ fun InputStream.readProfile(): Profile {
         }
     }
     val idSize = readIdSize()
-    val time = readLong(Endianness.BIG)
+    val time = readLong(HPROF_ENDIANNESS)
     val records = Reader(PushbackInputStream(this), idSize).readList { readRecord() }
     return Profile(idSize, time, records)
 }
