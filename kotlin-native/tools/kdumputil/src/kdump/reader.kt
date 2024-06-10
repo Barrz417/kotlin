@@ -7,42 +7,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.PushbackInputStream
 
-fun InputStream.readEndianness(): Endianness {
-    val byte = this.readByteInt()
-    return if (byte.and(1) != 0) Endianness.LITTLE else Endianness.BIG
-}
-
-fun InputStream.readIdSize(): IdSize {
-    val size = this.readByteInt()
-    return when (size) {
-        1 -> IdSize.BITS_8
-        2 -> IdSize.BITS_16
-        4 -> IdSize.BITS_32
-        8 -> IdSize.BITS_64
-        else -> throw IOException("Invalid id size: $size.")
-    }
-}
-
-fun InputStream.readDump(): MemoryDump {
-    val headerString = readCString().also {
-        "Kotlin/Native dump 1.0.8".let { header ->
-            if (it != header) {
-                throw IOException("invalid header \"$it\", expected \"$header\"")
-            }
-        }
-    }
-    val endianness = readEndianness()
-    val idSize = readIdSize()
-    val reader = Reader(this, endianness, idSize)
-    val items = reader.readList { readItem() }
-    return MemoryDump(
-            headerString = headerString,
-            endianness = endianness,
-            idSize = idSize,
-            items = items,
-    )
-}
-
 data class Reader(
         val inputStream: InputStream,
         val endianness: Endianness,
