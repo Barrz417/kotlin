@@ -26,7 +26,7 @@ val Type.hprofMappedClassName: String?
         when (packageName) {
             "kotlin" ->
                 when (relativeName) {
-                    "String" -> if (ADD_JAVA_LANG_STRINGS) ClassName.STRING else ClassName.Array.CHAR
+                    "String" -> if (SYNTHESIZE_JAVA_LANG_STRINGS) ClassName.STRING else ClassName.Array.CHAR
                     "Array" -> ClassName.Array.OBJECT
                     "BooleanArray" -> ClassName.Array.BOOLEAN
                     "CharArray" -> ClassName.Array.CHAR

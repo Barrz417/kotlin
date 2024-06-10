@@ -28,7 +28,7 @@ import hprof.Type as HProfType
 import hprof.Writer as HProfWriter
 import hprof.size as hprofSize
 
-const val ADD_JAVA_LANG_STRINGS = false
+const val SYNTHESIZE_JAVA_LANG_STRINGS = false
 
 private val hprofIdSize = HProfIdSize.LONG
 
@@ -326,7 +326,7 @@ class Converter(
                 )
         )
 
-        if (ADD_JAVA_LANG_STRINGS) {
+        if (SYNTHESIZE_JAVA_LANG_STRINGS) {
             addJavaLangStringIds(memoryDump)
         }
 
@@ -543,7 +543,7 @@ class Converter(
     }
 
     fun addItem(arrayItem: ArrayItem) {
-        if (ADD_JAVA_LANG_STRINGS) {
+        if (SYNTHESIZE_JAVA_LANG_STRINGS) {
             val hprofObjectId = hprofObjectId(arrayItem.id)
             val hprofStringId = kotlinToJavaHprofIdMutableMap[hprofObjectId]
             if (hprofStringId != null) {
