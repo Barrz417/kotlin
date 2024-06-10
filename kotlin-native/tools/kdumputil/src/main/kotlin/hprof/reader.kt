@@ -4,7 +4,6 @@ import base.toIntUnsigned
 import base.toLongUnsigned
 import io.*
 import java.io.IOException
-import java.io.InputStream
 import java.io.PushbackInputStream
 
 data class Reader(
@@ -40,16 +39,6 @@ fun <T> Reader.readList(fn: Reader.() -> T): List<T> =
             Reader(PushbackInputStream(this), idSize).fn()
         }
 
-fun InputStream.readIdSize(): IdSize = run {
-    when (val idSizeInt = readInt(HPROF_ENDIANNESS)) {
-        1 -> IdSize.BYTE
-        2 -> IdSize.SHORT
-        4 -> IdSize.INT
-        8 -> IdSize.LONG
-        else -> throw IOException("Unknown ID size: $idSizeInt")
-    }
-}
-
 fun Reader.readId(): Id =
         Id(
                 when (idSize) {
@@ -83,18 +72,6 @@ fun <T> Reader.readWithSize(size: Int, fn: Reader.() -> T): T =
         inputStream.readWithSize(size) {
             Reader(PushbackInputStream(this), idSize).fn()
         }
-
-fun InputStream.readProfile(): Profile {
-    readCString().also {
-        if (it != "JAVA PROFILE 1.0.2") {
-            throw IOException("invalid header \"$it\"")
-        }
-    }
-    val idSize = readIdSize()
-    val time = readLong(HPROF_ENDIANNESS)
-    val records = Reader(PushbackInputStream(this), idSize).readList { readRecord() }
-    return Profile(idSize, time, records)
-}
 
 fun Reader.readRecord(): Profile.Record {
     val tag = readByte().toIntUnsigned()
