@@ -216,23 +216,30 @@ val unzipWasmEdge by task<Copy> {
     }
 
     val distDir = layout.buildDirectory.dir("tools")
+    val currentOsTypeForConfigurationCache = currentOsType.name
     val resultDir = "WasmEdge-$wasmEdgeVersion-$wasmEdgeInnerSuffix"
 
     into(distDir)
 
     doLast {
+        if (currentOsTypeForConfigurationCache !in setOf(OsName.MAC, OsName.LINUX)) return@doLast
+
         val wasmEdgeDirectory = distDir.get().dir(resultDir).asFile
 
-        val libDirectory = wasmEdgeDirectory.toPath().resolve("lib")
-        val mainDylib = libDirectory.resolve("libwasmedge.0.1.0.dylib")
-        val mainTbd = libDirectory.resolve("libwasmedge.0.1.0.tbd")
+        val libDirectory = wasmEdgeDirectory.toPath()
+            .resolve(if (currentOsTypeForConfigurationCache == OsName.MAC) "lib" else "lib64")
 
-        val symbolicLinks = listOf("libwasmedge.0.dylib", "libwasmedge.dylib", "libwasmedge.0.tbd", "libwasmedge.tbd")
+        val targets = if (currentOsTypeForConfigurationCache == OsName.MAC)
+            listOf("libwasmedge.0.1.0.dylib", "libwasmedge.0.1.0.tbd")
+        else listOf("libwasmedge.so.0.1.0")
 
-        symbolicLinks.forEach { path ->
-            val target = if (path.endsWith("dylib")) mainDylib else mainTbd
-            val link = libDirectory.resolve(path).also(Files::deleteIfExists)
-            Files.createSymbolicLink(link, target)
+        targets.forEach {
+            val target = libDirectory.resolve(it)
+            val firstLink = libDirectory.resolve(it.replace("0.1.0", "0")).also(Files::deleteIfExists)
+            val secondLink = libDirectory.resolve(it.replace("0.1.0.", "")).also(Files::deleteIfExists)
+
+            Files.createSymbolicLink(firstLink, target)
+            Files.createSymbolicLink(secondLink, target)
         }
     }
 }
