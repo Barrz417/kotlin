@@ -6,9 +6,9 @@
 package org.jetbrains.kotlin.js.test.fir;
 
 import com.intellij.testFramework.TestDataPath;
-import org.jetbrains.kotlin.test.util.KtTestUtil;
 import org.jetbrains.kotlin.test.TargetBackend;
 import org.jetbrains.kotlin.test.TestMetadata;
+import org.jetbrains.kotlin.test.util.KtTestUtil;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -7370,6 +7370,30 @@ public class FirLightTreeJsBoxTestGenerated extends AbstractFirLightTreeJsBoxTes
     @TestMetadata("labelSiblingClash.kt")
     public void testLabelSiblingClash() {
       runTest("js/js.translator/testData/box/jsCode/labelSiblingClash.kt");
+    }
+
+    @Test
+    @TestMetadata("lambdaCrossInline.kt")
+    public void testLambdaCrossInline() {
+      runTest("js/js.translator/testData/box/jsCode/lambdaCrossInline.kt");
+    }
+
+    @Test
+    @TestMetadata("lambdaInline.kt")
+    public void testLambdaInline() {
+      runTest("js/js.translator/testData/box/jsCode/lambdaInline.kt");
+    }
+
+    @Test
+    @TestMetadata("lambdaNoInline.kt")
+    public void testLambdaNoInline() {
+      runTest("js/js.translator/testData/box/jsCode/lambdaNoInline.kt");
+    }
+
+    @Test
+    @TestMetadata("lambdaNonLocalReturn.kt")
+    public void testLambdaNonLocalReturn() {
+      runTest("js/js.translator/testData/box/jsCode/lambdaNonLocalReturn.kt");
     }
 
     @Test
