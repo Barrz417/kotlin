@@ -79,11 +79,11 @@ val jsShell by configurations.creating {
 
 val wasmEdgeVersion = "0.14.0"
 val wasmEdgeSuffix = when (currentOsType) {
-    OsType(OsName.LINUX, OsArch.X86_64) -> "manylinux_2_28_x86_64"
-    OsType(OsName.MAC, OsArch.X86_64) -> "darwin_x86_64"
-    OsType(OsName.MAC, OsArch.ARM64) -> "darwin_arm64"
+    OsType(OsName.LINUX, OsArch.X86_64) -> "manylinux_2_28_x86_64@tar.gz"
+    OsType(OsName.MAC, OsArch.X86_64) -> "darwin_x86_64@tar.gz"
+    OsType(OsName.MAC, OsArch.ARM64) -> "darwin_arm64@tar.gz"
     OsType(OsName.WINDOWS, OsArch.X86_32),
-    OsType(OsName.WINDOWS, OsArch.X86_64) -> "windows"
+    OsType(OsName.WINDOWS, OsArch.X86_64) -> "windows@zip"
     else -> error("unsupported os type $currentOsType")
 }
 val wasmEdgeInnerSuffix = when (currentOsType.name) {
@@ -112,7 +112,7 @@ dependencies {
     implicitDependencies("org.mozilla:jsshell:$jsShellVersion:linux-x86_64@zip")
     implicitDependencies("org.mozilla:jsshell:$jsShellVersion:mac@zip")
 
-    wasmEdge("org.wasmedge:wasmedge:$wasmEdgeVersion:$wasmEdgeSuffix@tar.gz")
+    wasmEdge("org.wasmedge:wasmedge:$wasmEdgeVersion:$wasmEdgeSuffix")
 
     implicitDependencies("org.wasmedge:wasmedge:$wasmEdgeVersion:windows@zip")
     implicitDependencies("org.wasmedge:wasmedge:$wasmEdgeVersion:manylinux_2_28_x86_64@tar.gz")
