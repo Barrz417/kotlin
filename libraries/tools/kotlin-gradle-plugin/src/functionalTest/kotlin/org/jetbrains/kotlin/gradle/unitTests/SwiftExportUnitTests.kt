@@ -80,7 +80,7 @@ class SwiftExportUnitTests {
         val linkSwiftExportBinaryTask = project.tasks.getByName("linkSwiftExportBinaryDebugStaticIosSimulatorArm64")
         val mergeLibrariesTask = project.tasks.getByName("mergeIosSimulatorDebugSwiftExportLibraries")
         val copySwiftExportTask = project.tasks.getByName("copyDebugSPMIntermediates")
-        val embedAndSignTask = project.tasks.getByName("embedAndSignAppleFrameworkForXcode")
+        val embedAndSignTask = project.tasks.getByName("embedSwiftExportForXcode")
 
         // Check embedAndSign task dependencies
         val embedAndSignTaskDependencies = embedAndSignTask.taskDependencies.getDependencies(null)
@@ -117,7 +117,7 @@ class SwiftExportUnitTests {
 
         project.evaluate()
 
-        val embedAndSignTask = project.tasks.getByName("embedAndSignAppleFrameworkForXcode")
+        val embedAndSignTask = project.tasks.getByName("embedSwiftExportForXcode")
 
         val buildType = embedAndSignTask.inputs.properties["type"] as NativeBuildType
 
@@ -132,6 +132,7 @@ class SwiftExportUnitTests {
         val mergeTask = project.tasks.withType(MergeStaticLibrariesTask::class.java).single()
         val linkTask = mergeTask.taskDependencies.getDependencies(null).filterIsInstance<KotlinNativeLink>().single()
 
+        assertEquals(linkTask.binary.buildType, buildType)
         assertEquals(linkTask.konanTarget, arm64SimLib.konanTarget)
     }
 
@@ -146,7 +147,7 @@ class SwiftExportUnitTests {
 
         project.evaluate()
 
-        val embedAndSignTask = project.tasks.getByName("embedAndSignAppleFrameworkForXcode")
+        val embedAndSignTask = project.tasks.getByName("embedSwiftExportForXcode")
 
         @Suppress("UNCHECKED_CAST")
         val targets = embedAndSignTask.inputs.properties["targets"] as List<KonanTarget>

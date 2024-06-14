@@ -22,7 +22,7 @@ import kotlin.test.assertContains
 @GradleTestVersions(minVersion = TestVersions.Gradle.G_7_4) // DefaultResolvedComponentResult with configuration cache is supported only after 7.4
 class SwiftExportIT : KGPBaseTest() {
 
-    @DisplayName("embedAndSign executes normally when Swift Export is enabled")
+    @DisplayName("embedSwiftExport executes normally when Swift Export is enabled")
     @GradleTest
     fun testEmbedAnsSignExecutionWithSwiftExportEnabled(
         gradleVersion: GradleVersion,
@@ -35,7 +35,7 @@ class SwiftExportIT : KGPBaseTest() {
             projectPath.enableSwiftExport()
 
             build(
-                ":shared:embedAndSignAppleFrameworkForXcode",
+                ":shared:embedSwiftExportForXcode",
                 environmentVariables = swiftExportEmbedAndSignEnvVariables(testBuildDir),
                 buildOptions = defaultBuildOptions.copy(
                     configurationCache = true,
@@ -49,7 +49,7 @@ class SwiftExportIT : KGPBaseTest() {
                 assertTasksExecuted(":shared:iosArm64DebugBuildSPMPackage")
                 assertTasksExecuted(":shared:mergeIosDebugSwiftExportLibraries")
                 assertTasksExecuted(":shared:copyDebugSPMIntermediates")
-                assertTasksSkipped(":shared:embedAndSignAppleFrameworkForXcode")
+                assertTasksSkipped(":shared:embedSwiftExportForXcode")
 
                 assertDirectoryInProjectExists("shared/build/MergedLibraries/ios/Debug")
                 assertDirectoryInProjectExists("shared/build/SPMBuild/iosArm64/Debug")
@@ -73,7 +73,7 @@ class SwiftExportIT : KGPBaseTest() {
             projectPath.enableSwiftExport()
 
             build(
-                ":shared:embedAndSignAppleFrameworkForXcode",
+                ":shared:embedSwiftExportForXcode",
                 environmentVariables = swiftExportEmbedAndSignEnvVariables(testBuildDir),
                 buildOptions = defaultBuildOptions.copy(
                     configurationCache = true,
@@ -94,7 +94,7 @@ class SwiftExportIT : KGPBaseTest() {
             )
 
             build(
-                ":shared:embedAndSignAppleFrameworkForXcode",
+                ":shared:embedSwiftExportForXcode",
                 environmentVariables = swiftExportEmbedAndSignEnvVariables(testBuildDir)
             ) {
                 assertTasksExecuted(":shared:copyDebugSPMIntermediates")
@@ -127,7 +127,7 @@ class SwiftExportIT : KGPBaseTest() {
             projectPath.enableSwiftExport()
 
             build(
-                ":shared:embedAndSignAppleFrameworkForXcode",
+                ":shared:embedSwiftExportForXcode",
                 environmentVariables = swiftExportEmbedAndSignEnvVariables(testBuildDir, listOf("arm64", "x86_64"), "iphonesimulator"),
                 buildOptions = defaultBuildOptions.copy(
                     configurationCache = true,
@@ -165,7 +165,7 @@ class SwiftExportIT : KGPBaseTest() {
             projectPath.enableSwiftExport()
 
             build(
-                ":shared:embedAndSignAppleFrameworkForXcode",
+                ":shared:embedSwiftExportForXcode",
                 environmentVariables = swiftExportEmbedAndSignEnvVariables(testBuildDir),
                 buildOptions = defaultBuildOptions.copy(
                     configurationCache = true,
@@ -201,7 +201,7 @@ class SwiftExportIT : KGPBaseTest() {
             projectPath.enableSwiftExport()
 
             build(
-                ":shared:embedAndSignAppleFrameworkForXcode",
+                ":shared:embedSwiftExportForXcode",
                 environmentVariables = swiftExportEmbedAndSignEnvVariables(testBuildDir, listOf("arm64", "x86_64"), "iphonesimulator"),
                 buildOptions = defaultBuildOptions.copy(
                     configurationCache = true,
