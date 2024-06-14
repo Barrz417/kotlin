@@ -14,12 +14,14 @@ import org.jetbrains.kotlin.gradle.plugin.cocoapods.supportedTargets
 import org.jetbrains.kotlin.gradle.plugin.diagnostics.reportDiagnostic
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.kotlin.swiftexport.ExperimentalSwiftExportApi
 
 internal object SwiftExportDSLConstants {
     const val SWIFT_EXPORT_EXTENSION_NAME = "swiftexport"
     const val TASK_GROUP = "SwiftExport"
 }
 
+@OptIn(ExperimentalSwiftExportApi::class)
 internal val SetUpSwiftExportAction = KotlinProjectSetupAction {
     if (!kotlinPropertiesProvider.swiftExportEnabled) return@KotlinProjectSetupAction
     val kotlinExtension = project.multiplatformExtension
@@ -34,6 +36,7 @@ internal val SetUpSwiftExportAction = KotlinProjectSetupAction {
     registerSwiftExportTasks(project, swiftExportExtension)
 }
 
+@OptIn(ExperimentalSwiftExportApi::class)
 private fun registerSwiftExportTasks(
     project: Project,
     swiftExportExtension: SwiftExportExtension,
