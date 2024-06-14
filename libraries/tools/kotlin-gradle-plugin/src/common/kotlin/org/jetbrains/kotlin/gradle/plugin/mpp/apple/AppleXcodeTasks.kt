@@ -19,7 +19,10 @@ import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.Companion.kotlinPro
 import org.jetbrains.kotlin.gradle.plugin.diagnostics.KotlinToolingDiagnostics
 import org.jetbrains.kotlin.gradle.plugin.diagnostics.reportDiagnostic
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBinary
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.FrameworkCopy.Companion.dsymFile
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.SwiftExportDSLConstants
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.SwiftExportExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.registerSwiftExportTask
 import org.jetbrains.kotlin.gradle.plugin.mpp.enabledOnCurrentHostForBinariesCompilation
 import org.jetbrains.kotlin.gradle.tasks.*
@@ -28,6 +31,7 @@ import org.jetbrains.kotlin.gradle.tasks.registerTask
 import org.jetbrains.kotlin.gradle.utils.getFile
 import org.jetbrains.kotlin.gradle.utils.lowerCamelCaseName
 import org.jetbrains.kotlin.gradle.utils.mapToFile
+import org.jetbrains.kotlin.swiftexport.ExperimentalSwiftExportApi
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -46,6 +50,7 @@ private fun Project.registerAssembleAppleFrameworkTask(framework: Framework, env
 
     val envTargets = environment.targets
     val needFatFramework = envTargets.size > 1
+    val envBuildType = environment.buildType
 
     val frameworkBuildType = framework.buildType
     val frameworkTarget = framework.target
@@ -59,15 +64,7 @@ private fun Project.registerAssembleAppleFrameworkTask(framework: Framework, env
         if (isRequestedFramework && needFatFramework) null else frameworkTarget.name //for fat framework we need common name
     )
 
-    val envBuildType = environment.buildType
-
-    if (envBuildType == null || envTargets.isEmpty() || environment.builtProductsDir == null) {
-        val envConfiguration = System.getenv("CONFIGURATION")
-        if (envTargets.isNotEmpty() && envConfiguration != null) {
-            project.reportDiagnostic(KotlinToolingDiagnostics.UnknownAppleFrameworkBuildType(envConfiguration))
-        } else {
-            logger.debug("Not registering $frameworkTaskName, since not called from Xcode")
-        }
+    if (!shouldRegisterEmbedTask(environment, frameworkTaskName)) {
         return null
     }
 
@@ -189,19 +186,56 @@ private fun builtProductsDirAccessibility(builtProductsDir: File?): DirAccessibi
     }
 }
 
+@OptIn(ExperimentalSwiftExportApi::class)
+internal fun Project.registerEmbedSwiftExportTask(
+    binary: NativeBinary,
+    environment: XcodeEnvironment,
+    swiftExportExtension: SwiftExportExtension,
+) {
+    val envTargets = environment.targets
+    val envBuildType = environment.buildType
+    val isRequestedFramework = envTargets.contains(binary.konanTarget) && binary.buildType == envBuildType
+    val frameworkTaskName = binary.embedSwiftExportTaskName()
+
+    if (isRequestedFramework) {
+        val swiftExportTask = registerSwiftExportTask(
+            swiftExportExtension.nameProvider,
+            SwiftExportDSLConstants.TASK_GROUP,
+            binary
+        ).apply {
+            dependsOn(checkSandboxAndWriteProtectionTask(environment, frameworkTaskName, environment.userScriptSandboxingEnabled))
+        }
+
+        registerEmbedTask(binary, frameworkTaskName, false, environment, swiftExportTask)
+    }
+}
+
 internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework, environment: XcodeEnvironment) {
+    val frameworkTaskName = framework.embedAndSignTaskName()
+    val assembleTask = registerAssembleAppleFrameworkTask(framework, environment)?.apply {
+        dependsOn(checkSandboxAndWriteProtectionTask(environment, frameworkTaskName, environment.userScriptSandboxingEnabled))
+    } ?: return
+
+    registerEmbedTask(framework, frameworkTaskName, !framework.isStatic, environment, assembleTask)
+}
+
+private fun Project.registerEmbedTask(
+    binary: NativeBinary,
+    frameworkTaskName: String,
+    embedAndSignEnabled: Boolean,
+    environment: XcodeEnvironment,
+    dependencyTask: TaskProvider<out Task>,
+) {
     val envBuildType = environment.buildType
     val envTargets = environment.targets
     val envEmbeddedFrameworksDir = environment.embeddedFrameworksDir
     val envSign = environment.sign
     val userScriptSandboxingEnabled = environment.userScriptSandboxingEnabled
 
-    val frameworkTaskName = framework.embedAndSignTaskName()
-
     if (envBuildType == null || envTargets.isEmpty() || envEmbeddedFrameworksDir == null) {
         locateOrRegisterTask<DefaultTask>(frameworkTaskName) { task ->
             task.group = BasePlugin.BUILD_GROUP
-            task.description = "Embed and sign ${framework.namePrefix} framework as requested by Xcode's environment variables"
+            task.description = "Embed and sign ${binary.namePrefix} framework as requested by Xcode's environment variables"
             task.doFirst {
                 fireEnvException(frameworkTaskName, environment)
             }
@@ -209,7 +243,47 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
         return
     }
 
-    val checkSandboxAndWriteProtectionTask = locateOrRegisterTask<DefaultTask>(AppleXcodeTasks.checkSandboxAndWriteProtection) { task ->
+    val embedAndSignTask = locateOrRegisterTask<EmbedAndSignTask>(frameworkTaskName) { task ->
+        task.group = BasePlugin.BUILD_GROUP
+        task.description = "Embed and sign ${binary.namePrefix} framework as requested by Xcode's environment variables"
+        task.isEnabled = embedAndSignEnabled
+        task.inputs.apply {
+            property("type", envBuildType)
+            property("targets", envTargets)
+            property("embeddedFrameworksDir", envEmbeddedFrameworksDir)
+            property("userScriptSandboxingEnabled", userScriptSandboxingEnabled)
+            if (envSign != null) {
+                property("sign", envSign)
+            }
+        }
+    }
+
+    if (binary.buildType != envBuildType || !envTargets.contains(binary.konanTarget)) return
+
+    embedAndSignTask.configure { task ->
+        val frameworkFile = binary.outputFile
+        task.dependsOn(dependencyTask)
+        task.sourceFramework.fileProvider(appleFrameworkDir(frameworkTaskName, environment).map { it.resolve(frameworkFile.name) })
+        task.destinationDirectory.set(envEmbeddedFrameworksDir)
+        if (envSign != null) {
+            task.doLast {
+                val binaryToSign = envEmbeddedFrameworksDir
+                    .resolve(frameworkFile.name)
+                    .resolve(frameworkFile.nameWithoutExtension)
+                task.execOperations.exec {
+                    it.commandLine("codesign", "--force", "--sign", envSign, "--", binaryToSign)
+                }
+            }
+        }
+    }
+}
+
+private fun Project.checkSandboxAndWriteProtectionTask(
+    environment: XcodeEnvironment,
+    frameworkTaskName: String,
+    userScriptSandboxingEnabled: Boolean,
+) =
+    locateOrRegisterTask<DefaultTask>(AppleXcodeTasks.checkSandboxAndWriteProtection) { task ->
         task.group = BasePlugin.BUILD_GROUP
         task.description = "Check BUILT_PRODUCTS_DIR accessible and ENABLE_USER_SCRIPT_SANDBOXING not enabled"
         task.inputs.property(AppleXcodeTasks.builtProductsDir, environment.builtProductsDir)
@@ -227,52 +301,36 @@ internal fun Project.registerEmbedAndSignAppleFrameworkTask(framework: Framework
         }
     }
 
-    val embedAndSignTask = locateOrRegisterTask<EmbedAndSignTask>(frameworkTaskName) { task ->
-        task.group = BasePlugin.BUILD_GROUP
-        task.description = "Embed and sign ${framework.namePrefix} framework as requested by Xcode's environment variables"
-        task.isEnabled = !framework.isStatic
-        task.inputs.apply {
-            property("type", envBuildType)
-            property("targets", envTargets)
-            property("embeddedFrameworksDir", envEmbeddedFrameworksDir)
-            property("userScriptSandboxingEnabled", userScriptSandboxingEnabled)
-            if (envSign != null) {
-                property("sign", envSign)
-            }
+private fun Project.shouldRegisterEmbedTask(environment: XcodeEnvironment, frameworkTaskName: String): Boolean {
+    val envBuildType = environment.buildType
+    val envTargets = environment.targets
+
+    if (envBuildType == null || envTargets.isEmpty() || environment.builtProductsDir == null) {
+        val envConfiguration = System.getenv("CONFIGURATION")
+        if (envTargets.isNotEmpty() && envConfiguration != null) {
+            project.reportDiagnostic(KotlinToolingDiagnostics.UnknownAppleFrameworkBuildType(envConfiguration))
+        } else {
+            logger.debug("Not registering $frameworkTaskName, since not called from Xcode")
         }
+        return false
     }
 
-    val assembleTask = registerAssembleAppleFrameworkTask(framework, environment)?.apply {
-        dependsOn(checkSandboxAndWriteProtectionTask)
-    } ?: return
-
-    if (framework.buildType != envBuildType || !envTargets.contains(framework.konanTarget)) return
-
-    embedAndSignTask.configure { task ->
-        val frameworkFile = framework.outputFile
-        task.dependsOn(assembleTask)
-        task.sourceFramework.fileProvider(appleFrameworkDir(frameworkTaskName, environment).map { it.resolve(frameworkFile.name) })
-        task.destinationDirectory.set(envEmbeddedFrameworksDir)
-        if (envSign != null) {
-            task.doLast {
-                val binary = envEmbeddedFrameworksDir
-                    .resolve(frameworkFile.name)
-                    .resolve(frameworkFile.nameWithoutExtension)
-                task.execOperations.exec {
-                    it.commandLine("codesign", "--force", "--sign", envSign, "--", binary)
-                }
-            }
-        }
-    }
+    return true
 }
 
-private fun Framework.embedAndSignTaskName(): String = lowerCamelCaseName(
+private fun NativeBinary.embedAndSignTaskName(): String = lowerCamelCaseName(
     AppleXcodeTasks.embedAndSignTaskPrefix,
     namePrefix,
     AppleXcodeTasks.embedAndSignTaskPostfix
 )
 
-private val Framework.namePrefix: String
+private fun NativeBinary.embedSwiftExportTaskName(): String = lowerCamelCaseName(
+    "embed",
+    namePrefix.let { it.ifBlank { SwiftExportDSLConstants.SWIFT_EXPORT_LIBRARY_PREFIX } },
+    "ForXcode"
+)
+
+private val NativeBinary.namePrefix: String
     get() = KotlinNativeBinaryContainer.extractPrefixFromBinaryName(
         name,
         buildType,

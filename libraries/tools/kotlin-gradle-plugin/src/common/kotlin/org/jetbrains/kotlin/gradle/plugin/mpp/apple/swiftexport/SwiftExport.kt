@@ -29,12 +29,12 @@ import org.jetbrains.kotlin.gradle.utils.lowerCamelCaseName
 import org.jetbrains.kotlin.konan.target.Distribution
 
 internal fun Project.registerSwiftExportTask(
-    name: String?,
+    name: Provider<String>,
     taskGroup: String?,
     binary: NativeBinary,
 ): TaskProvider<*> {
     return registerSwiftExportTask(
-        swiftApiModuleName = if (name != null) provider { name } else binary.baseNameProvider,
+        swiftApiModuleName = name,
         taskGroup = taskGroup,
         target = binary.target,
         buildType = binary.buildType,

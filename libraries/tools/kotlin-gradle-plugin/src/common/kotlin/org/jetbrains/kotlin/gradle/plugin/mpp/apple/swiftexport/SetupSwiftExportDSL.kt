@@ -6,17 +6,21 @@
 package org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport
 
 import org.gradle.api.Project
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinProjectSetupAction
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.Companion.kotlinPropertiesProvider
 import org.jetbrains.kotlin.gradle.plugin.addExtension
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.supportedTargets
 import org.jetbrains.kotlin.gradle.plugin.diagnostics.reportDiagnostic
-import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
+import org.jetbrains.kotlin.gradle.plugin.mpp.StaticLibrary
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XcodeEnvironment
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.registerEmbedSwiftExportTask
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.swiftexport.ExperimentalSwiftExportApi
 
 internal object SwiftExportDSLConstants {
+    const val SWIFT_EXPORT_LIBRARY_PREFIX = "swiftExport"
     const val SWIFT_EXPORT_EXTENSION_NAME = "swiftexport"
     const val TASK_GROUP = "SwiftExport"
 }
@@ -29,28 +33,38 @@ internal val SetUpSwiftExportAction = KotlinProjectSetupAction {
 
     kotlinExtension.addExtension(SwiftExportDSLConstants.SWIFT_EXPORT_EXTENSION_NAME, swiftExportExtension)
 
+    createDefaultStaticLibs(kotlinExtension)
+
     if (!HostManager.hostIsMac) {
         reportDiagnostic(SwiftExportDiagnostics.UnsupportedOs())
     }
 
-    registerSwiftExportTasks(project, swiftExportExtension)
+    registerSwiftExportPipeline(project, swiftExportExtension)
+}
+
+private fun createDefaultStaticLibs(kotlinExtension: KotlinMultiplatformExtension) {
+    kotlinExtension.supportedTargets().all { target ->
+        target.binaries.staticLib(SwiftExportDSLConstants.SWIFT_EXPORT_LIBRARY_PREFIX) {
+            baseName = project.name
+        }
+    }
 }
 
 @OptIn(ExperimentalSwiftExportApi::class)
-private fun registerSwiftExportTasks(
+private fun registerSwiftExportPipeline(
     project: Project,
     swiftExportExtension: SwiftExportExtension,
 ) {
+    val environment = XcodeEnvironment(project)
+
     project
         .multiplatformExtension
         .supportedTargets()
         .all { target ->
-            target.binaries.withType(Framework::class.java).all { framework ->
-                project.registerSwiftExportTask(
-                    swiftExportExtension.name,
-                    SwiftExportDSLConstants.TASK_GROUP,
-                    framework
-                )
-            }
+            target.binaries
+                .matching { it.name.startsWith(SwiftExportDSLConstants.SWIFT_EXPORT_LIBRARY_PREFIX) }
+                .withType(StaticLibrary::class.java).all { library ->
+                    project.registerEmbedSwiftExportTask(library, environment, swiftExportExtension)
+                }
         }
 }

@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport
 
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.swiftexport.ExperimentalSwiftExportApi
 import javax.inject.Inject
 
@@ -15,5 +16,7 @@ abstract class SwiftExportExtension @Inject constructor(private val project: Pro
     /**
      * Configure name of the swift export built from this project.
      */
-    var name: String = project.name
+    var name: String? = null
+
+    internal val nameProvider: Provider<String> = project.provider { name ?: project.name }
 }
