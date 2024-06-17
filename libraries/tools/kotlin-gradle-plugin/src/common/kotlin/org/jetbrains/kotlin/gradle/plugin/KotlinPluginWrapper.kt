@@ -385,12 +385,6 @@ abstract class AbstractKotlinMultiplatformPluginWrapper : KotlinBasePluginWrappe
 
     override val projectExtensionClass: KClass<out KotlinMultiplatformExtension>
         get() = KotlinMultiplatformExtension::class
-
-    override fun apply(project: Project) {
-        super.apply(project)
-
-        setupProjectStructureMetadataOutgoingArtifacts(project)
-    }
 }
 
 fun Project.getKotlinPluginVersion() = getKotlinPluginVersion(project.logger)

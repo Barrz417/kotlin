@@ -23,6 +23,10 @@ import org.jetbrains.kotlin.gradle.utils.*
 
 internal val psmAttribute = Attribute.of("org.jetbrains.kotlin.psmFile", Boolean::class.javaObjectType)
 
+internal val projectStructureMetadataOutgoingArtifactsSetupAction = KotlinProjectSetupAction {
+    project.setupProjectStructureMetadataOutgoingArtifacts()
+}
+
 /**
  * This method does two things:
  * 1) Create psm-consumable configuration for current projects, which contains psm file for this (output of psm-generation task)
@@ -30,11 +34,12 @@ internal val psmAttribute = Attribute.of("org.jetbrains.kotlin.psmFile", Boolean
  * 2) Adds psm file as artifact (output of psm-generation task) to `apiElements` configuration of metadata target.
  * @param project Current project
  */
-internal fun setupProjectStructureMetadataOutgoingArtifacts(project: Project) {
+internal fun Project.setupProjectStructureMetadataOutgoingArtifacts() {
+    val project = this
     val psmConsumableConfiguration = maybeCreatePsmConsumableConfiguration(project)
     val generateProjectStructureMetadata = project.locateOrRegisterGenerateProjectStructureMetadataTask()
 
-    // Adding psm generated for this project to psm-consumable configuration
+    // We need it for wiring psm generation task's output with the outgoing artifact
     project.artifacts.add(
         psmConsumableConfiguration.name,
         generateProjectStructureMetadata.map { task -> task.resultFile }
@@ -43,7 +48,7 @@ internal fun setupProjectStructureMetadataOutgoingArtifacts(project: Project) {
     project.launch {
         val metadataTarget = project.multiplatformExtension.awaitMetadataTarget()
 
-        // Adding transitive dependencies from metadata target to psm-consumable configuration
+        // Some transitive dependencies could contain links to submodules as well, thus we are wiring them here
         psmConsumableConfiguration.copyDependenciesLazy(
             project,
             project.configurations.getByName(metadataTarget.apiElementsConfigurationName)
