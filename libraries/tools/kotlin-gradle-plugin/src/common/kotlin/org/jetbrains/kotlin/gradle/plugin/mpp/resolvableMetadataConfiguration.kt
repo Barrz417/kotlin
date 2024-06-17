@@ -9,11 +9,9 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.Usage
-import org.gradle.api.file.FileCollection
 import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.hierarchy.orNull
-import org.jetbrains.kotlin.gradle.plugin.mpp.internal.projectStructureMetadataResolvableConfiguration
 import org.jetbrains.kotlin.gradle.plugin.sources.*
 import org.jetbrains.kotlin.gradle.utils.*
 
@@ -72,14 +70,6 @@ internal val InternalKotlinSourceSet.compileDependenciesConfigurations: List<Con
         project.configurations.getByName(implementationConfigurationName),
         project.configurations.getByName(compileOnlyConfigurationName),
     )
-
-internal fun resolvableMetadataConfigurationForEachSourSet(project: Project): List<FileCollection> {
-    return project.multiplatformExtension.sourceSets.mapNotNull { sourceSet ->
-        if (sourceSet is InternalKotlinSourceSet) {
-            LazyResolvedConfiguration(sourceSet.projectStructureMetadataResolvableConfiguration).files
-        } else null
-    }
-}
 
 /**
 Older IDEs still rely on resolving the metadata configurations explicitly.

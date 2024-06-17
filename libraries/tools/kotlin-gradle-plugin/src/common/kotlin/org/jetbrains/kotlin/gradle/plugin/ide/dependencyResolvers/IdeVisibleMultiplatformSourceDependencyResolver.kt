@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.gradle.plugin.ide.dependencyResolvers
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
-import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.idea.tcs.IdeaKotlinDependency
 import org.jetbrains.kotlin.gradle.idea.tcs.IdeaKotlinSourceCoordinates
 import org.jetbrains.kotlin.gradle.idea.tcs.IdeaKotlinSourceDependency
@@ -15,12 +14,9 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.ide.IdeDependencyResolver
 import org.jetbrains.kotlin.gradle.plugin.ide.IdeaKotlinProjectCoordinates
 import org.jetbrains.kotlin.gradle.plugin.mpp.MetadataDependencyResolution
+import org.jetbrains.kotlin.gradle.plugin.mpp.internal.resolvableMetadataConfigurationForEachSourSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.projectDependency
-import org.jetbrains.kotlin.gradle.plugin.mpp.resolvableMetadataConfiguration
-import org.jetbrains.kotlin.gradle.plugin.mpp.resolvableMetadataConfigurationForEachSourSet
 import org.jetbrains.kotlin.gradle.plugin.sources.DefaultKotlinSourceSet
-import org.jetbrains.kotlin.gradle.plugin.sources.InternalKotlinSourceSet
-import org.jetbrains.kotlin.gradle.utils.LazyResolvedConfiguration
 
 internal object IdeVisibleMultiplatformSourceDependencyResolver : IdeDependencyResolver, IdeDependencyResolver.WithBuildDependencies {
     override fun resolve(sourceSet: KotlinSourceSet): Set<IdeaKotlinDependency> {

@@ -10,24 +10,16 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.attributes.Category
 import org.gradle.api.attributes.Usage
+import org.gradle.api.file.FileCollection
 import org.jetbrains.kotlin.gradle.dsl.awaitMetadataTarget
 import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.PSM_CONSUMABLE_CONFIGURATION_NAME
-import org.jetbrains.kotlin.gradle.plugin.PSM_RESOLVABLE_CONFIGURATION_NAME
-import org.jetbrains.kotlin.gradle.plugin.categoryByName
-import org.jetbrains.kotlin.gradle.plugin.launch
+import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
 import org.jetbrains.kotlin.gradle.plugin.mpp.resolvableMetadataConfiguration
 import org.jetbrains.kotlin.gradle.plugin.sources.InternalKotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.sources.disambiguateName
-import org.jetbrains.kotlin.gradle.plugin.usageByName
 import org.jetbrains.kotlin.gradle.targets.metadata.locateOrRegisterGenerateProjectStructureMetadataTask
 import org.jetbrains.kotlin.gradle.utils.*
-import org.jetbrains.kotlin.gradle.utils.extendsDependenciesOnly
-import org.jetbrains.kotlin.gradle.utils.extrasStoredProperty
-import org.jetbrains.kotlin.gradle.utils.maybeCreateConsumable
-import org.jetbrains.kotlin.gradle.utils.maybeCreateResolvable
-import org.jetbrains.kotlin.gradle.utils.setAttribute
 
 internal val psmAttribute = Attribute.of("psmFile", Boolean::class.javaObjectType)
 
@@ -52,7 +44,7 @@ internal fun setupProjectStructureMetadataOutgoingArtifacts(project: Project) {
         val metadataTarget = project.multiplatformExtension.awaitMetadataTarget()
 
         // Adding transitive dependencies from metadata target to psm-consumable configuration
-        psmConsumableConfiguration.extendsDependenciesOnly(
+        psmConsumableConfiguration.copyDependenciesLazy(
             project,
             project.configurations.getByName(metadataTarget.apiElementsConfigurationName)
         )
@@ -67,9 +59,17 @@ internal fun setupProjectStructureMetadataOutgoingArtifacts(project: Project) {
 }
 
 internal val InternalKotlinSourceSet.projectStructureMetadataResolvableConfiguration: Configuration by extrasStoredProperty {
-    project.configurations.maybeCreateResolvable(projectStructureMetadataConfigurationName) {
-        extendsDependenciesOnly(project, resolvableMetadataConfiguration)
+    project.configurations.detachedResolvable().apply {
+        copyDependenciesLazy(project, resolvableMetadataConfiguration)
         configurePsmDependenciesAttributes(project)
+    }
+}
+
+internal fun resolvableMetadataConfigurationForEachSourSet(project: Project): List<FileCollection> {
+    return project.multiplatformExtension.sourceSets.mapNotNull { sourceSet ->
+        if (sourceSet is InternalKotlinSourceSet) {
+            LazyResolvedConfiguration(sourceSet.projectStructureMetadataResolvableConfiguration).files
+        } else null
     }
 }
 

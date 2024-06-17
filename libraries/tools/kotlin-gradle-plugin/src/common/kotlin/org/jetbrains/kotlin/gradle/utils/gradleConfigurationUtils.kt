@@ -51,7 +51,7 @@ internal fun Configuration.addGradlePluginMetadataAttributes(
  * @param project The project on which the configuration is applied.
  * @param configurations The configurations whose projects' dependencies will be added to this configuration.
  */
-internal fun Configuration.extendsDependenciesOnly(project: Project, vararg configurations: Configuration) {
+internal fun Configuration.copyDependenciesLazy(project: Project, vararg configurations: Configuration) {
     return dependencies.addAllLater(project.listProvider {
         configurations.flatMap { it.allDependencies }
     })
