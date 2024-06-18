@@ -54,6 +54,36 @@ apiValidation {
     additionalSourceSets.add("common")
 }
 
+val compilerRuntimeDependencies = listOf<String>(
+    ":compiler:cli", // for MessageRenderer, related to MessageCollector usage
+//    ":compiler:cli-base", // for kotlinx-benchmark
+    ":compiler:cli-common", // for compiler arguments setup, for logging via MessageCollector, CompilerSystemProperties, ExitCode
+    ":compiler:config.jvm", // for K2JVMCompilerArguments initialization
+//    ":compiler:config", // for kotlinx-benchmark
+//    ":compiler:frontend", // for kotlinx-benchmark
+//    ":compiler:ir.tree", // for PartialLinkageMode (K/N)
+    ":compiler:util", // for CommonCompilerArguments initialization, K/N
+//    ":compiler:compiler.version", // for user projects buildscripts
+    ":core:compiler.common", // for FUS statistics parsing all the compiler arguments
+    ":core:compiler.common.jvm", // for FUS statistics parsing all the compiler arguments
+//    ":core:compiler.common.native", // for kotlinx-benchmark
+//    ":core:descriptors", // for kotlinx-benchmark
+//    ":core:deserialization.common", // for kotlinx-benchmark
+//    ":core:deserialization", // for kotlinx-benchmark
+//    ":core:metadata", // for kotlinx-benchmark
+    ":core:util.runtime", // for stdlib extensions
+    ":kotlin-build-common", // for incremental compilation setup
+//    ":js:js.config", // for k/js task
+    ":wasm:wasm.config", // for k/js task
+)
+
+val intellijRuntimeDependencies = listOf<String>(
+    intellijUtilRt(), // for kapt (PathUtil.getJdkClassesRoots)
+    intellijPlatformUtil(), // for kapt (JavaVersion), KotlinToolRunner (escapeStringCharacters)
+    intellijPlatformUtilBase(), // for kapt (PathUtil.getJdkClassesRoots)
+    commonDependency("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil") // for kapt (PathUtil.getJdkClassesRoots)
+)
+
 dependencies {
     commonApi(platform(project(":kotlin-gradle-plugins-bom")))
     commonApi(project(":kotlin-gradle-plugin-api"))
@@ -108,7 +138,13 @@ dependencies {
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-compiler-embeddable")
     }
     commonRuntimeOnly(project(":kotlin-util-klib"))
-    commonRuntimeOnly(project(":kotlin-compiler-embeddable"))
+//    commonRuntimeOnly(project(":kotlin-compiler-embeddable"))
+    for (compilerRuntimeDependency in compilerRuntimeDependencies) {
+        embedded(project(compilerRuntimeDependency)) { isTransitive = false }
+    }
+    for (compilerRuntimeDependency in intellijRuntimeDependencies) {
+        embedded(compilerRuntimeDependency) { isTransitive = false }
+    }
 
     embedded(project(":kotlin-gradle-build-metrics"))
     embedded(project(":kotlin-gradle-statistics"))
