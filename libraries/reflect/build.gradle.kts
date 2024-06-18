@@ -2,8 +2,9 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.transformers.CacheableTransformer
 import com.github.jengelman.gradle.plugins.shadow.transformers.Transformer
 import com.github.jengelman.gradle.plugins.shadow.transformers.TransformerContext
-import kotlinx.metadata.jvm.KotlinModuleMetadata
-import kotlinx.metadata.jvm.UnstableMetadataApi
+import kotlin.metadata.jvm.JvmMetadataVersion
+import kotlin.metadata.jvm.KotlinModuleMetadata
+import kotlin.metadata.jvm.UnstableMetadataApi
 import org.apache.tools.zip.ZipEntry
 import org.apache.tools.zip.ZipOutputStream
 import org.gradle.kotlin.dsl.support.serviceOf
@@ -12,7 +13,7 @@ description = "Kotlin Full Reflection Library"
 
 buildscript {
     dependencies {
-        classpath("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.7.0")
+        classpath("org.jetbrains.kotlin:kotlin-metadata-jvm:2.0.0")
     }
 }
 
@@ -92,7 +93,7 @@ class KotlinModuleShadowTransformer(private val logger: Logger) : Transformer {
             relocate(fqName) to parts
         }.toMap(module.packageParts)
 
-        data += Entry(context.path, KotlinModuleMetadata.write(module))
+        data += Entry(context.path, KotlinModuleMetadata(module, JvmMetadataVersion.LATEST_STABLE_SUPPORTED).write())
     }
 
     override fun hasTransformedResource(): Boolean = data.isNotEmpty()
