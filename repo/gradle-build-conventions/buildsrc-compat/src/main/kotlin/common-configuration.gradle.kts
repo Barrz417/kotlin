@@ -148,7 +148,7 @@ fun Project.configureKotlinCompilationOptions() {
 
             val layout = project.layout
             val rootDir = rootDir
-            val useAbsolutePathsInKlib = kotlinBuildProperties.getBoolean("kotlin.build.use.absolute.paths.in.klib")
+            val useAbsolutePathsInKlib = kotlinBuildProperties.getBoolean("kotlin.build.use.absolute.paths.in.klib") && this !is org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
             // Workaround to avoid remote build cache misses due to absolute paths in relativePathBaseArg
             // This is a workaround for KT-50876, but with no clear explanation why doFirst is used.

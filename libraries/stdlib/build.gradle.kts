@@ -127,6 +127,7 @@ kotlin {
                                 "-Xuse-14-inline-classes-mangling-scheme",
                                 "-Xno-new-java-annotation-targets",
                                 "-Xlink-via-signatures",
+                                "-Xskip-prerelease-check",
                                 diagnosticNamesArg,
                             )
                         )

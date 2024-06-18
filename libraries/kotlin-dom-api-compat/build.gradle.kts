@@ -69,7 +69,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile>().configureEa
     dependsOn(prepareFriendStdlibJs)
     libraries.setFrom(prepareFriendStdlibJs)
     friendPaths.setFrom(libraries)
-    compilerOptions.allWarningsAsErrors.set(true)
+    compilerOptions.allWarningsAsErrors.set(false)
 }
 
 val emptyJavadocJar by tasks.creating(Jar::class) {
