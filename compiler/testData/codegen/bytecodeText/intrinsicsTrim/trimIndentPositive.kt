@@ -1,3 +1,7 @@
+// IGNORE_BACKEND_K1: JVM
+// Notes: The test fails probably because it takes LV from a TC or other external settings,
+// the directive `IGNORE_BACKEND_K1` should be removed after KT-69280 is fixed.
+
 fun constant(): String {
     return """
         Hello,

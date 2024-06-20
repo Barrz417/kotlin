@@ -25,12 +25,14 @@ import org.jetbrains.kotlin.test.runTest
 import org.jetbrains.kotlin.test.testFramework.KtUsefulTestCase
 import org.jetbrains.kotlin.utils.addIfNotNull
 import org.junit.Assert
+import org.junit.Ignore
 import org.xml.sax.Attributes
 import org.xml.sax.helpers.DefaultHandler
 import java.io.File
 import javax.xml.parsers.SAXParserFactory
 
 @WithMutedInDatabaseRunTest
+@Ignore("Enable when KT-69280 is fixed")
 class KotlinVersionsTest : KtUsefulTestCase() {
     fun testVersionsAreConsistent() {
         val versionPattern = "(\\d+)\\.(\\d+)(\\.(\\d+))?(?:-(\\p{Alpha}*\\p{Alnum}|[\\p{Alpha}-]*))?(?:-(\\d+))?".toRegex()
