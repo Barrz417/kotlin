@@ -1,4 +1,3 @@
-// FIR_IDENTICAL
 // LANGUAGE: +ProhibitQualifiedAccessToUninitializedEnumEntry
 // ISSUE: KT-41124
 
@@ -23,8 +22,8 @@ enum class SomeEnum12(var x: Int) {
 enum class SomeEnum21(var x: Int) {
     A(1) {
         init {
-            A.x = 10 // OK
-            SomeEnum21.A.x = 10 // OK
+            A.x = 10 // K1: OK, K2: Error
+            SomeEnum21.A.x = 10 // K1: OK, K2: Error
             <!UNINITIALIZED_ENUM_ENTRY!>B<!>.x = 10 // Error
         }
     },
@@ -34,8 +33,8 @@ enum class SomeEnum21(var x: Int) {
 enum class SomeEnum22(var x: Int) {
     A(1) {
         init {
-            A.x = 10 // OK
-            SomeEnum22.A.x = 10 // OK
+            A.x = 10 // K1: OK, K2: Error
+            SomeEnum22.A.x = 10 // K1: OK, K2: Error
             SomeEnum22.<!UNINITIALIZED_ENUM_ENTRY!>B<!>.x = 10 // Migration error
         }
     },
@@ -49,8 +48,8 @@ enum class SomeEnum3(var x: Int) {
         init {
             A.x = 10 // OK
             SomeEnum3.A.x = 10 // OK
-            B.x = 10 // OK
-            SomeEnum3.B.x = 10 // OK
+            B.x = 10 // K1: OK, K2: Error
+            SomeEnum3.B.x = 10 // K1: OK, K2: Error
         }
     };
 }

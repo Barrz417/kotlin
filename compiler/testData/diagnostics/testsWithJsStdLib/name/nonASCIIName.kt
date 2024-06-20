@@ -1,5 +1,3 @@
-// FIR_IDENTICAL
-
 interface <!NAME_CONTAINS_ILLEGAL_CHARS!>I𝔹<!>
 
 class <!NAME_CONTAINS_ILLEGAL_CHARS!>C𝔹<!> : I𝔹

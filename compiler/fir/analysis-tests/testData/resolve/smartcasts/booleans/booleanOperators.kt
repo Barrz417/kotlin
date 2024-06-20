@@ -66,7 +66,7 @@ fun test_7(x: Any) {
 fun test_8(x: Any) {
     if (false || x is A) {
         // TODO: should be smartcast
-        x.<!UNRESOLVED_REFERENCE!>foo<!>()
+        x.foo()
     }
 }
 

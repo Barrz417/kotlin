@@ -404,12 +404,18 @@ class B : LinkedList<Int>, List<Int> {
   /* fake */ override fun addAll(index: Int, elements: @EnhancedNullability Collection<@EnhancedNullability Int>): Boolean
 
   // CHECK:
+  //   Mangled name: B#addFirst(kotlin.Int?){}
+  //   Public signature: /B.addFirst|-2173470440078379794[0]
+  //   Public signature debug description: addFirst(kotlin.Int?){}
+  /* fake */ override fun addFirst(p0: Int?): Unit
+
+  // CHECK:
   //   Mangled name: B#addLast(kotlin.Int?){}
   //   Public signature: /B.addLast|-5644727607669257675[0]
   //   Public signature debug description: addLast(kotlin.Int?){}
   /* fake */ override fun addLast(p0: Int?): Unit
 
-  // CHECK:
+  // CHECK JVM_IR:
   //   Mangled name: B#clear(){}
   //   Public signature: /B.clear|-6446868449915108923[0]
   //   Public signature debug description: clear(){}
@@ -445,13 +451,13 @@ class B : LinkedList<Int>, List<Int> {
   //   Public signature debug description: element(){}kotlin.Int?
   /* fake */ override fun element(): Int?
 
-  // CHECK JVM_IR:
+  // CHECK:
   //   Mangled name: B#equals(kotlin.Any?{EnhancedNullability}){}kotlin.Boolean
   //   Public signature: /B.equals|4126616015386471185[0]
   //   Public signature debug description: equals(kotlin.Any?{EnhancedNullability}){}kotlin.Boolean
   /* fake */ override operator fun equals(other: @EnhancedNullability Any?): Boolean
 
-  // CHECK:
+  // CHECK JVM_IR:
   //   Mangled name: B#forEach(java.util.function.Consumer<in|kotlin.Int?>?){}
   //   Public signature: /B.forEach|5766969768772302175[0]
   //   Public signature debug description: forEach(java.util.function.Consumer<in|kotlin.Int?>?){}
@@ -577,13 +583,13 @@ class B : LinkedList<Int>, List<Int> {
   //   Public signature debug description: pollLast(){}kotlin.Int?
   /* fake */ override fun pollLast(): Int?
 
-  // CHECK JVM_IR:
+  // CHECK:
   //   Mangled name: B#pop(){}kotlin.Int?
   //   Public signature: /B.pop|-1522484764836752145[0]
   //   Public signature debug description: pop(){}kotlin.Int?
   /* fake */ override fun pop(): Int?
 
-  // CHECK:
+  // CHECK JVM_IR:
   //   Mangled name: B#push(kotlin.Int?){}
   //   Public signature: /B.push|3371514512529143423[0]
   //   Public signature debug description: push(kotlin.Int?){}
@@ -619,7 +625,7 @@ class B : LinkedList<Int>, List<Int> {
   //   Public signature debug description: removeLast(){}kotlin.Int?
   /* fake */ override fun removeLast(): Int?
 
-  // CHECK JVM_IR:
+  // CHECK:
   //   Mangled name: B#removeLastOccurrence(kotlin.Any?){}kotlin.Boolean
   //   Public signature: /B.removeLastOccurrence|-4951152957490490384[0]
   //   Public signature debug description: removeLastOccurrence(kotlin.Any?){}kotlin.Boolean
@@ -631,7 +637,7 @@ class B : LinkedList<Int>, List<Int> {
   //   Public signature debug description: removeRange(kotlin.Int;kotlin.Int){}
   protected_and_package /* fake */ override fun removeRange(p0: Int, p1: Int): Unit
 
-  // CHECK:
+  // CHECK JVM_IR:
   //   Mangled name: B#replaceAll(java.util.function.UnaryOperator<kotlin.Int{EnhancedNullability}>{EnhancedNullability}){}
   //   Public signature: /B.replaceAll|6373979877176729001[0]
   //   Public signature debug description: replaceAll(java.util.function.UnaryOperator<kotlin.Int{EnhancedNullability}>{EnhancedNullability}){}
@@ -649,13 +655,13 @@ class B : LinkedList<Int>, List<Int> {
   //   Public signature debug description: reversed(){}java.util.LinkedList<kotlin.Int?>?
   /* fake */ override fun reversed(): LinkedList<Int?>?
 
-  // CHECK JVM_IR:
+  // CHECK:
   //   Mangled name: B#set(kotlin.Int;kotlin.Int{EnhancedNullability}){}kotlin.Int{EnhancedNullability}
   //   Public signature: /B.set|-7932912415931410975[0]
   //   Public signature debug description: set(kotlin.Int;kotlin.Int{EnhancedNullability}){}kotlin.Int{EnhancedNullability}
   /* fake */ override operator fun set(index: Int, element: @EnhancedNullability Int): @EnhancedNullability Int
 
-  // CHECK:
+  // CHECK JVM_IR:
   //   Mangled name: B#sort(java.util.Comparator<in|kotlin.Int?>?){}
   //   Public signature: /B.sort|8069876015820305517[0]
   //   Public signature debug description: sort(java.util.Comparator<in|kotlin.Int?>?){}
@@ -697,17 +703,11 @@ class B : LinkedList<Int>, List<Int> {
   //   Public signature debug description: toArray(java.util.function.IntFunction<kotlin.Array<out|0:0?>?>?){0§<kotlin.Any?>}kotlin.Array<out|0:0?>?
   /* fake */ override fun <T : Any?> toArray(p0: IntFunction<Array<out T?>?>?): Array<out T?>?
 
-  // CHECK JVM_IR:
+  // CHECK:
   //   Mangled name: B#toString(){}kotlin.String{EnhancedNullability}
   //   Public signature: /B.toString|7581629773206850948[0]
   //   Public signature debug description: toString(){}kotlin.String{EnhancedNullability}
   /* fake */ override fun toString(): @EnhancedNullability String
-
-  // CHECK:
-  //   Mangled name: B#addFirst(kotlin.Int?){}
-  //   Public signature: /B.addFirst|-2173470440078379794[0]
-  //   Public signature debug description: addFirst(kotlin.Int?){}
-  override fun addFirst(e: Int?): Unit
 
   // CHECK JVM_IR:
   //   Mangled name: B#remove(){}kotlin.Int
@@ -1487,3 +1487,4 @@ class D : LinkedList<Int?>, MutableList<Int?> {
 //   Public signature: /test|7656439746344069424[0]
 //   Public signature debug description: test(A;B;C;D){}
 fun test(a: A, b: B, c: C, d: D): Unit
+
