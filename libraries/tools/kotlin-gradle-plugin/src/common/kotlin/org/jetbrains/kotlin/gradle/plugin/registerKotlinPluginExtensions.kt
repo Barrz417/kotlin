@@ -89,7 +89,9 @@ internal fun Project.registerKotlinPluginExtensions() {
             register(project, RegisterMultiplatformResourcesPublicationExtensionAction)
             register(project, SetUpMultiplatformJvmResourcesPublicationAction)
             register(project, SetUpMultiplatformAndroidAssetsAndResourcesPublicationAction)
-            register(project, projectStructureMetadataOutgoingArtifactsSetupAction)
+            if (isKmpProjectIsolationEnabled) {
+                register(project, projectStructureMetadataOutgoingArtifactsSetupAction)
+            }
         }
     }
 
@@ -162,6 +164,8 @@ internal fun Project.registerKotlinPluginExtensions() {
         }
     }
 }
+
+private val Project.isKmpProjectIsolationEnabled get() = PropertiesProvider(project).kotlinKmpProjectIsolationEnabled
 
 /* Helper functions to make configuration code above easier to read */
 

@@ -11,20 +11,25 @@ import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.jetbrains.kotlin.gradle.utils.*
 
-internal val Project.kotlinMppDependencyProjectStructureMetadataExtractorFactory: MppDependencyProjectStructureMetadataExtractorFactory
-    get() = MppDependencyProjectStructureMetadataExtractorFactory.getOrCreate(this)
+internal val Project.kotlinMppDependencyProjectStructureMetadataExtractorFactory: MppDependencyProjectStructureMetadataMppDependenciesProjectStucureMetadataExtractorFactory
+    get() = MppDependencyProjectStructureMetadataMppDependenciesProjectStucureMetadataExtractorFactory.getOrCreate(this)
 
 internal data class ProjectPathWithBuildPath(
     val projectPath: String,
     val buildPath: String,
 )
-
-internal class MppDependencyProjectStructureMetadataExtractorFactory
+internal interface IMppDependenciesProjectStucureMetadataExtractorFactory {
+    fun create(
+        metadataArtifact: ResolvedArtifactResult,
+        resolvedMetadataConfiguration: LazyResolvedConfiguration,
+    ): MppDependencyProjectStructureMetadataExtractor
+}
+internal class MppDependencyProjectStructureMetadataMppDependenciesProjectStucureMetadataExtractorFactory
 private constructor(
     private val currentBuild: CurrentBuildIdentifier,
     private val includedBuildsProjectStructureMetadataProviders: Lazy<Map<ProjectPathWithBuildPath, Lazy<KotlinProjectStructureMetadata?>>>,
-) {
-    fun create(
+): IMppDependenciesProjectStucureMetadataExtractorFactory {
+    override fun create(
         metadataArtifact: ResolvedArtifactResult,
         resolvedMetadataConfiguration: LazyResolvedConfiguration,
     ): MppDependencyProjectStructureMetadataExtractor {
@@ -87,8 +92,8 @@ private constructor(
         .singleOrNull()
 
     companion object {
-        fun getOrCreate(project: Project): MppDependencyProjectStructureMetadataExtractorFactory =
-            MppDependencyProjectStructureMetadataExtractorFactory(
+        fun getOrCreate(project: Project): MppDependencyProjectStructureMetadataMppDependenciesProjectStucureMetadataExtractorFactory =
+            MppDependencyProjectStructureMetadataMppDependenciesProjectStucureMetadataExtractorFactory(
                 currentBuild = project.currentBuild,
                 lazy { GlobalProjectStructureMetadataStorage.getProjectStructureMetadataProvidersFromAllGradleBuilds(project) },
             )

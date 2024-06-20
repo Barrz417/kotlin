@@ -15,6 +15,7 @@ import org.gradle.api.logging.Logging
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.*
+import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.Companion.kotlinPropertiesProvider
 import org.jetbrains.kotlin.gradle.plugin.mpp.MetadataDependencyResolution.ChooseVisibleSourceSets.MetadataProvider.ArtifactMetadataProvider
 import org.jetbrains.kotlin.gradle.plugin.sources.internal
 import org.jetbrains.kotlin.gradle.utils.*
@@ -97,7 +98,7 @@ internal class GranularMetadataTransformation(
         val sourceSetName: String,
         val resolvedMetadataConfiguration: LazyResolvedConfiguration,
         val sourceSetVisibilityProvider: SourceSetVisibilityProvider,
-        val projectStructureMetadataExtractorFactory: MppDependencyProjectStructureMetadataExtractorFactory,
+        val projectStructureMetadataExtractorFactory: IMppDependenciesProjectStucureMetadataExtractorFactory,
         val projectData: Map<String, ProjectData>,
         val platformCompilationSourceSets: Set<String>,
     ) {
@@ -106,7 +107,7 @@ internal class GranularMetadataTransformation(
             sourceSetName = kotlinSourceSet.name,
             resolvedMetadataConfiguration = LazyResolvedConfiguration(kotlinSourceSet.internal.resolvableMetadataConfiguration),
             sourceSetVisibilityProvider = SourceSetVisibilityProvider(project),
-            projectStructureMetadataExtractorFactory = project.kotlinMppDependencyProjectStructureMetadataExtractorFactory,
+            projectStructureMetadataExtractorFactory = if (project.kotlinPropertiesProvider.kotlinKmpProjectIsolationEnabled) project.kotlinMppDependencyProjectStructureMetadataExtractorFactory else project.kotlinMppDependencyProjectStructureMetadataExtractorFactoryDeprecated,
             projectData = project.allProjectsData,
             platformCompilationSourceSets = project.multiplatformExtension.platformCompilationSourceSets,
         )
@@ -215,9 +216,9 @@ internal class GranularMetadataTransformation(
         val compositeMetadataArtifact = params
             .resolvedMetadataConfiguration
             .getArtifacts(dependency)
-            .singleOrNull {it.file.extension != "json"}
+            .singleOrNull { it.file.extension != "json" }
             // Make sure that resolved metadata artifact is actually Multiplatform one
-            ?.takeIf { it.variant.attributes.containsMultiplatformMetadataAttributes}
+            ?.takeIf { it.variant.attributes.containsMultiplatformMetadataAttributes }
         // expected only ony Composite Metadata Klib, but if dependency got resolved into platform variant
         // expected only Composite Metadata Klib, but if dependency got resolved into platform variant
         // when source set is a leaf then we might get multiple artifacts in such case we must return KeepOriginal
@@ -267,7 +268,11 @@ internal class GranularMetadataTransformation(
 
         val visibleSourceSetsExcludingDependsOn = allVisibleSourceSets.filterTo(mutableSetOf()) { it !in sourceSetsVisibleInParents }
 
-        val metadataProvider = when (mppDependencyMetadataExtractor) {
+        @Suppress("DEPRECATION") val metadataProvider = when (mppDependencyMetadataExtractor) {
+            is ProjectMppDependencyProjectStructureMetadataExtractorDeprecated -> ProjectMetadataProvider(
+                sourceSetMetadataOutputs = params.projectData[mppDependencyMetadataExtractor.projectPath]?.sourceSetMetadataOutputs
+                    ?.getOrThrow() ?: error("Unexpected project path '${mppDependencyMetadataExtractor.projectPath}'")
+            )
             is ProjectMppDependencyProjectStructureMetadataExtractor -> ProjectMetadataProvider(
                 sourceSetMetadataOutputs = params.projectData[mppDependencyMetadataExtractor.projectPath]?.sourceSetMetadataOutputs
                     ?.getOrThrow() ?: error("Unexpected project path '${mppDependencyMetadataExtractor.projectPath}'")
@@ -357,4 +362,4 @@ internal val AttributeContainer.containsMultiplatformAttributes: Boolean
     get() = keySet().any { it.name == KotlinPlatformType.attribute.name }
 
 private val AttributeContainer.containsMultiplatformMetadataAttributes: Boolean
-    get() = keySet().any {it.name == KotlinPlatformType.attribute.name && getAttribute(it).toString() == KotlinPlatformType.common.name}
+    get() = keySet().any { it.name == KotlinPlatformType.attribute.name && getAttribute(it).toString() == KotlinPlatformType.common.name }
