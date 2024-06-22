@@ -77,6 +77,9 @@ publish {
     }
 }
 
+base {
+    archivesName = "compose-compiler-hosted"
+}
 val runtimeJar = runtimeJar()
 sourcesJar()
 javadocJar()
