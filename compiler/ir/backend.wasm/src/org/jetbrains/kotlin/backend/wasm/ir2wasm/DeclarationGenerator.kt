@@ -19,6 +19,7 @@ import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrConstKind
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.getClass
+import org.jetbrains.kotlin.ir.types.isNothing
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
@@ -303,6 +304,7 @@ class DeclarationGenerator(
 
     override fun visitClass(declaration: IrClass) {
         if (declaration.isExternal) return
+        if (declaration.defaultType.isNothing()) return
         val symbol = declaration.symbol
 
         // Handle arrays
