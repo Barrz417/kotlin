@@ -31,7 +31,7 @@ import org.jetbrains.kotlin.gradle.tasks.registerTask
 import org.jetbrains.kotlin.gradle.utils.getFile
 import org.jetbrains.kotlin.gradle.utils.lowerCamelCaseName
 import org.jetbrains.kotlin.gradle.utils.mapToFile
-import org.jetbrains.kotlin.swiftexport.ExperimentalSwiftExportApi
+import org.jetbrains.kotlin.swiftexport.ExperimentalSwiftExportDsl
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -186,7 +186,7 @@ private fun builtProductsDirAccessibility(builtProductsDir: File?): DirAccessibi
     }
 }
 
-@OptIn(ExperimentalSwiftExportApi::class)
+@OptIn(ExperimentalSwiftExportDsl::class)
 internal fun Project.registerEmbedSwiftExportTask(
     binary: NativeBinary,
     environment: XcodeEnvironment,

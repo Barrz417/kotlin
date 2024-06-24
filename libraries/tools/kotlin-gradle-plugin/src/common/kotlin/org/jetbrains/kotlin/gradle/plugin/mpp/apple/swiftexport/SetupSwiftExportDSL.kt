@@ -12,12 +12,10 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinProjectSetupAction
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.Companion.kotlinPropertiesProvider
 import org.jetbrains.kotlin.gradle.plugin.addExtension
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.supportedTargets
-import org.jetbrains.kotlin.gradle.plugin.diagnostics.reportDiagnostic
 import org.jetbrains.kotlin.gradle.plugin.mpp.StaticLibrary
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XcodeEnvironment
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.registerEmbedSwiftExportTask
-import org.jetbrains.kotlin.konan.target.HostManager
-import org.jetbrains.kotlin.swiftexport.ExperimentalSwiftExportApi
+import org.jetbrains.kotlin.swiftexport.ExperimentalSwiftExportDsl
 
 internal object SwiftExportDSLConstants {
     const val SWIFT_EXPORT_LIBRARY_PREFIX = "swiftExport"
@@ -25,7 +23,7 @@ internal object SwiftExportDSLConstants {
     const val TASK_GROUP = "SwiftExport"
 }
 
-@OptIn(ExperimentalSwiftExportApi::class)
+@ExperimentalSwiftExportDsl
 internal val SetUpSwiftExportAction = KotlinProjectSetupAction {
     if (!kotlinPropertiesProvider.swiftExportEnabled) return@KotlinProjectSetupAction
     val kotlinExtension = project.multiplatformExtension
@@ -34,10 +32,6 @@ internal val SetUpSwiftExportAction = KotlinProjectSetupAction {
     kotlinExtension.addExtension(SwiftExportDSLConstants.SWIFT_EXPORT_EXTENSION_NAME, swiftExportExtension)
 
     createDefaultStaticLibs(kotlinExtension)
-
-    if (!HostManager.hostIsMac) {
-        reportDiagnostic(SwiftExportDiagnostics.UnsupportedOs())
-    }
 
     registerSwiftExportPipeline(project, swiftExportExtension)
 }
@@ -50,7 +44,7 @@ private fun createDefaultStaticLibs(kotlinExtension: KotlinMultiplatformExtensio
     }
 }
 
-@OptIn(ExperimentalSwiftExportApi::class)
+@ExperimentalSwiftExportDsl
 private fun registerSwiftExportPipeline(
     project: Project,
     swiftExportExtension: SwiftExportExtension,
