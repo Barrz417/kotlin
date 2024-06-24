@@ -7,7 +7,7 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
-    @OptIn(org.jetbrains.kotlin.swiftexport.ExperimentalSwiftExportApi::class)
+    @OptIn(org.jetbrains.kotlin.swiftexport.ExperimentalSwiftExportDsl::class)
     swiftexport {
         name = "Shared"
     }
