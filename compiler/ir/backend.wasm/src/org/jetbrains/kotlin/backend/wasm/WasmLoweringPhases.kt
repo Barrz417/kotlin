@@ -87,9 +87,9 @@ private val rangeContainsLoweringPhase = makeIrModulePhase(
 )
 
 private val arrayConstructorPhase = makeIrModulePhase(
-    ::WasmArrayConstructorLowering,
+    ::ArrayConstructorLowering,
     name = "ArrayConstructor",
-    description = "Transform `Array(size) { index -> value }` into create#Array { index -> value } call",
+    description = "Transform `Array(size) { index -> value }` into a loop",
 )
 
 private val sharedVariablesLoweringPhase = makeIrModulePhase(
