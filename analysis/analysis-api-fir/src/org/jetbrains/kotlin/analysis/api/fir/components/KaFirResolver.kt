@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.analysis.api.getModule
 import org.jetbrains.kotlin.analysis.api.impl.base.components.KaAbstractResolver
 import org.jetbrains.kotlin.analysis.api.impl.base.resolution.KaBaseExplicitReceiverValue
 import org.jetbrains.kotlin.analysis.api.impl.base.resolution.KaBaseImplicitReceiverValue
+import org.jetbrains.kotlin.analysis.api.impl.base.resolution.KaBasePartiallyAppliedSymbol
 import org.jetbrains.kotlin.analysis.api.impl.base.resolution.KaBaseSimpleVariableReadAccess
 import org.jetbrains.kotlin.analysis.api.impl.base.resolution.KaBaseSimpleVariableWriteAccess
 import org.jetbrains.kotlin.analysis.api.impl.base.resolution.KaBaseSmartCastedReceiverValue
@@ -520,10 +521,10 @@ internal class KaFirResolver(
                     }
                 }
             }
-            return KaPartiallyAppliedSymbol(
-                with(analysisSession) { unsubstitutedKtSignature.substitute(substitutor) },
-                dispatchReceiverValue,
-                extensionReceiverValue,
+            return KaBasePartiallyAppliedSymbol(
+                backingSignature = with(analysisSession) { unsubstitutedKtSignature.substitute(substitutor) },
+                dispatchReceiver = dispatchReceiverValue,
+                extensionReceiver = extensionReceiverValue,
             )
         }
 
@@ -538,10 +539,10 @@ internal class KaFirResolver(
                     candidate.explicitReceiverKind
                 )
             } else {
-                KaPartiallyAppliedSymbol(
-                    with(analysisSession) { unsubstitutedKtSignature.substitute(substitutor) },
-                    candidate.dispatchReceiver?.toKtReceiverValue(),
-                    candidate.chosenExtensionReceiver?.toKtReceiverValue(),
+                KaBasePartiallyAppliedSymbol(
+                    backingSignature = with(analysisSession) { unsubstitutedKtSignature.substitute(substitutor) },
+                    dispatchReceiver = candidate.dispatchReceiver?.toKtReceiverValue(),
+                    extensionReceiver = candidate.chosenExtensionReceiver?.toKtReceiverValue(),
                 )
             }
         } else if (fir is FirImplicitInvokeCall) {
@@ -552,19 +553,19 @@ internal class KaFirResolver(
             }
             createKtPartiallyAppliedSymbolForImplicitInvoke(fir.dispatchReceiver, fir.extensionReceiver, explicitReceiverKind)
         } else if (fir is FirQualifiedAccessExpression) {
-            KaPartiallyAppliedSymbol(
+            KaBasePartiallyAppliedSymbol(
                 with(analysisSession) { unsubstitutedKtSignature.substitute(substitutor) },
                 fir.dispatchReceiver?.toKtReceiverValue(),
                 fir.extensionReceiver?.toKtReceiverValue()
             )
         } else if (fir is FirVariableAssignment) {
-            KaPartiallyAppliedSymbol(
+            KaBasePartiallyAppliedSymbol(
                 with(analysisSession) { unsubstitutedKtSignature.substitute(substitutor) },
                 fir.dispatchReceiver?.toKtReceiverValue(),
                 fir.extensionReceiver?.toKtReceiverValue()
             )
         } else {
-            KaPartiallyAppliedSymbol(unsubstitutedKtSignature, dispatchReceiver = null, extensionReceiver = null)
+            KaBasePartiallyAppliedSymbol(unsubstitutedKtSignature, dispatchReceiver = null, extensionReceiver = null)
         }
 
         return when (fir) {
@@ -856,10 +857,10 @@ internal class KaFirResolver(
         val variableSymbol = variableRef.resolvedSymbol as? FirVariableSymbol<*> ?: return null
         val substitutor = unwrapLValue()?.createConeSubstitutorFromTypeArguments(rootModuleSession) ?: return null
         val ktSignature = variableSymbol.toKaSignature()
-        return KaPartiallyAppliedSymbol(
-            with(analysisSession) { ktSignature.substitute(substitutor.toKtSubstitutor()) },
-            dispatchReceiver?.toKtReceiverValue(),
-            extensionReceiver?.toKtReceiverValue(),
+        return KaBasePartiallyAppliedSymbol(
+            backingSignature = with(analysisSession) { ktSignature.substitute(substitutor.toKtSubstitutor()) },
+            dispatchReceiver = dispatchReceiver?.toKtReceiverValue(),
+            extensionReceiver = extensionReceiver?.toKtReceiverValue(),
         )
     }
 
@@ -896,10 +897,10 @@ internal class KaFirResolver(
             extensionReceiver?.toKtReceiverValue()
         }
         val ktSignature = operationSymbol.toKaSignature()
-        return KaPartiallyAppliedSymbol(
-            with(analysisSession) { ktSignature.substitute(substitutor.toKtSubstitutor()) },
-            dispatchReceiverValue,
-            extensionReceiverValue,
+        return KaBasePartiallyAppliedSymbol(
+            backingSignature = with(analysisSession) { ktSignature.substitute(substitutor.toKtSubstitutor()) },
+            dispatchReceiver = dispatchReceiverValue,
+            extensionReceiver = extensionReceiverValue,
         )
     }
 
@@ -1076,7 +1077,7 @@ internal class KaFirResolver(
     private fun FirResolvedQualifier.toKtCalls(constructors: List<KaConstructorSymbol>): List<KaCall> {
         analysisSession.apply {
             return constructors.map { constructor ->
-                val partiallyAppliedSymbol = KaPartiallyAppliedFunctionSymbol(constructor.asSignature(), null, null)
+                val partiallyAppliedSymbol = KaBasePartiallyAppliedSymbol(constructor.asSignature(), null, null)
                 KaSimpleFunctionCall(partiallyAppliedSymbol, LinkedHashMap(), toTypeArgumentsMapping(partiallyAppliedSymbol), false)
             }
         }
@@ -1239,7 +1240,7 @@ internal class KaFirResolver(
                 ?: return run {
                     val defaultArrayOfSymbol = arrayOfSymbol(arrayOf) ?: return null
                     val substitutor = createSubstitutorFromTypeArguments(defaultArrayOfSymbol)
-                    val partiallyAppliedSymbol = KaPartiallyAppliedSymbol(
+                    val partiallyAppliedSymbol = KaBasePartiallyAppliedSymbol(
                         with(useSiteSession) { defaultArrayOfSymbol.substitute(substitutor) },
                         null,
                         null,
@@ -1265,7 +1266,7 @@ internal class KaFirResolver(
             arrayOfSymbol(call)
         } ?: return null
         val substitutor = createSubstitutorFromTypeArguments(arrayOfSymbol)
-        val partiallyAppliedSymbol = KaPartiallyAppliedSymbol(
+        val partiallyAppliedSymbol = KaBasePartiallyAppliedSymbol(
             with(analysisSession) { arrayOfSymbol.substitute(substitutor) },
             null,
             null,
@@ -1302,7 +1303,7 @@ internal class KaFirResolver(
                 val kaSignature = equalsSymbol.toKaSignature()
                 KaSuccessCallInfo(
                     KaSimpleFunctionCall(
-                        KaPartiallyAppliedSymbol(
+                        KaBasePartiallyAppliedSymbol(
                             kaSignature,
                             KaBaseExplicitReceiverValue(
                                 expression = leftPsi,
