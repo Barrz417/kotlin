@@ -17,7 +17,6 @@ import org.jetbrains.kotlin.fir.analysis.cfa.PropertyInitializationCheckProcesso
 import org.jetbrains.kotlin.fir.analysis.cfa.requiresInitialization
 import org.jetbrains.kotlin.fir.analysis.cfa.util.PropertyInitializationInfoData
 import org.jetbrains.kotlin.fir.analysis.cfa.util.VariableInitializationInfo
-import org.jetbrains.kotlin.fir.analysis.cfa.util.VariableInitializationInfoData
 import org.jetbrains.kotlin.fir.analysis.checkers.FirModifierList
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.contains
@@ -149,6 +148,10 @@ internal fun checkPropertyInitializer(
         else -> {
             val propertySource = property.source ?: return
             val isExternal = property.isEffectivelyExternal(containingClass, context)
+            val noExplicitType =
+                property.returnTypeRef.noExplicitType() &&
+                        !property.hasExplicitBackingField &&
+                        (property.getter is FirDefaultPropertyAccessor || (property.getter?.hasBody == true && property.getter?.returnTypeRef?.noExplicitType() == true))
             val isCorrectlyInitialized =
                 property.initializer != null || isDefinitelyAssigned && !property.hasSetterAccessorImplementation &&
                         (property.getEffectiveModality(containingClass, context.languageVersionSettings) != Modality.OPEN ||
@@ -183,12 +186,10 @@ internal fun checkPropertyInitializer(
                             context
                         )
                     }
+                } else if (noExplicitType) {
+                    reporter.reportOn(propertySource, FirErrors.PROPERTY_WITH_NO_TYPE_NO_INITIALIZER, context)
                 }
-            } else if (
-                property.returnTypeRef.noExplicitType() &&
-                !property.hasExplicitBackingField &&
-                (property.getter is FirDefaultPropertyAccessor || (property.getter?.hasBody == true && property.getter?.returnTypeRef?.noExplicitType() == true))
-            ) {
+            } else if (noExplicitType) {
                 reporter.reportOn(propertySource, FirErrors.PROPERTY_WITH_NO_TYPE_NO_INITIALIZER, context)
             }
 

@@ -1,7 +1,7 @@
 // ISSUE: KT-68556
 
 class Clazz() {
-    var foo
+    <!PROPERTY_WITH_NO_TYPE_NO_INITIALIZER!>var foo<!>
 
     init {
         foo = "hello"
