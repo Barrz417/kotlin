@@ -14,7 +14,6 @@ import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.builders.declarations.buildFun
@@ -129,14 +128,21 @@ abstract class InlineCallableReferenceToLambdaPhase(
             isInline = true
         }.apply {
             body = context.createIrBuilder(symbol, startOffset, endOffset).run {
-                // TODO: could there be a star projection here?
-                val argumentTypes = (type as IrSimpleType).arguments.dropLast(1).map { (it as IrTypeProjection).type }
                 val boundReceiver = dispatchReceiver ?: extensionReceiver
                 val boundReceiverParameter = when {
                     dispatchReceiver != null -> referencedFunction.dispatchReceiverParameter
                     extensionReceiver != null -> referencedFunction.extensionReceiverParameter
                     else -> null
                 }
+
+                // TODO: could there be a star projection here?
+                val unboundArgumentTypes = (type as IrSimpleType).arguments.dropLast(1).map { (it as IrTypeProjection).type }
+                val argumentTypes = getAllArgumentsWithIr().map { it.second }.let { boundArguments ->
+                    var i = 0
+                    // if the argument is bound, then use the argument's type, otherwise take a type from reference's return type
+                    boundArguments.map { it?.type ?: unboundArgumentTypes[i++] }
+                }
+
                 irBlockBody {
                     val exprToReturn = irCall(referencedFunction.symbol, returnType).apply {
                         copyTypeArgumentsFrom(this@wrapFunction)
@@ -168,6 +174,12 @@ abstract class InlineCallableReferenceToLambdaPhase(
                 origin = LoweredStatementOrigins.INLINE_LAMBDA
             ).apply {
                 copyAttributes(original)
+                if (original is IrFunctionReference) {
+                    // It is required to copy value arguments if any
+                    copyValueArgumentsFrom(original, this@toLambda)
+                    // Don't need to copy the dispatch receiver because it was remapped on extension receiver
+                    dispatchReceiver = null
+                }
                 extensionReceiver = original.dispatchReceiver ?: original.extensionReceiver
             }
         }
