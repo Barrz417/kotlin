@@ -25,7 +25,9 @@ public open class KtLibraryModuleBuilder(
 
     protected fun build(isSdk: Boolean): KaLibraryModule {
         val binaryRoots = getBinaryRoots()
-        val contentScope = StandaloneProjectFactory.createSearchScopeByLibraryRoots(binaryRoots, kotlinCoreProjectEnvironment)
+        val binaryVirtualFiles = getBinaryVirtualFiles()
+        val contentScope =
+            StandaloneProjectFactory.createSearchScopeByLibraryRoots(binaryRoots, binaryVirtualFiles, kotlinCoreProjectEnvironment)
         return KaLibraryModuleImpl(
             directRegularDependencies,
             directDependsOnDependencies,
@@ -34,6 +36,7 @@ public open class KtLibraryModuleBuilder(
             platform,
             kotlinCoreProjectEnvironment.project,
             binaryRoots,
+            binaryVirtualFiles,
             libraryName,
             librarySources,
             isSdk,

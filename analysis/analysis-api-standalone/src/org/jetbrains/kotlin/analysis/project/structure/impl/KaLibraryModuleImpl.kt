@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.analysis.project.structure.impl
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analysis.api.KaPlatformInterface
 import org.jetbrains.kotlin.analysis.api.platform.projectStructure.computeTransitiveDependsOnDependencies
@@ -23,6 +24,7 @@ internal class KaLibraryModuleImpl(
     override val targetPlatform: TargetPlatform,
     override val project: Project,
     override val binaryRoots: Collection<Path>,
+    override val binaryVirtualFiles: Collection<VirtualFile>,
     override val libraryName: String,
     override val librarySources: KaLibrarySourceModule?,
 
