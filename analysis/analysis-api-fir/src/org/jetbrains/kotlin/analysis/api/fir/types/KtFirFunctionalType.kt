@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.analysis.api.fir.types
 
-import org.jetbrains.kotlin.analysis.api.KaAnalysisApiInternals
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotationList
 import org.jetbrains.kotlin.analysis.api.base.KaContextReceiver
@@ -58,7 +57,6 @@ internal class KaFirFunctionalType(
     override val arity: Int get() = withValidityAssertion { parameterTypes.size }
 
     @KaExperimentalApi
-    @OptIn(KaAnalysisApiInternals::class)
     override val contextReceivers: List<KaContextReceiver> by cached {
         coneType.contextReceiversTypes(builder.rootSession)
             .map {

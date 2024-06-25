@@ -10,7 +10,6 @@ import com.intellij.mock.MockProject
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import org.jetbrains.kotlin.analysis.api.KaAnalysisApiInternals
 import org.jetbrains.kotlin.analysis.api.platform.declarations.KotlinAnnotationsResolverFactory
 import org.jetbrains.kotlin.analysis.api.platform.declarations.KotlinDeclarationProviderFactory
 import org.jetbrains.kotlin.analysis.api.platform.declarations.KotlinDeclarationProviderMerger
@@ -54,7 +53,6 @@ import org.jetbrains.kotlin.test.services.TestServices
 import org.jetbrains.kotlin.test.services.moduleStructure
 
 object AnalysisApiBaseTestServiceRegistrar : AnalysisApiTestServiceRegistrar() {
-    @OptIn(KaAnalysisApiInternals::class)
     override fun registerProjectServices(project: MockProject, testServices: TestServices) {
         project.apply {
             registerService(KotlinModificationTrackerFactory::class.java, KotlinStandaloneModificationTrackerFactory::class.java)

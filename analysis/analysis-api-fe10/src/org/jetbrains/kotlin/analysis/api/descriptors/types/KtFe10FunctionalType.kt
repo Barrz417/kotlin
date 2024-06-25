@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.analysis.api.descriptors.types
 
-import org.jetbrains.kotlin.analysis.api.KaAnalysisApiInternals
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.base.KaContextReceiver
 import org.jetbrains.kotlin.analysis.api.descriptors.Fe10AnalysisContext
@@ -62,7 +61,6 @@ internal class KaFe10FunctionalType(
     override val hasContextReceivers: Boolean
         get() = withValidityAssertion { fe10Type.contextFunctionTypeParamsCount() > 0 }
 
-    @OptIn(KaAnalysisApiInternals::class)
     @KaExperimentalApi
     override val contextReceivers: List<KaContextReceiver>
         get() = withValidityAssertion {

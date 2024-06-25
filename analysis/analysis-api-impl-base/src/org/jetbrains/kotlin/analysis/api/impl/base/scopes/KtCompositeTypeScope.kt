@@ -7,8 +7,8 @@
 
 package org.jetbrains.kotlin.analysis.api.impl.base.scopes
 
-import org.jetbrains.kotlin.analysis.api.KaAnalysisApiInternals
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
+import org.jetbrains.kotlin.analysis.api.KaImplementationDetail
 import org.jetbrains.kotlin.analysis.api.lifetime.KaLifetimeToken
 import org.jetbrains.kotlin.analysis.api.lifetime.withValidityAssertion
 import org.jetbrains.kotlin.analysis.api.scopes.KaTypeScope
@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.analysis.api.symbols.KaClassifierSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaConstructorSymbol
 import org.jetbrains.kotlin.name.Name
 
-@KaAnalysisApiInternals
+@KaImplementationDetail
 class KaCompositeTypeScope(
     val subScopes: List<KaTypeScope>,
     override val token: KaLifetimeToken

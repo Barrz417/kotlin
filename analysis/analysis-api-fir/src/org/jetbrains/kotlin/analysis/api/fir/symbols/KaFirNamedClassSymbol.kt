@@ -6,7 +6,6 @@
 package org.jetbrains.kotlin.analysis.api.fir.symbols
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.analysis.api.KaAnalysisApiInternals
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.base.KaContextReceiver
 import org.jetbrains.kotlin.analysis.api.fir.KaFirSession
@@ -89,7 +88,6 @@ internal class KaFirNamedClassSymbol(
         firSymbol.createRegularKtTypeParameters(builder)
     }
 
-    @OptIn(KaAnalysisApiInternals::class)
     override val classKind: KaClassKind
         get() = withValidityAssertion {
             firSymbol.classKind.toKtClassKind(isCompanionObject = firSymbol.isCompanion)

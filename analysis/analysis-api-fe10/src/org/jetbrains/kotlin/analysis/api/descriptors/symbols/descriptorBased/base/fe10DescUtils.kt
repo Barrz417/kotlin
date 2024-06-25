@@ -3,8 +3,6 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
-@file:OptIn(KaAnalysisApiInternals::class)
-
 package org.jetbrains.kotlin.analysis.api.descriptors.symbols.descriptorBased.base
 
 import com.intellij.psi.impl.compiled.ClsElementImpl

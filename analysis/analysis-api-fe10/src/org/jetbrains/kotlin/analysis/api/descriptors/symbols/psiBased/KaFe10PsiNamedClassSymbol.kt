@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.analysis.api.descriptors.symbols.psiBased
 
-import org.jetbrains.kotlin.analysis.api.KaAnalysisApiInternals
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.base.KaContextReceiver
 import org.jetbrains.kotlin.analysis.api.descriptors.Fe10AnalysisContext
@@ -82,7 +81,6 @@ internal class KaFe10PsiNamedClassSymbol(
         get() = withValidityAssertion { descriptor?.createContextReceivers(analysisContext) ?: emptyList() }
 
 
-    @OptIn(KaAnalysisApiInternals::class)
     override val classKind: KaClassKind
         get() = withValidityAssertion {
             when (psi) {
