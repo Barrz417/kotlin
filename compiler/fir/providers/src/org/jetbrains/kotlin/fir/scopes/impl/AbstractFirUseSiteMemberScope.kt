@@ -211,6 +211,9 @@ abstract class AbstractFirUseSiteMemberScope(
         functionSymbol: FirNamedFunctionSymbol,
         processor: (FirNamedFunctionSymbol, FirTypeScope) -> ProcessorAction
     ): ProcessorAction {
+        functions.getOrPut(functionSymbol.name) {
+            collectFunctions(functionSymbol.name)
+        }
         return processDirectOverriddenMembersWithBaseScopeImpl(
             directOverriddenFunctions,
             functionsFromSupertypes,
@@ -223,6 +226,9 @@ abstract class AbstractFirUseSiteMemberScope(
         propertySymbol: FirPropertySymbol,
         processor: (FirPropertySymbol, FirTypeScope) -> ProcessorAction
     ): ProcessorAction {
+        properties.getOrPut(propertySymbol.name) {
+            collectProperties(propertySymbol.name)
+        }
         return processDirectOverriddenMembersWithBaseScopeImpl(
             directOverriddenProperties,
             propertiesFromSupertypes,
