@@ -22,7 +22,7 @@ abstract class StandardLibrarySpecialCompatibilityChecker {
 
                 val messageToReport = getMessageToReport(compilerVersion, stdlibVersion)
                 if (messageToReport != null) {
-                    messageCollector.report(CompilerMessageSeverity.STRONG_WARNING, messageToReport)
+                    messageCollector.report(CompilerMessageSeverity.ERROR, messageToReport)
                 }
 
                 return
