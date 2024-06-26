@@ -16,6 +16,9 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 
 /**
  * An entry point which matches declarations of a given kind and fully-qualified name pattern.
+ *
+ * @property kind a kind of entry point.
+ * @property pattern a pattern which matches fully-qualified declaration name.
  */
 data class ObjCEntryPoint(val kind: Kind, val pattern: Pattern) {
     /** Entry point kind. */
