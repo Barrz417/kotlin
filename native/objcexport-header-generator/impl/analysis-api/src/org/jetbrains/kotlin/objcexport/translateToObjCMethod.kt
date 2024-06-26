@@ -48,7 +48,7 @@ internal fun KaFunctionSymbol.buildObjCMethod(
          * Unlike constructor, a function can have base return type.
          * So in case of function we need to call [getFunctionMethodBridge] on [baseMethod]
          */
-        baseMethod.getFunctionMethodBridge()
+        getBaseMethod().getFunctionMethodBridge()
     } else {
         this.getFunctionMethodBridge()
     }
