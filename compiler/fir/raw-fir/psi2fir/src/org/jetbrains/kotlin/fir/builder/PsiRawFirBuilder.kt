@@ -316,9 +316,15 @@ open class PsiRawFirBuilder(
                         fir.statements.filterIsInstance<FirVariable>().map<_, FirExpression> {
                             buildVariableInConditionalExpression {
                                 declaration = it
-                                source = it.source?.realElement() ?: toFirSourceElement()
+                                source = it.source
                             }
-                        }.reduce { acc, next -> acc.generateLazyLogicalOperation(next, isAnd = true, fir.source?.realElement()) }
+                        }.reduce { acc, next ->
+                            acc.generateLazyLogicalOperation(
+                                next,
+                                isAnd = true,
+                                toFirSourceElement(KtFakeSourceElementKind.WhenCondition)
+                            )
+                        }
                     }
                     isValidExpression(fir) -> checkSelectorInvariant(fir)
                     else -> buildErrorExpression {
@@ -330,7 +336,7 @@ open class PsiRawFirBuilder(
                 else -> when {
                     fir is FirVariable -> buildVariableInConditionalExpression {
                         declaration = fir
-                        source = fir.source?.realElement() ?: toFirSourceElement()
+                        source = fir.source
                     }
                     else -> buildErrorExpression {
                         nonExpressionElement = fir
