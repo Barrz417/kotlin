@@ -93,7 +93,7 @@ internal class KaFirSymbolRelationProvider(
                 }
 
                 is KaClassInitializerSymbol -> {
-                    val outerFirClassifier = firSymbol.getContainingClassSymbol(symbolFirSession)
+                    val outerFirClassifier = firSymbol.getContainingClassSymbol()
                     if (outerFirClassifier != null) {
                         return firSymbolBuilder.buildSymbol(outerFirClassifier) as? KaDeclarationSymbol
                     }
@@ -104,7 +104,7 @@ internal class KaFirSymbolRelationProvider(
                 }
 
                 is KaCallableSymbol -> {
-                    val outerFirClassifier = firSymbol.getContainingClassSymbol(symbolFirSession)
+                    val outerFirClassifier = firSymbol.getContainingClassSymbol()
                     if (outerFirClassifier != null) {
                         return firSymbolBuilder.buildSymbol(outerFirClassifier) as? KaDeclarationSymbol
                     }
