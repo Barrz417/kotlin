@@ -312,6 +312,14 @@ open class PsiRawFirBuilder(
 
             return when (val fir = convertElement(this, null)) {
                 is FirExpression -> when {
+                    fir is FirBlock && fir.statements.isNotEmpty() && fir.statements.all { it is FirVariable } -> {
+                        fir.statements.filterIsInstance<FirVariable>().map<_, FirExpression> {
+                            buildVariableInConditionalExpression {
+                                declaration = it
+                                source = it.source?.realElement() ?: toFirSourceElement()
+                            }
+                        }.reduce { acc, next -> acc.generateLazyLogicalOperation(next, isAnd = true, fir.source?.realElement()) }
+                    }
                     isValidExpression(fir) -> checkSelectorInvariant(fir)
                     else -> buildErrorExpression {
                         nonExpressionElement = fir
@@ -319,10 +327,16 @@ open class PsiRawFirBuilder(
                         source = sourceWhenInvalidExpression?.toFirSourceElement()
                     }
                 }
-                else -> buildErrorExpression {
-                    nonExpressionElement = fir
-                    diagnostic = diagnosticFn()
-                    source = fir?.source?.realElement() ?: toFirSourceElement()
+                else -> when {
+                    fir is FirVariable -> buildVariableInConditionalExpression {
+                        declaration = fir
+                        source = fir.source?.realElement() ?: toFirSourceElement()
+                    }
+                    else -> buildErrorExpression {
+                        nonExpressionElement = fir
+                        diagnostic = diagnosticFn()
+                        source = fir?.source?.realElement() ?: toFirSourceElement()
+                    }
                 }
             }
         }

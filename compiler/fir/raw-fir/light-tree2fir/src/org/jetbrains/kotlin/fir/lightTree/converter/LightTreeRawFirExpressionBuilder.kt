@@ -142,8 +142,24 @@ class LightTreeRawFirExpressionBuilder(
 
             OBJECT_LITERAL -> declarationBuilder.convertObjectLiteral(expression)
             FUN -> declarationBuilder.convertFunctionDeclaration(expression)
-            DESTRUCTURING_DECLARATION -> declarationBuilder.convertDestructingDeclaration(expression)
-                .toFirDestructingDeclaration(this, baseModuleData)
+            DESTRUCTURING_DECLARATION -> {
+                val block = declarationBuilder.convertDestructingDeclaration(expression)
+                    .toFirDestructingDeclaration(this, baseModuleData)
+                if (block is FirBlock && block.statements.all { it is FirVariable }) {
+                    block.statements.filterIsInstance<FirVariable>().map<_, FirExpression> {
+                        buildVariableInConditionalExpression {
+                            declaration = it
+                            source = it.source?.realElement()
+                        }
+                    }.reduce { acc, next -> acc.generateLazyLogicalOperation(next, isAnd = true, null) }
+                } else block
+            }
+            PROPERTY -> declarationBuilder.convertPropertyDeclaration(expression).let { property ->
+                buildVariableInConditionalExpression {
+                    declaration = property
+                    source = property.source?.realElement()
+                }
+            }
             else -> buildErrorExpression(
                 expression.toFirSourceElement(KtFakeSourceElementKind.ErrorTypeRef),
                 ConeSimpleDiagnostic(errorReason, DiagnosticKind.ExpressionExpected)
