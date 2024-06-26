@@ -13,13 +13,12 @@ import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 internal class ObjCExportHeaderGeneratorImpl(
     moduleDescriptors: List<ModuleDescriptor>,
     mapper: ObjCExportMapper,
-    entryPoints: ObjCPredicate,
     namer: ObjCExportNamer,
     problemCollector: ObjCExportProblemCollector,
     objcGenerics: Boolean,
     override val shouldExportKDoc: Boolean,
     private val additionalImports: List<String>,
-) : ObjCExportHeaderGenerator(moduleDescriptors, mapper, entryPoints, namer, objcGenerics, problemCollector) {
+) : ObjCExportHeaderGenerator(moduleDescriptors, mapper, namer, objcGenerics, problemCollector) {
     override fun getAdditionalImports(): List<String> =
         additionalImports
 }

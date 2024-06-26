@@ -18,7 +18,6 @@ import org.jetbrains.kotlin.resolve.scopes.MemberScope
 abstract class ObjCExportHeaderGenerator @InternalKotlinNativeApi constructor(
     val moduleDescriptors: List<ModuleDescriptor>,
     internal val mapper: ObjCExportMapper,
-    private val predicate: ObjCPredicate,
     val namer: ObjCExportNamer,
     val objcGenerics: Boolean,
     problemCollector: ObjCExportProblemCollector,
@@ -116,7 +115,7 @@ abstract class ObjCExportHeaderGenerator @InternalKotlinNativeApi constructor(
             packageFragment.getMemberScope().getContributedDescriptors()
                 .asSequence()
                 .filterIsInstance<CallableMemberDescriptor>()
-                .filter { mapper.shouldBeExposed(it) && predicate.shouldBeExposed(it) }
+                .filter { mapper.shouldBeExposed(it) }
                 .forEach {
                     val classDescriptor = mapper.getClassIfCategory(it)
                     if (classDescriptor != null) {
@@ -131,13 +130,13 @@ abstract class ObjCExportHeaderGenerator @InternalKotlinNativeApi constructor(
                 }
         }
 
-        val classesToTranslate = mutableSetOf<ClassDescriptor>()
+        val classesToTranslate = mutableListOf<ClassDescriptor>()
 
         packageFragments.forEach { packageFragment ->
             packageFragment.getMemberScope().collectClasses(classesToTranslate)
         }
 
-        classesToTranslate.toList().makeClassesOrderStable().forEach { translateClass(it) }
+        classesToTranslate.makeClassesOrderStable().forEach { translateClass(it) }
 
         extensions.makeCategoriesOrderStable().forEach { (classDescriptor, declarations) ->
             generateExtensions(classDescriptor, declarations)
@@ -236,14 +235,13 @@ abstract class ObjCExportHeaderGenerator @InternalKotlinNativeApi constructor(
         fun createInstance(
             moduleDescriptors: List<ModuleDescriptor>,
             mapper: ObjCExportMapper,
-            entryPoints: ObjCPredicate,
             namer: ObjCExportNamer,
             problemCollector: ObjCExportProblemCollector,
             objcGenerics: Boolean,
             shouldExportKDoc: Boolean,
             additionalImports: List<String>,
         ): ObjCExportHeaderGenerator = ObjCExportHeaderGeneratorImpl(
-            moduleDescriptors, mapper, entryPoints, namer, problemCollector, objcGenerics, shouldExportKDoc, additionalImports
+            moduleDescriptors, mapper, namer, problemCollector, objcGenerics, shouldExportKDoc, additionalImports
         )
     }
 }

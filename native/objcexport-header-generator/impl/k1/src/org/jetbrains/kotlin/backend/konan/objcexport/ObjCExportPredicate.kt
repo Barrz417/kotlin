@@ -7,11 +7,11 @@ package org.jetbrains.kotlin.backend.konan.objcexport
 
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 
-/** A predicate which checks whether the given declaration should be exposed. */
-interface ObjCPredicate {
+/** A predicate which checks whether the given declaration should be exposed in Objective-C. */
+interface ObjCExportPredicate {
     fun shouldBeExposed(descriptor: CallableMemberDescriptor) = true
 
     companion object {
-        val ALL: ObjCPredicate = object : ObjCPredicate {}
+        val ALL: ObjCExportPredicate = object : ObjCExportPredicate {}
     }
 }

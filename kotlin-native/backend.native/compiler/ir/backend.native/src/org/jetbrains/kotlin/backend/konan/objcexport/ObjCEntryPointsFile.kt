@@ -12,11 +12,11 @@ import org.jetbrains.kotlin.konan.file.File
  * Reads entry points from this file and converts it to a predicate which would determine
  * whether a given declaration should be exposed.
  */
-fun File.readObjCPredicate(): ObjCPredicate =
+fun File.readObjCPredicate(): ObjCExportPredicate =
         readObjCEntryPointList()
                 .toSet()
                 .let { entryPointSet ->
-                    object : ObjCPredicate {
+                    object : ObjCExportPredicate {
                         override fun shouldBeExposed(descriptor: CallableMemberDescriptor): Boolean =
                                 entryPointSet.contains(descriptor)
                     }

@@ -32,7 +32,7 @@ class ObjCExportMapper(
     internal val deprecationResolver: DeprecationResolver? = null,
     private val local: Boolean = false,
     internal val unitSuspendFunctionExport: UnitSuspendFunctionObjCExport,
-    internal val exposePredicate: ObjCPredicate = ObjCPredicate.ALL,
+    internal val exportPredicate: ObjCExportPredicate = ObjCExportPredicate.ALL,
 ) {
     fun getCustomTypeMapper(descriptor: ClassDescriptor): CustomTypeMapper? = CustomTypeMappers.getMapper(descriptor)
 
@@ -102,7 +102,7 @@ fun ObjCExportMapper.shouldBeExposed(descriptor: CallableMemberDescriptor): Bool
     // because they are useless in Objective-C/Swift.
     isComponentNMethod(descriptor) && descriptor.overriddenDescriptors.isEmpty() -> false
     descriptor.isHiddenFromObjC() -> false
-    !exposePredicate.shouldBeExposed(descriptor) -> false
+    !exportPredicate.shouldBeExposed(descriptor) -> false
     else -> true
 }
 

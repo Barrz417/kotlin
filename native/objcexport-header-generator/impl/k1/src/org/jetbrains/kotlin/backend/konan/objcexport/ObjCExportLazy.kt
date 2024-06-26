@@ -54,8 +54,8 @@ interface ObjCExportLazy {
         val ignoreInterfaceMethodCollisions: Boolean
             get() = false
 
-        val entryPoints: ObjCPredicate
-            get() = ObjCPredicate.ALL
+        val exportPredicate: ObjCExportPredicate
+            get() = ObjCExportPredicate.ALL
     }
 
     fun generateBase(): List<ObjCTopLevel>
@@ -104,7 +104,7 @@ class ObjCExportLazyImpl(
         deprecationResolver,
         local = true,
         configuration.unitSuspendFunctionExport,
-        configuration.entryPoints,
+        configuration.exportPredicate,
     )
 
     private val namer = ObjCExportNamerImpl(namerConfiguration, builtIns, mapper, problemCollector, local = true)

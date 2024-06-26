@@ -14,12 +14,11 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.module
 class ObjcExportHeaderGeneratorMobile internal constructor(
     moduleDescriptors: List<ModuleDescriptor>,
     mapper: ObjCExportMapper,
-    entryPoints: ObjCPredicate,
     namer: ObjCExportNamer,
     problemCollector: ObjCExportProblemCollector,
     objcGenerics: Boolean,
     private val restrictToLocalModules: Boolean,
-) : ObjCExportHeaderGenerator(moduleDescriptors, mapper, entryPoints, namer, objcGenerics, problemCollector) {
+) : ObjCExportHeaderGenerator(moduleDescriptors, mapper, namer, objcGenerics, problemCollector) {
 
     companion object {
         fun createInstance(
@@ -31,15 +30,14 @@ class ObjcExportHeaderGeneratorMobile internal constructor(
             local: Boolean = false,
             restrictToLocalModules: Boolean = false,
         ): ObjCExportHeaderGenerator {
-            val entryPoints = ObjCPredicate.ALL
-            val mapper = ObjCExportMapper(deprecationResolver, local, configuration.unitSuspendFunctionExport, configuration.entryPoints)
+            val entryPoints = ObjCExportPredicate.ALL
+            val mapper = ObjCExportMapper(deprecationResolver, local, configuration.unitSuspendFunctionExport, configuration.exportPredicate)
             val namerConfiguration = createNamerConfiguration(configuration)
             val namer = ObjCExportNamerImpl(namerConfiguration, builtIns, mapper, problemCollector, local)
 
             return ObjcExportHeaderGeneratorMobile(
                 moduleDescriptors,
                 mapper,
-                entryPoints,
                 namer,
                 problemCollector,
                 configuration.objcGenerics,
