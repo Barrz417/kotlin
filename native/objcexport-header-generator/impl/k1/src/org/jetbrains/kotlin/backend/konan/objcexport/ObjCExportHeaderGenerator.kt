@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.resolve.scopes.MemberScope
 abstract class ObjCExportHeaderGenerator @InternalKotlinNativeApi constructor(
     val moduleDescriptors: List<ModuleDescriptor>,
     internal val mapper: ObjCExportMapper,
+    private val entryPoints: ObjCEntryPoints,
     val namer: ObjCExportNamer,
     val objcGenerics: Boolean,
     problemCollector: ObjCExportProblemCollector,
@@ -115,28 +116,28 @@ abstract class ObjCExportHeaderGenerator @InternalKotlinNativeApi constructor(
             packageFragment.getMemberScope().getContributedDescriptors()
                 .asSequence()
                 .filterIsInstance<CallableMemberDescriptor>()
-                .filter { mapper.shouldBeExposed(it) }
+                .filter { mapper.shouldBeExposed(it) && entryPoints.contains(it) }
                 .forEach {
                     val classDescriptor = mapper.getClassIfCategory(it)
                     if (classDescriptor != null) {
                         // If a class is hidden from Objective-C API then it is meaningless
                         // to export its extensions.
-                        if (!classDescriptor.isHiddenFromObjC()) {
-                            extensions.getOrPut(classDescriptor, { mutableListOf() }) += it
+                        if (!mapper.isHiddenFromObjC(classDescriptor)) {
+                            extensions.getOrPut(classDescriptor) { mutableListOf() } += it
                         }
                     } else {
-                        topLevel.getOrPut(it.findSourceFile(), { mutableListOf() }) += it
+                        topLevel.getOrPut(it.findSourceFile()) { mutableListOf() } += it
                     }
                 }
         }
 
-        val classesToTranslate = mutableListOf<ClassDescriptor>()
+        val classesToTranslate = mutableSetOf<ClassDescriptor>()
 
         packageFragments.forEach { packageFragment ->
             packageFragment.getMemberScope().collectClasses(classesToTranslate)
         }
 
-        classesToTranslate.makeClassesOrderStable().forEach { translateClass(it) }
+        classesToTranslate.toList().makeClassesOrderStable().forEach { translateClass(it) }
 
         extensions.makeCategoriesOrderStable().forEach { (classDescriptor, declarations) ->
             generateExtensions(classDescriptor, declarations)
@@ -235,13 +236,14 @@ abstract class ObjCExportHeaderGenerator @InternalKotlinNativeApi constructor(
         fun createInstance(
             moduleDescriptors: List<ModuleDescriptor>,
             mapper: ObjCExportMapper,
+            entryPoints: ObjCEntryPoints,
             namer: ObjCExportNamer,
             problemCollector: ObjCExportProblemCollector,
             objcGenerics: Boolean,
             shouldExportKDoc: Boolean,
             additionalImports: List<String>,
         ): ObjCExportHeaderGenerator = ObjCExportHeaderGeneratorImpl(
-            moduleDescriptors, mapper, namer, problemCollector, objcGenerics, shouldExportKDoc, additionalImports
+            moduleDescriptors, mapper, entryPoints, namer, problemCollector, objcGenerics, shouldExportKDoc, additionalImports
         )
     }
 }

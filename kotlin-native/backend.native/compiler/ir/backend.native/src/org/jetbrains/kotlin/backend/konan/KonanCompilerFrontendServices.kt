@@ -7,10 +7,7 @@ package org.jetbrains.kotlin.backend.konan
 
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.backend.konan.driver.phases.FrontendContext
-import org.jetbrains.kotlin.backend.konan.objcexport.ObjCExportLazy
-import org.jetbrains.kotlin.backend.konan.objcexport.ObjCExportLazyImpl
-import org.jetbrains.kotlin.backend.konan.objcexport.ObjCExportProblemCollector
-import org.jetbrains.kotlin.backend.konan.objcexport.dumpObjCHeader
+import org.jetbrains.kotlin.backend.konan.objcexport.*
 import org.jetbrains.kotlin.container.*
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.psi.KtFile
@@ -50,6 +47,9 @@ internal fun StorageComponentContainer.initContainer(config: KonanConfig) {
 
             override val ignoreInterfaceMethodCollisions: Boolean
                 get() = config.configuration.getBoolean(BinaryOptions.objcExportIgnoreInterfaceMethodCollisions)
+
+            override val entryPoints: ObjCEntryPoints
+                get() = config.objcEntryPointsFile?.readObjCEntryPoints() ?: ObjCEntryPoints.ALL
         })
     }
 }

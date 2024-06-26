@@ -47,7 +47,11 @@ internal fun produceObjCExportInterface(
     //   and can't do this per-module, e.g. due to global name conflict resolution.
 
     val unitSuspendFunctionExport = config.unitSuspendFunctionObjCExport
-    val mapper = ObjCExportMapper(frontendServices.deprecationResolver, unitSuspendFunctionExport = unitSuspendFunctionExport)
+    val entryPoints = config.objcEntryPointsFile?.readObjCEntryPoints() ?: ObjCEntryPoints.ALL
+    val mapper = ObjCExportMapper(
+            frontendServices.deprecationResolver,
+            unitSuspendFunctionExport = unitSuspendFunctionExport,
+            entryPoints = entryPoints)
     val moduleDescriptors = listOf(moduleDescriptor) + moduleDescriptor.getExportedDependencies(config)
     val objcGenerics = config.configuration.getBoolean(KonanConfigKeys.OBJC_GENERICS)
     val disableSwiftMemberNameMangling = config.configuration.getBoolean(BinaryOptions.objcExportDisableSwiftMemberNameMangling)
@@ -76,7 +80,7 @@ internal fun produceObjCExportInterface(
     val shouldExportKDoc = context.shouldExportKDoc()
     val additionalImports = context.config.configuration.getNotNull(KonanConfigKeys.FRAMEWORK_IMPORT_HEADERS)
     val headerGenerator = ObjCExportHeaderGenerator.createInstance(
-            moduleDescriptors, mapper, namer, problemCollector, objcGenerics, shouldExportKDoc = shouldExportKDoc,
+            moduleDescriptors, mapper, entryPoints, namer, problemCollector, objcGenerics, shouldExportKDoc = shouldExportKDoc,
             additionalImports = additionalImports)
     headerGenerator.translateModule()
     return headerGenerator.buildInterface()

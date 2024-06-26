@@ -166,6 +166,7 @@ fun CompilerConfiguration.setupFromArguments(arguments: K2NativeCompilerArgument
     put(DEBUG_INFO_VERSION, arguments.debugInfoFormatVersion.toInt())
     put(OBJC_GENERICS, !arguments.noObjcGenerics)
     put(DEBUG_PREFIX_MAP, parseDebugPrefixMap(arguments, this@setupFromArguments))
+    arguments.objCEntryPointsPath?.let { put(OBJC_ENTRY_POINTS_PATH, it) }
 
     val libraryToAddToCache = parseLibraryToAddToCache(arguments, this@setupFromArguments, outputKind)
     if (libraryToAddToCache != null && !arguments.outputName.isNullOrEmpty())
