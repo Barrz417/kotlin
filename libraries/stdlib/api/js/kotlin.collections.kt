@@ -1282,6 +1282,14 @@ public inline fun kotlin.ULongArray.copyInto(destination: kotlin.ULongArray, des
 @kotlin.internal.InlineOnly
 public inline fun kotlin.UShortArray.copyInto(destination: kotlin.UShortArray, destinationOffset: kotlin.Int = ..., startIndex: kotlin.Int = ..., endIndex: kotlin.Int = ...): kotlin.UShortArray
 
+@kotlin.Deprecated(level = DeprecationLevel.HIDDEN, message = "Provided for expect-actual matching")
+@kotlin.internal.InlineOnly
+public inline fun <T> kotlin.Array<T>.copyOf(): kotlin.Array<T>
+
+@kotlin.Deprecated(level = DeprecationLevel.HIDDEN, message = "Provided for expect-actual matching")
+@kotlin.internal.InlineOnly
+public inline fun <T> kotlin.Array<T>.copyOf(newSize: kotlin.Int): kotlin.Array<T?>
+
 public inline fun <T> kotlin.Array<out T>.copyOf(): kotlin.Array<T>
 
 public fun <T> kotlin.Array<out T>.copyOf(newSize: kotlin.Int): kotlin.Array<T?>
@@ -1357,6 +1365,10 @@ public inline fun kotlin.UShortArray.copyOf(): kotlin.UShortArray
 @kotlin.ExperimentalUnsignedTypes
 @kotlin.internal.InlineOnly
 public inline fun kotlin.UShortArray.copyOf(newSize: kotlin.Int): kotlin.UShortArray
+
+@kotlin.Deprecated(level = DeprecationLevel.HIDDEN, message = "Provided for expect-actual matching")
+@kotlin.internal.InlineOnly
+public inline fun <T> kotlin.Array<T>.copyOfRange(fromIndex: kotlin.Int, toIndex: kotlin.Int): kotlin.Array<T>
 
 public fun <T> kotlin.Array<out T>.copyOfRange(fromIndex: kotlin.Int, toIndex: kotlin.Int): kotlin.Array<T>
 
@@ -6245,6 +6257,18 @@ public inline fun kotlin.ShortArray.partition(predicate: (kotlin.Short) -> kotli
 
 public inline fun <T> kotlin.collections.Iterable<T>.partition(predicate: (T) -> kotlin.Boolean): kotlin.Pair<kotlin.collections.List<T>, kotlin.collections.List<T>>
 
+@kotlin.Deprecated(level = DeprecationLevel.HIDDEN, message = "Provided for expect-actual matching")
+@kotlin.internal.InlineOnly
+public inline operator fun <T> kotlin.Array<T>.plus(element: T): kotlin.Array<T>
+
+@kotlin.Deprecated(level = DeprecationLevel.HIDDEN, message = "Provided for expect-actual matching")
+@kotlin.internal.InlineOnly
+public inline operator fun <T> kotlin.Array<T>.plus(elements: kotlin.Array<out T>): kotlin.Array<T>
+
+@kotlin.Deprecated(level = DeprecationLevel.HIDDEN, message = "Provided for expect-actual matching")
+@kotlin.internal.InlineOnly
+public inline operator fun <T> kotlin.Array<T>.plus(elements: kotlin.collections.Collection<T>): kotlin.Array<T>
+
 public inline operator fun <T> kotlin.Array<out T>.plus(element: T): kotlin.Array<T>
 
 public inline operator fun <T> kotlin.Array<out T>.plus(elements: kotlin.Array<out T>): kotlin.Array<T>
@@ -6415,6 +6439,10 @@ public inline operator fun <K, V> kotlin.collections.MutableMap<in K, in V>.plus
 
 @kotlin.internal.InlineOnly
 public inline operator fun <K, V> kotlin.collections.MutableMap<in K, in V>.plusAssign(pairs: kotlin.sequences.Sequence<kotlin.Pair<K, V>>): kotlin.Unit
+
+@kotlin.Deprecated(level = DeprecationLevel.HIDDEN, message = "Provided for expect-actual matching")
+@kotlin.internal.InlineOnly
+public inline fun <T> kotlin.Array<T>.plusElement(element: T): kotlin.Array<T>
 
 public inline fun <T> kotlin.Array<out T>.plusElement(element: T): kotlin.Array<T>
 
@@ -9854,9 +9882,11 @@ public abstract class AbstractCollection<out E> : kotlin.collections.Collection<
 
     public abstract override val size: kotlin.Int { get; }
 
-    public open override operator fun contains(element: E): kotlin.Boolean
+    public open override operator fun contains(element: @kotlin.UnsafeVariance
+    E): kotlin.Boolean
 
-    public open override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+    public open override fun containsAll(elements: kotlin.collections.Collection<@kotlin.UnsafeVariance
+    E>): kotlin.Boolean
 
     public open override fun isEmpty(): kotlin.Boolean
 
@@ -9896,11 +9926,13 @@ public abstract class AbstractList<out E> : kotlin.collections.AbstractCollectio
 
     public open override fun hashCode(): kotlin.Int
 
-    public open override fun indexOf(element: E): kotlin.Int
+    public open override fun indexOf(element: @kotlin.UnsafeVariance
+    E): kotlin.Int
 
     public open override operator fun iterator(): kotlin.collections.Iterator<E>
 
-    public open override fun lastIndexOf(element: E): kotlin.Int
+    public open override fun lastIndexOf(element: @kotlin.UnsafeVariance
+    E): kotlin.Int
 
     public open override fun listIterator(): kotlin.collections.ListIterator<E>
 
@@ -9921,7 +9953,8 @@ public abstract class AbstractMap<K, out V> : kotlin.collections.Map<K, V> {
 
     public open override fun containsKey(key: K): kotlin.Boolean
 
-    public open override fun containsValue(value: V): kotlin.Boolean
+    public open override fun containsValue(value: @kotlin.UnsafeVariance
+    V): kotlin.Boolean
 
     public open override operator fun equals(other: kotlin.Any?): kotlin.Boolean
 
@@ -10091,9 +10124,9 @@ public final class ArrayDeque<E> : kotlin.collections.AbstractMutableList<E> {
 
     public open override operator fun set(index: kotlin.Int, element: E): E
 
-    protected open override fun toArray(): kotlin.Array<kotlin.Any?>
+    public open override fun toArray(): kotlin.Array<kotlin.Any?>
 
-    protected open override fun <T> toArray(array: kotlin.Array<T>): kotlin.Array<T>
+    public open override fun <T> toArray(array: kotlin.Array<T>): kotlin.Array<T>
 }
 
 public open class ArrayList<E> : kotlin.collections.AbstractMutableList<E>, kotlin.collections.MutableList<E>, kotlin.collections.RandomAccess {
@@ -10172,9 +10205,11 @@ public abstract class CharIterator : kotlin.collections.Iterator<kotlin.Char> {
 public interface Collection<out E> : kotlin.collections.Iterable<E> {
     public abstract val size: kotlin.Int { get; }
 
-    public abstract operator fun contains(element: E): kotlin.Boolean
+    public abstract operator fun contains(element: @kotlin.UnsafeVariance
+    E): kotlin.Boolean
 
-    public abstract fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+    public abstract fun containsAll(elements: kotlin.collections.Collection<@kotlin.UnsafeVariance
+    E>): kotlin.Boolean
 
     public abstract fun isEmpty(): kotlin.Boolean
 
@@ -10322,19 +10357,23 @@ public interface List<out E> : kotlin.collections.Collection<E> {
     @kotlin.SinceKotlin(version = "2.0")
     public open fun asJsReadonlyArrayView(): kotlin.js.collections.JsReadonlyArray<E>
 
-    public abstract override operator fun contains(element: E): kotlin.Boolean
+    public abstract override operator fun contains(element: @kotlin.UnsafeVariance
+    E): kotlin.Boolean
 
-    public abstract override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+    public abstract override fun containsAll(elements: kotlin.collections.Collection<@kotlin.UnsafeVariance
+    E>): kotlin.Boolean
 
     public abstract operator fun get(index: kotlin.Int): E
 
-    public abstract fun indexOf(element: E): kotlin.Int
+    public abstract fun indexOf(element: @kotlin.UnsafeVariance
+    E): kotlin.Int
 
     public abstract override fun isEmpty(): kotlin.Boolean
 
     public abstract override operator fun iterator(): kotlin.collections.Iterator<E>
 
-    public abstract fun lastIndexOf(element: E): kotlin.Int
+    public abstract fun lastIndexOf(element: @kotlin.UnsafeVariance
+    E): kotlin.Int
 
     public abstract fun listIterator(): kotlin.collections.ListIterator<E>
 
@@ -10381,7 +10420,8 @@ public interface Map<K, out V> {
 
     public abstract fun containsKey(key: K): kotlin.Boolean
 
-    public abstract fun containsValue(value: V): kotlin.Boolean
+    public abstract fun containsValue(value: @kotlin.UnsafeVariance
+    V): kotlin.Boolean
 
     public abstract operator fun get(key: K): V?
 
@@ -10520,9 +10560,11 @@ public interface Set<out E> : kotlin.collections.Collection<E> {
     @kotlin.SinceKotlin(version = "2.0")
     public open fun asJsReadonlySetView(): kotlin.js.collections.JsReadonlySet<E>
 
-    public abstract override operator fun contains(element: E): kotlin.Boolean
+    public abstract override operator fun contains(element: @kotlin.UnsafeVariance
+    E): kotlin.Boolean
 
-    public abstract override fun containsAll(elements: kotlin.collections.Collection<E>): kotlin.Boolean
+    public abstract override fun containsAll(elements: kotlin.collections.Collection<@kotlin.UnsafeVariance
+    E>): kotlin.Boolean
 
     public abstract override fun isEmpty(): kotlin.Boolean
 
