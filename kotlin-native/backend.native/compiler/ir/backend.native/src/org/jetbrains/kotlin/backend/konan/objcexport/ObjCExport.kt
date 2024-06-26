@@ -47,7 +47,7 @@ internal fun produceObjCExportInterface(
     //   and can't do this per-module, e.g. due to global name conflict resolution.
 
     val unitSuspendFunctionExport = config.unitSuspendFunctionObjCExport
-    val exportPredicate = config.objcEntryPointsFile?.readObjCPredicate() ?: ObjCExportPredicate.ALL
+    val exportPredicate = config.objcEntryPointsFile?.readObjCExportPredicate() ?: ObjCExportPredicate.ALL
     val mapper = ObjCExportMapper(
             frontendServices.deprecationResolver,
             unitSuspendFunctionExport = unitSuspendFunctionExport,

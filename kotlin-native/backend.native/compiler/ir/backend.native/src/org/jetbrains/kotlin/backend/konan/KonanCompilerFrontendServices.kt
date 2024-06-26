@@ -49,7 +49,7 @@ internal fun StorageComponentContainer.initContainer(config: KonanConfig) {
                 get() = config.configuration.getBoolean(BinaryOptions.objcExportIgnoreInterfaceMethodCollisions)
 
             override val exportPredicate: ObjCExportPredicate
-                get() = config.objcEntryPointsFile?.readObjCPredicate() ?: ObjCExportPredicate.ALL
+                get() = config.objcEntryPointsFile?.readObjCExportPredicate() ?: ObjCExportPredicate.ALL
         })
     }
 }
