@@ -8,7 +8,6 @@ package org.jetbrains.kotlin.konan.test.blackbox
 import com.intellij.testFramework.TestDataFile
 import org.jetbrains.kotlin.konan.target.Distribution
 import org.jetbrains.kotlin.konan.test.blackbox.support.*
-import org.jetbrains.kotlin.konan.test.blackbox.support.TestModule.Companion.allDependsOnDependencies
 import org.jetbrains.kotlin.konan.test.blackbox.support.compilation.SwiftCompilation
 import org.jetbrains.kotlin.konan.test.blackbox.support.compilation.TestCompilationArtifact
 import org.jetbrains.kotlin.konan.test.blackbox.support.compilation.TestCompilationFactory
@@ -26,9 +25,9 @@ import org.jetbrains.kotlin.konan.test.blackbox.support.util.ThreadSafeCache
 import org.jetbrains.kotlin.konan.test.blackbox.support.util.createModuleMap
 import org.jetbrains.kotlin.konan.test.blackbox.support.util.getAbsoluteFile
 import org.jetbrains.kotlin.swiftexport.standalone.*
+import org.jetbrains.kotlin.sir.SirModule
 import org.jetbrains.kotlin.test.services.JUnit5Assertions.assertTrue
 import org.jetbrains.kotlin.utils.KotlinNativePaths
-import org.jetbrains.kotlin.wasm.ir.convertors.sanitizeWatIdentifier
 import org.junit.jupiter.api.Assumptions
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
@@ -57,6 +56,7 @@ abstract class AbstractNativeSwiftExportTest {
 
     protected abstract fun constructSwiftExportConfig(
         module: TestModule.Exclusive,
+        moduleForPackages: SirModule,
     ): SwiftExportConfig
 
     protected fun runTest(@TestDataFile testDir: String) {
@@ -69,12 +69,16 @@ abstract class AbstractNativeSwiftExportTest {
             ?.getByName(testCaseId)!!
 
         // run swift export
+        val moduleForPackages = MultipleModulesHandlingStrategy.OneToOneModuleMapping.createPackageModule()
         val swiftExportOutputs = originalTestCase.rootModules.flatMapToSet { rootModule ->
             val (swiftExportInput, klibDeps) = rootModule.constructSwiftInput(originalTestCase.freeCompilerArgs)
             val swiftExportOutputs = runSwiftExport(
                 swiftExportInput,
                 klibDeps,
-                constructSwiftExportConfig(rootModule)
+                constructSwiftExportConfig(
+                    rootModule,
+                    moduleForPackages
+                )
             ).getOrThrow().mapToSet { it as SwiftExportModule.BridgesToKotlin }
             swiftExportOutputs
         }

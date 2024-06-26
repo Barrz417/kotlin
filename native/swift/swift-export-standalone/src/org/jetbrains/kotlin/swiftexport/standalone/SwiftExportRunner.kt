@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.sir.SirNominalType
 import org.jetbrains.kotlin.sir.SirType
 import org.jetbrains.kotlin.sir.bridge.SirTypeNamer
 import org.jetbrains.kotlin.sir.bridge.createBridgeGenerator
+import org.jetbrains.kotlin.sir.builder.buildModule
 import org.jetbrains.kotlin.sir.providers.SirTypeProvider
 import org.jetbrains.kotlin.sir.providers.source.KotlinSource
 import org.jetbrains.kotlin.sir.providers.utils.*
@@ -36,7 +37,7 @@ public data class SwiftExportConfig(
     val distribution: Distribution = Distribution(KotlinNativePaths.homePath.absolutePath),
     val errorTypeStrategy: ErrorTypeStrategy = ErrorTypeStrategy.Fail,
     val unsupportedTypeStrategy: ErrorTypeStrategy = ErrorTypeStrategy.Fail,
-    val multipleModulesHandlingStrategy: MultipleModulesHandlingStrategy = MultipleModulesHandlingStrategy.OneToOneModuleMapping,
+    val multipleModulesHandlingStrategy: MultipleModulesHandlingStrategy,
     val unsupportedDeclarationReporterKind: UnsupportedDeclarationReporterKind = UnsupportedDeclarationReporterKind.Silent,
 ) {
     public companion object {
@@ -59,8 +60,16 @@ public data class SwiftExportConfig(
     }
 }
 
-public enum class MultipleModulesHandlingStrategy {
-    OneToOneModuleMapping, IntoSingleModule;
+public sealed class MultipleModulesHandlingStrategy {
+    public data class OneToOneModuleMapping(var packagesModule: SirModule) : MultipleModulesHandlingStrategy() {
+        public companion object {
+            public fun createPackageModule(): SirModule = buildModule {
+                name = "ExportedKotlinPackages"
+            }
+        }
+    }
+
+    public data object IntoSingleModule : MultipleModulesHandlingStrategy()
 }
 
 public enum class UnsupportedDeclarationReporterKind {
@@ -158,7 +167,12 @@ public fun runSwiftExport(
         DEFAULT_BRIDGE_MODULE_NAME
     }
     val unsupportedDeclarationReporter = config.unsupportedDeclarationReporterKind.toReporter()
-    val buildResult = buildSwiftModule(input, dependencies, config, unsupportedDeclarationReporter)
+    val buildResult = buildSwiftModule(
+        input,
+        dependencies,
+        config,
+        unsupportedDeclarationReporter,
+    )
     val bridgeGenerator = createBridgeGenerator(object : SirTypeNamer {
         override fun swiftFqName(type: SirType): String = type.swiftName
         override fun kotlinFqName(type: SirType): String {
@@ -184,7 +198,10 @@ public fun runSwiftExport(
             it.updateImports(listOf(SirImport(moduleName = bridgesModuleName)))
         }
         it.dumpResultToFiles(
-            output = it.createOutputFiles(config.outputPath),
+            output = it.createOutputFiles(
+                if (it.name == "ExportedKotlinPackages") config.outputPath.parent
+                else config.outputPath
+            ),
             bridgeGenerator = bridgeGenerator,
             requests = bridgeRequests,
             stableDeclarationsOrder = stableDeclarationsOrder,
@@ -199,7 +216,7 @@ public fun runSwiftExport(
                 SwiftExportModule.SwiftOnly(
                     name = buildResult.moduleForPackageEnums.name,
                     dependencies = emptyList(),
-                    swiftApi = buildResult.moduleForPackageEnums.createOutputFiles(config.outputPath).swiftApi,
+                    swiftApi = buildResult.moduleForPackageEnums.createOutputFiles(config.outputPath.parent).swiftApi,
                 )
             ),
             bridgeName = bridgesModuleName,

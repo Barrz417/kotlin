@@ -14,10 +14,8 @@ import org.jetbrains.kotlin.konan.test.blackbox.support.runner.SimpleTestRunProv
 import org.jetbrains.kotlin.konan.test.blackbox.support.runner.TestExecutable
 import org.jetbrains.kotlin.konan.test.blackbox.support.runner.TestRunners.createProperTestRunner
 import org.jetbrains.kotlin.konan.test.blackbox.support.util.createTestProvider
-import org.jetbrains.kotlin.swiftexport.standalone.ErrorTypeStrategy
-import org.jetbrains.kotlin.swiftexport.standalone.SwiftExportConfig
-import org.jetbrains.kotlin.swiftexport.standalone.SwiftExportModule
-import org.jetbrains.kotlin.swiftexport.standalone.createDummyLogger
+import org.jetbrains.kotlin.swiftexport.standalone.*
+import org.jetbrains.kotlin.sir.SirModule
 import org.jetbrains.kotlin.utils.KotlinNativePaths
 import org.junit.jupiter.api.Tag
 import java.io.File
@@ -45,7 +43,10 @@ abstract class AbstractNativeSwiftExportExecutionTest : AbstractNativeSwiftExpor
         testRunner.run()
     }
 
-    override fun constructSwiftExportConfig(module: TestModule.Exclusive): SwiftExportConfig {
+    override fun constructSwiftExportConfig(
+        module: TestModule.Exclusive,
+        moduleForPackages: SirModule,
+    ): SwiftExportConfig {
         val exportResultsPath = buildDir(module.name).toPath().resolve("swift_export_results")
         return SwiftExportConfig(
             settings = mapOf(
@@ -54,7 +55,10 @@ abstract class AbstractNativeSwiftExportExecutionTest : AbstractNativeSwiftExpor
             ),
             unsupportedTypeStrategy = ErrorTypeStrategy.SpecialType,
             logger = createDummyLogger(),
-            outputPath = exportResultsPath
+            outputPath = exportResultsPath,
+            multipleModulesHandlingStrategy = MultipleModulesHandlingStrategy.OneToOneModuleMapping(
+                packagesModule = MultipleModulesHandlingStrategy.OneToOneModuleMapping.createPackageModule()
+            )
         )
     }
 

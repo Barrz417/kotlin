@@ -13,11 +13,11 @@ import org.jetbrains.kotlin.konan.test.blackbox.support.TestDirectives
 import org.jetbrains.kotlin.konan.test.blackbox.support.TestModule
 import org.jetbrains.kotlin.konan.test.blackbox.support.compilation.TestCompilationArtifact
 import org.jetbrains.kotlin.konan.test.blackbox.support.util.flatMapToSet
+import org.jetbrains.kotlin.sir.SirModule
+import org.jetbrains.kotlin.swiftexport.standalone.MultipleModulesHandlingStrategy.IntoSingleModule
 import org.jetbrains.kotlin.test.KotlinTestUtils
-import org.jetbrains.kotlin.utils.flatMapToNullableSet
 import java.io.File
 import kotlin.io.path.*
-import kotlin.test.assertSame
 
 abstract class AbstractKlibBasedSwiftRunnerTest : AbstractNativeSwiftExportTest() {
 
@@ -56,7 +56,10 @@ abstract class AbstractKlibBasedSwiftRunnerTest : AbstractNativeSwiftExportTest(
         }
     }
 
-    override fun constructSwiftExportConfig(module: TestModule.Exclusive): SwiftExportConfig {
+    override fun constructSwiftExportConfig(
+        module: TestModule.Exclusive,
+        moduleForPackages: SirModule
+    ): SwiftExportConfig {
         // TODO: KT-69285: add tests for ErrorTypeStrategy.Fail
         val unsupportedTypeStrategy = ErrorTypeStrategy.SpecialType
         val errorTypeStrategy = ErrorTypeStrategy.Fail
@@ -68,7 +71,9 @@ abstract class AbstractKlibBasedSwiftRunnerTest : AbstractNativeSwiftExportTest(
         )
 
         var unsupportedDeclarationReporterKind = UnsupportedDeclarationReporterKind.Silent
-        var multipleModulesHandlingStrategy = MultipleModulesHandlingStrategy.OneToOneModuleMapping
+        var multipleModulesHandlingStrategy: MultipleModulesHandlingStrategy = MultipleModulesHandlingStrategy.OneToOneModuleMapping(
+            packagesModule = moduleForPackages
+        )
 
         @Suppress("UNCHECKED_CAST") val discoveredConfig: Map<String, String> = (module
             .directives
@@ -84,9 +89,13 @@ abstract class AbstractKlibBasedSwiftRunnerTest : AbstractNativeSwiftExportTest(
                         false
                     }
                     "multipleModulesHandlingStrategy" -> {
-                        MultipleModulesHandlingStrategy.entries
-                            .singleOrNull { it.name.lowercase() == value.lowercase() }
-                            ?.let { multipleModulesHandlingStrategy = it }
+                        when (value.lowercase()) {
+                            "IntoSingleModule".lowercase() ->
+                                multipleModulesHandlingStrategy = IntoSingleModule
+                            "OneToOneModuleMapping".lowercase() -> Unit
+                            else ->
+                                error("wrong config for Swift Export. multipleModulesHandlingStrategy was set for ${value.lowercase()} and cannot be handled.")
+                        }
                         false
                     }
                     else -> true

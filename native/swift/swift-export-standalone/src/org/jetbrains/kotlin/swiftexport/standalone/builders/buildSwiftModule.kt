@@ -49,13 +49,11 @@ internal fun buildSwiftModule(
     val (useSiteModule, mainModule, scopeProvider) =
         createModuleWithScopeProviderFromBinary(config.distribution, input, dependencies)
     val moduleProvider = when (config.multipleModulesHandlingStrategy) {
-        MultipleModulesHandlingStrategy.OneToOneModuleMapping -> SirOneToOneModuleProvider(mainModuleName = input.name)
-        MultipleModulesHandlingStrategy.IntoSingleModule -> SirSingleModuleProvider(swiftModuleName = input.name)
+        is MultipleModulesHandlingStrategy.OneToOneModuleMapping -> SirOneToOneModuleProvider(mainModuleName = input.name)
+        is MultipleModulesHandlingStrategy.IntoSingleModule -> SirSingleModuleProvider(swiftModuleName = input.name)
     }
     val moduleForPackageEnums = when (config.multipleModulesHandlingStrategy) {
-        MultipleModulesHandlingStrategy.OneToOneModuleMapping -> buildModule {
-            name = "ExportedKotlinPackages"
-        }
+        is MultipleModulesHandlingStrategy.OneToOneModuleMapping -> config.multipleModulesHandlingStrategy.packagesModule
         MultipleModulesHandlingStrategy.IntoSingleModule -> with(moduleProvider) { mainModule.sirModule() }
     }
     val sirSession = StandaloneSirSession(
