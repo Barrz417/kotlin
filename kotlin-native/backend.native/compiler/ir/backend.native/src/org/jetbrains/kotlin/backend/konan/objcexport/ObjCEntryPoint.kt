@@ -15,7 +15,10 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 
 /**
- * An entry point which matches declarations of a given kind and fully-qualified name pattern.
+ * Objective-C entry point.
+ *
+ * @property kind a kind of entry point.
+ * @property pattern a pattern which matches fully-qualified declaration name.
  */
 data class ObjCEntryPoint(val kind: Kind, val pattern: Pattern) {
     /** Entry point kind. */
@@ -117,7 +120,6 @@ fun String.toObjCEntryPoint(): ObjCEntryPoint =
 fun FqName.toObjCPatternPath(): List<String> =
         pathSegments().map { it.asString() }
 
-/** Convert this fully-qualified name to an explicit pattern. */
 fun FqName.toObjCExplicitPattern(): ObjCEntryPoint.Pattern =
         ObjCEntryPoint.Pattern(
                 parent().toObjCPatternPath(),
