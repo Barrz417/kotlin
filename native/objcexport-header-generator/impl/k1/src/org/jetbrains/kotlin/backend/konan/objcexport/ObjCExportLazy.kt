@@ -53,6 +53,9 @@ interface ObjCExportLazy {
         val unitSuspendFunctionExport: UnitSuspendFunctionObjCExport
         val ignoreInterfaceMethodCollisions: Boolean
             get() = false
+
+        val exportPredicate: ObjCExportPredicate
+            get() = ObjCExportPredicate.ALL
     }
 
     fun generateBase(): List<ObjCTopLevel>
@@ -97,7 +100,12 @@ class ObjCExportLazyImpl(
 
     private val nameTranslator: ObjCExportNameTranslator = ObjCExportNameTranslatorImpl(namerConfiguration)
 
-    private val mapper = ObjCExportMapper(deprecationResolver, local = true, configuration.unitSuspendFunctionExport)
+    private val mapper = ObjCExportMapper(
+        deprecationResolver,
+        local = true,
+        configuration.unitSuspendFunctionExport,
+        configuration.exportPredicate,
+    )
 
     private val namer = ObjCExportNamerImpl(namerConfiguration, builtIns, mapper, problemCollector, local = true)
 
@@ -190,8 +198,8 @@ class ObjCExportLazyImpl(
                 if (classDescriptor != null) {
                     // If a class is hidden from Objective-C API then it is meaningless
                     // to export its extensions.
-                    if (!classDescriptor.isHiddenFromObjC()) {
-                        extensions.getOrPut(classDescriptor, { mutableListOf() }) += it
+                    if (!mapper.isHiddenFromObjC(classDescriptor)) {
+                        extensions.getOrPut(classDescriptor) { mutableListOf() } += it
                     }
                 } else {
                     topLevel += it

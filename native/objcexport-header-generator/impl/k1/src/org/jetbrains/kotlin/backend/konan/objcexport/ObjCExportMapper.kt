@@ -3,6 +3,8 @@
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
 
+@file:OptIn(InternalKotlinNativeApi::class)
+
 package org.jetbrains.kotlin.backend.konan.objcexport
 
 import org.jetbrains.kotlin.backend.common.descriptors.allParameters
@@ -12,6 +14,7 @@ import org.jetbrains.kotlin.backend.konan.descriptors.isArray
 import org.jetbrains.kotlin.backend.konan.descriptors.isInterface
 import org.jetbrains.kotlin.builtins.*
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.ir.objcinterop.isObjCObjectType
 import org.jetbrains.kotlin.name.ClassId
@@ -25,11 +28,11 @@ import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.typeUtil.isNothing
 import org.jetbrains.kotlin.types.typeUtil.isUnit
 
-@InternalKotlinNativeApi
 class ObjCExportMapper(
     internal val deprecationResolver: DeprecationResolver? = null,
     private val local: Boolean = false,
     internal val unitSuspendFunctionExport: UnitSuspendFunctionObjCExport,
+    internal val exportPredicate: ObjCExportPredicate = ObjCExportPredicate.ALL,
 ) {
     fun getCustomTypeMapper(descriptor: ClassDescriptor): CustomTypeMapper? = CustomTypeMappers.getMapper(descriptor)
 
@@ -90,7 +93,6 @@ private fun isComponentNMethod(method: CallableMemberDescriptor): Boolean {
 }
 
 // Note: partially duplicated in ObjCExportLazyImpl.translateTopLevels.
-@InternalKotlinNativeApi
 fun ObjCExportMapper.shouldBeExposed(descriptor: CallableMemberDescriptor): Boolean = when {
     !descriptor.isEffectivelyPublicApi -> false
     descriptor.isExpect -> false
@@ -100,25 +102,26 @@ fun ObjCExportMapper.shouldBeExposed(descriptor: CallableMemberDescriptor): Bool
     // because they are useless in Objective-C/Swift.
     isComponentNMethod(descriptor) && descriptor.overriddenDescriptors.isEmpty() -> false
     descriptor.isHiddenFromObjC() -> false
+    !exportPredicate.shouldBeExposed(descriptor) -> false
     else -> true
 }
+
+private fun AnnotationDescriptor.hidesFromObjC(): Boolean =
+    annotationClass?.annotations?.any { it.fqName == KonanFqNames.hidesFromObjC } ?: false
 
 private fun CallableMemberDescriptor.isHiddenFromObjC(): Boolean = when {
     // Note: the front-end checker requires all overridden descriptors to be either refined or not refined.
     overriddenDescriptors.isNotEmpty() -> overriddenDescriptors.first().isHiddenFromObjC()
-    else -> annotations.any { annotation ->
-        annotation.annotationClass?.annotations?.any { it.fqName == KonanFqNames.hidesFromObjC } == true
-    }
+    else -> annotations.any(AnnotationDescriptor::hidesFromObjC)
 }
 
 /**
  * Check if the given class or its enclosing declaration is marked as @HiddenFromObjC.
  */
-internal fun ClassDescriptor.isHiddenFromObjC(): Boolean = when {
-    (this.containingDeclaration as? ClassDescriptor)?.isHiddenFromObjC() == true -> true
-    else -> annotations.any { annotation ->
-        annotation.annotationClass?.annotations?.any { it.fqName == KonanFqNames.hidesFromObjC } == true
-    }
+internal fun ObjCExportMapper.isHiddenFromObjC(classDescriptor: ClassDescriptor): Boolean = when {
+    classDescriptor.containingDeclaration.let { it as? ClassDescriptor }?.let(::isHiddenFromObjC) ?: false -> true
+    classDescriptor.annotations.any(AnnotationDescriptor::hidesFromObjC) -> true
+    else -> false
 }
 
 internal fun ObjCExportMapper.shouldBeExposed(descriptor: ClassDescriptor): Boolean =
@@ -186,10 +189,15 @@ private fun ObjCExportMapper.isHiddenByDeprecation(descriptor: ClassDescriptor):
 
 // Note: the logic is partially duplicated in ObjCExportLazyImpl.translateClasses.
 internal fun ObjCExportMapper.shouldBeVisible(descriptor: ClassDescriptor): Boolean =
-    descriptor.isEffectivelyPublicApi && when (descriptor.kind) {
-        ClassKind.CLASS, ClassKind.INTERFACE, ClassKind.ENUM_CLASS, ClassKind.OBJECT -> true
-        ClassKind.ENUM_ENTRY, ClassKind.ANNOTATION_CLASS -> false
-    } && !descriptor.isExpect && !descriptor.isInlined() && !isHiddenByDeprecation(descriptor) && !descriptor.isHiddenFromObjC()
+    descriptor.isEffectivelyPublicApi &&
+        when (descriptor.kind) {
+            ClassKind.CLASS, ClassKind.INTERFACE, ClassKind.ENUM_CLASS, ClassKind.OBJECT -> true
+            ClassKind.ENUM_ENTRY, ClassKind.ANNOTATION_CLASS -> false
+        } &&
+        !descriptor.isExpect &&
+        !descriptor.isInlined() &&
+        !isHiddenByDeprecation(descriptor) &&
+        !isHiddenFromObjC(descriptor)
 
 private fun ObjCExportMapper.isBase(descriptor: CallableMemberDescriptor): Boolean =
     descriptor.overriddenDescriptors.all { !shouldBeExposed(it) }
@@ -211,11 +219,9 @@ private fun ObjCExportMapper.isBase(descriptor: CallableMemberDescriptor): Boole
  * ```
  * Interface `I` is not exposed to the generated header, so C#f is considered to be a base method even though it has an "override" keyword.
  */
-@InternalKotlinNativeApi
 fun ObjCExportMapper.isBaseMethod(descriptor: FunctionDescriptor) =
     this.isBase(descriptor)
 
-@InternalKotlinNativeApi
 fun ObjCExportMapper.getBaseMethods(descriptor: FunctionDescriptor): List<FunctionDescriptor> =
     if (isBaseMethod(descriptor)) {
         listOf(descriptor)
@@ -225,11 +231,9 @@ fun ObjCExportMapper.getBaseMethods(descriptor: FunctionDescriptor): List<Functi
             .distinct()
     }
 
-@InternalKotlinNativeApi
 fun ObjCExportMapper.isBaseProperty(descriptor: PropertyDescriptor) =
     isBase(descriptor)
 
-@InternalKotlinNativeApi
 fun ObjCExportMapper.getBaseProperties(descriptor: PropertyDescriptor): List<PropertyDescriptor> =
     if (isBaseProperty(descriptor)) {
         listOf(descriptor)
@@ -249,7 +253,6 @@ internal fun ObjCExportMapper.isTopLevel(descriptor: CallableMemberDescriptor): 
 internal fun ObjCExportMapper.isObjCProperty(property: PropertyDescriptor): Boolean =
     property.extensionReceiverParameter == null || getClassIfCategory(property) != null
 
-@InternalKotlinNativeApi
 fun ClassDescriptor.getEnumValuesFunctionDescriptor(): SimpleFunctionDescriptor? {
     require(this.kind == ClassKind.ENUM_CLASS)
 
@@ -259,7 +262,6 @@ fun ClassDescriptor.getEnumValuesFunctionDescriptor(): SimpleFunctionDescriptor?
     ).singleOrNull { it.extensionReceiverParameter == null && it.valueParameters.size == 0 }
 }
 
-@InternalKotlinNativeApi
 fun ClassDescriptor.getEnumEntriesPropertyDescriptor(): PropertyDescriptor? {
     require(this.kind == ClassKind.ENUM_CLASS)
 

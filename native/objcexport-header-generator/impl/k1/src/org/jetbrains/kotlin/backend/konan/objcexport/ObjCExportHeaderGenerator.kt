@@ -121,11 +121,11 @@ abstract class ObjCExportHeaderGenerator @InternalKotlinNativeApi constructor(
                     if (classDescriptor != null) {
                         // If a class is hidden from Objective-C API then it is meaningless
                         // to export its extensions.
-                        if (!classDescriptor.isHiddenFromObjC()) {
-                            extensions.getOrPut(classDescriptor, { mutableListOf() }) += it
+                        if (!mapper.isHiddenFromObjC(classDescriptor)) {
+                            extensions.getOrPut(classDescriptor) { mutableListOf() } += it
                         }
                     } else {
-                        topLevel.getOrPut(it.findSourceFile(), { mutableListOf() }) += it
+                        topLevel.getOrPut(it.findSourceFile()) { mutableListOf() } += it
                     }
                 }
         }

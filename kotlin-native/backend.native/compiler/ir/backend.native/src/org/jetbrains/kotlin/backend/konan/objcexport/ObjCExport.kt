@@ -47,7 +47,11 @@ internal fun produceObjCExportInterface(
     //   and can't do this per-module, e.g. due to global name conflict resolution.
 
     val unitSuspendFunctionExport = config.unitSuspendFunctionObjCExport
-    val mapper = ObjCExportMapper(frontendServices.deprecationResolver, unitSuspendFunctionExport = unitSuspendFunctionExport)
+    val exportPredicate = config.objcEntryPointsFile?.readObjCExportPredicate() ?: ObjCExportPredicate.ALL
+    val mapper = ObjCExportMapper(
+            frontendServices.deprecationResolver,
+            unitSuspendFunctionExport = unitSuspendFunctionExport,
+            exportPredicate = exportPredicate)
     val moduleDescriptors = listOf(moduleDescriptor) + moduleDescriptor.getExportedDependencies(config)
     val objcGenerics = config.configuration.getBoolean(KonanConfigKeys.OBJC_GENERICS)
     val disableSwiftMemberNameMangling = config.configuration.getBoolean(BinaryOptions.objcExportDisableSwiftMemberNameMangling)

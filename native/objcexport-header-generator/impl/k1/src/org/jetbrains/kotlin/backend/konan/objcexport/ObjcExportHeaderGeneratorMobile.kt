@@ -30,7 +30,8 @@ class ObjcExportHeaderGeneratorMobile internal constructor(
             local: Boolean = false,
             restrictToLocalModules: Boolean = false,
         ): ObjCExportHeaderGenerator {
-            val mapper = ObjCExportMapper(deprecationResolver, local, configuration.unitSuspendFunctionExport)
+            val entryPoints = ObjCExportPredicate.ALL
+            val mapper = ObjCExportMapper(deprecationResolver, local, configuration.unitSuspendFunctionExport, configuration.exportPredicate)
             val namerConfiguration = createNamerConfiguration(configuration)
             val namer = ObjCExportNamerImpl(namerConfiguration, builtIns, mapper, problemCollector, local)
 
