@@ -119,6 +119,9 @@ class K2NativeCompilerArguments : CommonKlibBasedCompilerArguments() {
     @Argument(value = "-entry", shortName = "-e", valueDescription = "<name>", description = "Qualified entry point name.")
     var mainPackage: String? = null
 
+    @Argument(value = "-objc-entry-points-path", valueDescription = "<path>", description = "File containing entry points for ObjC.")
+    var objCEntryPointsPath: String? = null
+
     @Argument(
         value = "-produce", shortName = "-p",
         valueDescription = "{program|static|dynamic|framework|library|bitcode}",
