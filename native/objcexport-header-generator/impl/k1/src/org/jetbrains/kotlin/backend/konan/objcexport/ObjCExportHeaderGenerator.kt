@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.resolve.scopes.MemberScope
 abstract class ObjCExportHeaderGenerator @InternalKotlinNativeApi constructor(
     val moduleDescriptors: List<ModuleDescriptor>,
     internal val mapper: ObjCExportMapper,
-    private val entryPoints: ObjCEntryPoints,
+    private val predicate: ObjCPredicate,
     val namer: ObjCExportNamer,
     val objcGenerics: Boolean,
     problemCollector: ObjCExportProblemCollector,
@@ -116,7 +116,7 @@ abstract class ObjCExportHeaderGenerator @InternalKotlinNativeApi constructor(
             packageFragment.getMemberScope().getContributedDescriptors()
                 .asSequence()
                 .filterIsInstance<CallableMemberDescriptor>()
-                .filter { mapper.shouldBeExposed(it) && entryPoints.contains(it) }
+                .filter { mapper.shouldBeExposed(it) && predicate.shouldBeExposed(it) }
                 .forEach {
                     val classDescriptor = mapper.getClassIfCategory(it)
                     if (classDescriptor != null) {
@@ -236,7 +236,7 @@ abstract class ObjCExportHeaderGenerator @InternalKotlinNativeApi constructor(
         fun createInstance(
             moduleDescriptors: List<ModuleDescriptor>,
             mapper: ObjCExportMapper,
-            entryPoints: ObjCEntryPoints,
+            entryPoints: ObjCPredicate,
             namer: ObjCExportNamer,
             problemCollector: ObjCExportProblemCollector,
             objcGenerics: Boolean,

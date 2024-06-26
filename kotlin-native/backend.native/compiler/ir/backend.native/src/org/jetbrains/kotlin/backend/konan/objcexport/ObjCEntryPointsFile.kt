@@ -8,13 +8,16 @@ package org.jetbrains.kotlin.backend.konan.objcexport
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.konan.file.File
 
-/** Reads entry points from this file. */
-fun File.readObjCEntryPoints(): ObjCEntryPoints =
+/**
+ * Reads entry points from this file and converts it to a predicate which would determine
+ * whether a given declaration should be exposed.
+ */
+fun File.readObjCPredicate(): ObjCPredicate =
         readObjCEntryPointList()
                 .toSet()
                 .let { entryPointSet ->
-                    object : ObjCEntryPoints {
-                        override fun contains(descriptor: CallableMemberDescriptor): Boolean =
+                    object : ObjCPredicate {
+                        override fun shouldBeExposed(descriptor: CallableMemberDescriptor): Boolean =
                                 entryPointSet.contains(descriptor)
                     }
                 }

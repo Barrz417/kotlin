@@ -54,8 +54,8 @@ interface ObjCExportLazy {
         val ignoreInterfaceMethodCollisions: Boolean
             get() = false
 
-        val entryPoints: ObjCEntryPoints
-            get() = ObjCEntryPoints.ALL
+        val entryPoints: ObjCPredicate
+            get() = ObjCPredicate.ALL
     }
 
     fun generateBase(): List<ObjCTopLevel>

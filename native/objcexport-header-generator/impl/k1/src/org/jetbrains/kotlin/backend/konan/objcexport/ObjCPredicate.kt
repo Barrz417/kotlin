@@ -7,11 +7,11 @@ package org.jetbrains.kotlin.backend.konan.objcexport
 
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 
-/** A predicate which checks whether the given declaration is an entry point */
-interface ObjCEntryPoints {
-    fun contains(descriptor: CallableMemberDescriptor) = true
+/** A predicate which checks whether the given declaration should be exposed. */
+interface ObjCPredicate {
+    fun shouldBeExposed(descriptor: CallableMemberDescriptor) = true
 
     companion object {
-        val ALL: ObjCEntryPoints = object : ObjCEntryPoints {}
+        val ALL: ObjCPredicate = object : ObjCPredicate {}
     }
 }

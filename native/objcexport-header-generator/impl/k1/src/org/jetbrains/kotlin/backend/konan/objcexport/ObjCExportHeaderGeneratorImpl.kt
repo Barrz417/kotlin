@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 internal class ObjCExportHeaderGeneratorImpl(
     moduleDescriptors: List<ModuleDescriptor>,
     mapper: ObjCExportMapper,
-    entryPoints: ObjCEntryPoints,
+    entryPoints: ObjCPredicate,
     namer: ObjCExportNamer,
     problemCollector: ObjCExportProblemCollector,
     objcGenerics: Boolean,

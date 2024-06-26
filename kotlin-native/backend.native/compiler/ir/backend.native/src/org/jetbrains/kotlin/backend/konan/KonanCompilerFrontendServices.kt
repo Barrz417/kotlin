@@ -48,8 +48,8 @@ internal fun StorageComponentContainer.initContainer(config: KonanConfig) {
             override val ignoreInterfaceMethodCollisions: Boolean
                 get() = config.configuration.getBoolean(BinaryOptions.objcExportIgnoreInterfaceMethodCollisions)
 
-            override val entryPoints: ObjCEntryPoints
-                get() = config.objcEntryPointsFile?.readObjCEntryPoints() ?: ObjCEntryPoints.ALL
+            override val entryPoints: ObjCPredicate
+                get() = config.objcEntryPointsFile?.readObjCPredicate() ?: ObjCPredicate.ALL
         })
     }
 }
