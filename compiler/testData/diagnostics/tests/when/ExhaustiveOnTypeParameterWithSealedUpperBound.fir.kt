@@ -21,16 +21,16 @@ fun <T : Bird> simple(value: T) {
 
 fun <T> oneSealedOneUnrelated(value: T) where T : Bird, T : I {
     val v = <!NO_ELSE_IN_WHEN!>when<!> (value) {
-        is <!INCOMPATIBLE_TYPES!>Penguin<!> -> "Snow sledding on your belly sounds fun"
-        is <!INCOMPATIBLE_TYPES!>Ostrich<!> -> "ostentatious and rich"
-        is <!INCOMPATIBLE_TYPES!>Kiwi<!> -> "kiwiwiwiwi"
+        <!USELESS_IS_CHECK!>is Penguin<!> -> "Snow sledding on your belly sounds fun"
+        <!USELESS_IS_CHECK!>is Ostrich<!> -> "ostentatious and rich"
+        <!USELESS_IS_CHECK!>is Kiwi<!> -> "kiwiwiwiwi"
     }
 }
 
 fun <T> twoSealed(value: T) where T : Bird, T : <!ONLY_ONE_CLASS_BOUND_ALLOWED!>Vehicle<!> {
     val v = <!NO_ELSE_IN_WHEN!>when<!> (value) {
-        is <!INCOMPATIBLE_TYPES!>Penguin<!> -> "Snow sledding on your belly sounds fun"
-        is <!INCOMPATIBLE_TYPES!>Ostrich<!> -> "ostentatious and rich"
-        is <!INCOMPATIBLE_TYPES!>Kiwi<!> -> "kiwiwiwiwi"
+        <!USELESS_IS_CHECK!>is Penguin<!> -> "Snow sledding on your belly sounds fun"
+        <!USELESS_IS_CHECK!>is Ostrich<!> -> "ostentatious and rich"
+        <!USELESS_IS_CHECK!>is Kiwi<!> -> "kiwiwiwiwi"
     }
 }
