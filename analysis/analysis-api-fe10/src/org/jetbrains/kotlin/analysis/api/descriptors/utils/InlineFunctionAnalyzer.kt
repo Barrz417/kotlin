@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.analysis.api.descriptors.KaFe10Session
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
 
-@Suppress("unused")
+@Suppress("unused") // used in IDEA K1 evaluator
 fun KaSession.getInlineFunctionAnalyzer(analyzeOnlyReifiedInlineFunctions: Boolean): InlineFunctionAnalyzer {
     require(this is KaFe10Session) {
         "K2 implementation shouldn't call this code"
