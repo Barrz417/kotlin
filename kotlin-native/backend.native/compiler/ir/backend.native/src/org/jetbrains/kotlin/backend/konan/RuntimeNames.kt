@@ -6,10 +6,8 @@ import org.jetbrains.kotlin.name.NativeRuntimeNames
 object RuntimeNames {
     val symbolNameAnnotation = NativeRuntimeNames.Annotations.symbolNameClassId.asSingleFqName()
     val cnameAnnotation = NativeRuntimeNames.Annotations.cNameClassId.asSingleFqName()
-    val frozenAnnotation = FqName("kotlin.native.internal.Frozen")
     val exportForCppRuntime = NativeRuntimeNames.Annotations.exportForCppRuntimeClassId.asSingleFqName()
     val exportedBridge = NativeRuntimeNames.Annotations.exportedBridgeClassId.asSingleFqName()
-    val exportForCompilerAnnotation = NativeRuntimeNames.Annotations.exportForCompilerClassId.asSingleFqName()
     val exportTypeInfoAnnotation = NativeRuntimeNames.Annotations.exportTypeInfoClassId.asSingleFqName()
     val cCall = FqName("kotlinx.cinterop.internal.CCall")
     val cStructMemberAt = FqName("kotlinx.cinterop.internal.CStruct.MemberAt")
