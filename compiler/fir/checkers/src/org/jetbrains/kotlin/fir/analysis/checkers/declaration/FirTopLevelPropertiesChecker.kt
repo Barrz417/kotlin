@@ -157,6 +157,8 @@ internal fun checkPropertyInitializer(
                         (property.getEffectiveModality(containingClass, context.languageVersionSettings) != Modality.OPEN ||
                                 // Drop this workaround after KT-64980 is fixed
                                 property.effectiveVisibility == org.jetbrains.kotlin.descriptors.EffectiveVisibility.PrivateInClass)
+
+            var initializationError = false
             if (
                 backingFieldRequired &&
                 !inInterface &&
@@ -167,6 +169,7 @@ internal fun checkPropertyInitializer(
             ) {
                 if (property.receiverParameter != null && !property.hasAllAccessorImplementation) {
                     reporter.reportOn(propertySource, FirErrors.EXTENSION_PROPERTY_MUST_HAVE_ACCESSORS_OR_BE_ABSTRACT, context)
+                    initializationError = true
                 } else if (!isCorrectlyInitialized && reachable) {
                     val isOpenValDeferredInitDeprecationWarning =
                         !context.languageVersionSettings.supportsFeature(LanguageFeature.ProhibitOpenValDeferredInitialization) &&
@@ -185,11 +188,12 @@ internal fun checkPropertyInitializer(
                             reporter,
                             context
                         )
+                        initializationError = true
                     }
-                } else if (noExplicitType) {
-                    reporter.reportOn(propertySource, FirErrors.PROPERTY_WITH_NO_TYPE_NO_INITIALIZER, context)
                 }
-            } else if (noExplicitType) {
+            }
+
+            if (!initializationError && noExplicitType) {
                 reporter.reportOn(propertySource, FirErrors.PROPERTY_WITH_NO_TYPE_NO_INITIALIZER, context)
             }
 
