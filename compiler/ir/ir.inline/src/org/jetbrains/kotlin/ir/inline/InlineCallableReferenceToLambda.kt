@@ -137,11 +137,14 @@ abstract class InlineCallableReferenceToLambdaPhase(
 
                 // TODO: could there be a star projection here?
                 val unboundArgumentTypes = (type as IrSimpleType).arguments.dropLast(1).map { (it as IrTypeProjection).type }
-                val argumentTypes = getAllArgumentsWithIr().map { it.second }.let { boundArguments ->
-                    var i = 0
-                    // if the argument is bound, then use the argument's type, otherwise take a type from reference's return type
-                    boundArguments.map { it?.type ?: unboundArgumentTypes[i++] }
-                }
+                val argumentTypes = getAllArgumentsWithIr()
+                    .filter { it.first != boundReceiverParameter }
+                    .map { it.second }
+                    .let { boundArguments ->
+                        var i = 0
+                        // if the argument is bound, then use the argument's type, otherwise take a type from reference's return type
+                        boundArguments.map { it?.type ?: unboundArgumentTypes[i++] }
+                    }
 
                 irBlockBody {
                     val exprToReturn = irCall(referencedFunction.symbol, returnType).apply {
