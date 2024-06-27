@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.objcexport.testUtils.InlineSourceCodeAnalysis
 import org.jetbrains.kotlin.objcexport.testUtils.getClassOrFail
 import org.jetbrains.kotlin.objcexport.testUtils.getFunctionOrFail
 import org.jetbrains.kotlin.objcexport.testUtils.getPropertyOrFail
+import org.jetbrains.kotlin.test.util.JUnit4Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNull
 
@@ -105,6 +106,20 @@ class GetClassIfCategoryTests(
             assertNull(file.getFunctionOrFail("listFoo").getClassIfCategory())
             assertNull(file.getFunctionOrFail("stringFoo").getClassIfCategory())
             assertNull(file.getFunctionOrFail("fooFun").getClassIfCategory())
+        }
+    }
+
+    @Test
+    fun `test - not inline class && not any && not mapped`() {
+        val file = inlineSourceCodeAnalysis.createKtFile(
+            """
+            class Foo(val i: Int)
+            fun Foo.bar() = Unit
+        """.trimMargin()
+        )
+        analyze(file) {
+            assertNotNull(file.getClassOrFail("Foo").defaultType.getClassIfCategory())
+            assertNotNull(file.getFunctionOrFail("bar").getClassIfCategory())
         }
     }
 }

@@ -1,14 +1,21 @@
 package org.jetbrains.kotlin.backend.konan.tests
 
+import com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlin.backend.konan.objcexport.getClassIfCategory
+import org.jetbrains.kotlin.backend.konan.testUtils.*
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
+import org.jetbrains.kotlin.test.util.JUnit4Assertions.assertNotNull
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
 import kotlin.test.assertNull
 
-class GetClassIfCategoryTest : ObjCExportTest() {
+class GetClassIfCategoryTest : InlineSourceTestEnvironment {
 
     @Test
     fun `test - null when there is receiver`() {
-        createModule(
+        val module = createModuleDescriptor(
             """
             class Bar
             class Foo {
@@ -19,7 +26,7 @@ class GetClassIfCategoryTest : ObjCExportTest() {
             }
         """.trimMargin()
         )
-        val fooClass = getClass("Foo")
+        val fooClass = module.getClass("Foo")
 
         assertNull(getClassIfCategory(fooClass.getMemberFun("memberFoo")))
         assertNull(getClassIfCategory(fooClass.getMemberFun("memberBarExtension")))
@@ -29,53 +36,53 @@ class GetClassIfCategoryTest : ObjCExportTest() {
 
     @Test
     fun `test - null when there is no extension and no receiver`() {
-        createModule(
+        val module = createModuleDescriptor(
             """
             fun topLevelFoo() = Unit
             val prop = 42
         """.trimMargin()
         )
-        assertNull(getClassIfCategory(getTopLevelFun("topLevelFoo")))
-        assertNull(getClassIfCategory(getTopLevelProp("prop")))
+        assertNull(getClassIfCategory(module.getTopLevelFun("topLevelFoo")))
+        assertNull(getClassIfCategory(module.getTopLevelProp("prop")))
     }
 
     @Test
     fun `test - null when extension isObjCObjectType == true`() {
-        createModule(
+        val module = createModuleDescriptor(
             """
             import kotlinx.cinterop.ObjCObject
             fun ObjCObject.foo() = Unit
         """.trimMargin()
         )
-        assertNull(getClassIfCategory(getTopLevelFun("foo")))
+        assertNull(getClassIfCategory(module.getTopLevelFun("foo")))
     }
 
     @Test
     fun `test - null when extension is interface`() {
-        createModule(
+        val module = createModuleDescriptor(
             """
             interface Foo
             fun Foo.foo() = Unit
         """.trimMargin()
         )
-        assertNull(getClassIfCategory(getTopLevelFun("foo")))
+        assertNull(getClassIfCategory(module.getTopLevelFun("foo")))
     }
 
     @Test
     fun `test - null when extension type is inlined`() {
-        createModule(
+        val module = createModuleDescriptor(
             """
             @JvmInline
             value class Foo(val i: Int)
             fun Foo.foo() = Unit
         """.trimMargin()
         )
-        assertNull(getClassIfCategory(getTopLevelFun("foo")))
+        assertNull(getClassIfCategory(module.getTopLevelFun("foo")))
     }
 
     @Test
     fun `test - null when extension type isSpecialMapped == true`() {
-        createModule(
+        val module = createModuleDescriptor(
             """
             fun Any.anyFoo() = Unit
             fun List<String>.listFoo() = Unit
@@ -83,10 +90,36 @@ class GetClassIfCategoryTest : ObjCExportTest() {
             fun Function<String>.fooFun() = Unit
         """.trimMargin()
         )
-        assertNull(getClassIfCategory(getTopLevelFun("anyFoo")))
-        assertNull(getClassIfCategory(getTopLevelFun("listFoo")))
-        assertNull(getClassIfCategory(getTopLevelFun("stringFoo")))
-        assertNull(getClassIfCategory(getTopLevelFun("fooFun")))
+        assertNull(getClassIfCategory(module.getTopLevelFun("anyFoo")))
+        assertNull(getClassIfCategory(module.getTopLevelFun("listFoo")))
+        assertNull(getClassIfCategory(module.getTopLevelFun("stringFoo")))
+        assertNull(getClassIfCategory(module.getTopLevelFun("fooFun")))
+    }
+
+    @Test
+    fun `test - not inline class && not any && not mapped`() {
+
+        val module = createModuleDescriptor(
+            """
+            class Foo(val i: Int)
+            fun Foo.bar() = Unit
+        """.trimMargin()
+        )
+
+        assertNotNull(getClassIfCategory(module.getClass("Foo").defaultType))
+        assertNotNull(getClassIfCategory(module.getTopLevelFun("bar")))
+    }
+
+    override val testDisposable = Disposer.newDisposable("${this::class.simpleName}.testDisposable")
+
+    override val kotlinCoreEnvironment: KotlinCoreEnvironment = createKotlinCoreEnvironment(testDisposable)
+
+    @TempDir
+    override lateinit var testTempDir: File
+
+    @AfterEach
+    fun dispose() {
+        Disposer.dispose(testDisposable)
     }
 }
 
