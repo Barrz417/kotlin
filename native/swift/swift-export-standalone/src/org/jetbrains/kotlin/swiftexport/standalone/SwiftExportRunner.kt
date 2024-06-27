@@ -70,6 +70,11 @@ public sealed class MultipleModulesHandlingStrategy {
     }
 
     public data object IntoSingleModule : MultipleModulesHandlingStrategy()
+
+    public fun packagesModule(): SirModule? = when (this) {
+        IntoSingleModule -> null
+        is OneToOneModuleMapping -> packagesModule
+    }
 }
 
 public enum class UnsupportedDeclarationReporterKind {
@@ -199,7 +204,7 @@ public fun runSwiftExport(
         }
         it.dumpResultToFiles(
             output = it.createOutputFiles(
-                if (it.name == "ExportedKotlinPackages") config.outputPath.parent
+                if (config.multipleModulesHandlingStrategy.packagesModule() == it) config.outputPath.parent
                 else config.outputPath
             ),
             bridgeGenerator = bridgeGenerator,
