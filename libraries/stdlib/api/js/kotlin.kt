@@ -1551,7 +1551,7 @@ public final annotation class DslMarker : kotlin.Annotation {
 }
 
 public abstract class Enum<E : kotlin.Enum<E>> : kotlin.Comparable<E> {
-    public constructor Enum<E : kotlin.Enum<E>>(name: kotlin.String, ordinal: kotlin.Int)
+    public constructor Enum<E : kotlin.Enum<E>>(name: kotlin.String = ..., ordinal: kotlin.Int = ...)
 
     @kotlin.internal.IntrinsicConstEvaluation
     public final val name: kotlin.String { get; }
