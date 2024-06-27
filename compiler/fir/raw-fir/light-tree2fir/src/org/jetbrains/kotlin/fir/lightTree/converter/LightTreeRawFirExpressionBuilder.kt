@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.fir.expressions.builder.*
 import org.jetbrains.kotlin.fir.expressions.impl.FirContractCallBlock
 import org.jetbrains.kotlin.fir.expressions.impl.FirSingleExpressionBlock
 import org.jetbrains.kotlin.fir.expressions.impl.buildSingleExpressionBlock
+import org.jetbrains.kotlin.fir.lightTree.fir.DestructuringEntry
 import org.jetbrains.kotlin.fir.lightTree.fir.ValueParameter
 import org.jetbrains.kotlin.fir.lightTree.fir.WhenEntry
 import org.jetbrains.kotlin.fir.lightTree.fir.addDestructuringStatements
@@ -106,8 +107,42 @@ class LightTreeRawFirExpressionBuilder(
             BINARY_WITH_TYPE -> convertBinaryWithTypeRHSExpression(expression) {
                 this.getOperationSymbol().toFirOperation()
             }
-            IS_EXPRESSION -> convertBinaryWithTypeRHSExpression(expression) {
-                if (this == "is") FirOperation.IS else FirOperation.NOT_IS
+            IS_EXPRESSION -> {
+                val destructuringEntries = expression.getChildNodesByType(KtNodeTypes.DESTRUCTURING_DECLARATION_ENTRY)
+                when {
+                    destructuringEntries.isNullOrEmpty() -> convertBinaryWithTypeRHSExpression(expression) {
+                        if (this == "is") FirOperation.IS else FirOperation.NOT_IS
+                    }
+                    else -> {
+                        lateinit var operationTokenName: String
+                        var leftArgAsFir: FirExpression? = null
+                        lateinit var firType: FirTypeRef
+                        expression.forEachChildren {
+                            when (it.tokenType) {
+                                OPERATION_REFERENCE -> operationTokenName = it.asText
+                                TYPE_REFERENCE -> firType = declarationBuilder.convertType(it)
+                                else ->
+                                    if (it.isExpression() && it.elementType != KtNodeTypes.DESTRUCTURING_DECLARATION_ENTRY)
+                                        leftArgAsFir = getAsFirExpression(it, "No left operand")
+                            }
+                        }
+                        val entries = declarationBuilder.convertDestructingDeclaration(expression)
+                        buildIsDestructuring(
+                            baseModuleData,
+                            expression.toFirSourceElement(),
+                            DestructuringEntry,
+                            leftArgAsFir!!,
+                            entries.entries,
+                        ) {
+                            buildTypeOperatorCall {
+                                source = expression.toFirSourceElement()
+                                operation = if (operationTokenName == "is") FirOperation.IS else FirOperation.NOT_IS
+                                conversionTypeRef = firType
+                                argumentList = buildUnaryArgumentList(it)
+                            }
+                        }
+                    }
+                }
             }
             LABELED_EXPRESSION -> convertLabeledExpression(expression)
             PREFIX_EXPRESSION, POSTFIX_EXPRESSION -> convertUnaryExpression(expression)

@@ -10,6 +10,13 @@ fun f(download: Download) = when {
   download is App
     && val (title, developer) = download
     && developer is Person
-    && person.name == "Alice" -> "$title in Wonderland"
+    && developer.name == "Alice" -> "$title in Wonderland"
+  else -> "Boo"
+}
+
+fun g(download: Download) = when {
+  download is App (title, developer)
+    && developer is Person
+    && developer.name == "Alice" -> "$title in Wonderland"
   else -> "Boo"
 }

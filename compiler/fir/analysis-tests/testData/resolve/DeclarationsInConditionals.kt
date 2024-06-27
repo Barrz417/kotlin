@@ -13,3 +13,10 @@ fun f(download: Download) = when {
     && developer.name == "Alice" -> "$title in Wonderland"
   else -> "Boo"
 }
+
+fun g(download: Download) = when {
+  download is App (title, developer)
+    && developer is Person
+    && developer.name == "Alice" -> "$title in Wonderland"
+  else -> "Boo"
+}

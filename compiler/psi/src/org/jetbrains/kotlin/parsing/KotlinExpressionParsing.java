@@ -59,6 +59,8 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
     private static final TokenSet L_PAR_L_BRACE_R_PAR_SET = TokenSet.create(LPAR, LBRACE, RPAR);
     private static final TokenSet IN_KEYWORD_SET = TokenSet.create(IN_KEYWORD);
     private static final TokenSet TRY_CATCH_RECOVERY_TOKEN_SET = TokenSet.create(LBRACE, RBRACE, FINALLY_KEYWORD, CATCH_KEYWORD);
+    private static final TokenSet IS_DESTRUCTURING_SET = TokenSet.create(ANDAND, ARROW);
+    private static final TokenSet IS_DESTRUCTURING_SET_RECOVERY = TokenSet.orSet(IS_DESTRUCTURING_SET, PARAMETER_NAME_RECOVERY_SET);
 
     private static ImmutableMap<String, KtToken> tokenSetToMap(TokenSet tokens) {
         ImmutableMap.Builder<String, KtToken> builder = ImmutableMap.builder();
@@ -186,12 +188,18 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
         IN_OR_IS(IN_KEYWORD, NOT_IN, IS_KEYWORD, NOT_IS) {
             @Override
             public IElementType parseRightHandSide(IElementType operation, KotlinExpressionParsing parser, boolean conditionalContext) {
-                if (operation == IS_KEYWORD || operation == NOT_IS) {
+                if (operation == IS_KEYWORD && conditionalContext) {
+                    parser.myKotlinParsing.parseTypeRefWithoutIntersections();
+                    if (parser.myKotlinParsing.at(LPAR)) {
+                        parser.myKotlinParsing.parseMultiDeclarationName(IS_DESTRUCTURING_SET, IS_DESTRUCTURING_SET_RECOVERY);
+                    }
+                    return IS_EXPRESSION;
+                } else if (operation == IS_KEYWORD || operation == NOT_IS) {
                     parser.myKotlinParsing.parseTypeRefWithoutIntersections();
                     return IS_EXPRESSION;
                 }
 
-                return super.parseRightHandSide(operation, parser, false);
+                return super.parseRightHandSide(operation, parser, conditionalContext);
             }
         },
         COMPARISON(LT, GT, LTEQ, GTEQ),

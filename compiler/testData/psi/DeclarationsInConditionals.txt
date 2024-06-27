@@ -270,7 +270,115 @@ KtFile: DeclarationsInConditionals.kt
             BINARY_EXPRESSION
               DOT_QUALIFIED_EXPRESSION
                 REFERENCE_EXPRESSION
-                  PsiElement(IDENTIFIER)('person')
+                  PsiElement(IDENTIFIER)('developer')
+                PsiElement(DOT)('.')
+                REFERENCE_EXPRESSION
+                  PsiElement(IDENTIFIER)('name')
+              PsiWhiteSpace(' ')
+              OPERATION_REFERENCE
+                PsiElement(EQEQ)('==')
+              PsiWhiteSpace(' ')
+              STRING_TEMPLATE
+                PsiElement(OPEN_QUOTE)('"')
+                LITERAL_STRING_TEMPLATE_ENTRY
+                  PsiElement(REGULAR_STRING_PART)('Alice')
+                PsiElement(CLOSING_QUOTE)('"')
+        PsiWhiteSpace(' ')
+        PsiElement(ARROW)('->')
+        PsiWhiteSpace(' ')
+        STRING_TEMPLATE
+          PsiElement(OPEN_QUOTE)('"')
+          SHORT_STRING_TEMPLATE_ENTRY
+            PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
+            REFERENCE_EXPRESSION
+              PsiElement(IDENTIFIER)('title')
+          LITERAL_STRING_TEMPLATE_ENTRY
+            PsiElement(REGULAR_STRING_PART)(' in Wonderland')
+          PsiElement(CLOSING_QUOTE)('"')
+      PsiWhiteSpace('\n  ')
+      WHEN_ENTRY
+        PsiElement(else)('else')
+        PsiWhiteSpace(' ')
+        PsiElement(ARROW)('->')
+        PsiWhiteSpace(' ')
+        STRING_TEMPLATE
+          PsiElement(OPEN_QUOTE)('"')
+          LITERAL_STRING_TEMPLATE_ENTRY
+            PsiElement(REGULAR_STRING_PART)('Boo')
+          PsiElement(CLOSING_QUOTE)('"')
+      PsiWhiteSpace('\n')
+      PsiElement(RBRACE)('}')
+  PsiWhiteSpace('\n\n')
+  FUN
+    PsiElement(fun)('fun')
+    PsiWhiteSpace(' ')
+    PsiElement(IDENTIFIER)('g')
+    VALUE_PARAMETER_LIST
+      PsiElement(LPAR)('(')
+      VALUE_PARAMETER
+        PsiElement(IDENTIFIER)('download')
+        PsiElement(COLON)(':')
+        PsiWhiteSpace(' ')
+        TYPE_REFERENCE
+          USER_TYPE
+            REFERENCE_EXPRESSION
+              PsiElement(IDENTIFIER)('Download')
+      PsiElement(RPAR)(')')
+    PsiWhiteSpace(' ')
+    PsiElement(EQ)('=')
+    PsiWhiteSpace(' ')
+    WHEN
+      PsiElement(when)('when')
+      PsiWhiteSpace(' ')
+      PsiElement(LBRACE)('{')
+      PsiWhiteSpace('\n  ')
+      WHEN_ENTRY
+        WHEN_CONDITION_WITH_EXPRESSION
+          BINARY_EXPRESSION
+            BINARY_EXPRESSION
+              IS_EXPRESSION
+                REFERENCE_EXPRESSION
+                  PsiElement(IDENTIFIER)('download')
+                PsiWhiteSpace(' ')
+                OPERATION_REFERENCE
+                  PsiElement(is)('is')
+                PsiWhiteSpace(' ')
+                TYPE_REFERENCE
+                  USER_TYPE
+                    REFERENCE_EXPRESSION
+                      PsiElement(IDENTIFIER)('App')
+                PsiWhiteSpace(' ')
+                PsiElement(LPAR)('(')
+                DESTRUCTURING_DECLARATION_ENTRY
+                  PsiElement(IDENTIFIER)('title')
+                PsiElement(COMMA)(',')
+                PsiWhiteSpace(' ')
+                DESTRUCTURING_DECLARATION_ENTRY
+                  PsiElement(IDENTIFIER)('developer')
+                PsiElement(RPAR)(')')
+              PsiWhiteSpace('\n    ')
+              OPERATION_REFERENCE
+                PsiElement(ANDAND)('&&')
+              PsiWhiteSpace(' ')
+              IS_EXPRESSION
+                REFERENCE_EXPRESSION
+                  PsiElement(IDENTIFIER)('developer')
+                PsiWhiteSpace(' ')
+                OPERATION_REFERENCE
+                  PsiElement(is)('is')
+                PsiWhiteSpace(' ')
+                TYPE_REFERENCE
+                  USER_TYPE
+                    REFERENCE_EXPRESSION
+                      PsiElement(IDENTIFIER)('Person')
+            PsiWhiteSpace('\n    ')
+            OPERATION_REFERENCE
+              PsiElement(ANDAND)('&&')
+            PsiWhiteSpace(' ')
+            BINARY_EXPRESSION
+              DOT_QUALIFIED_EXPRESSION
+                REFERENCE_EXPRESSION
+                  PsiElement(IDENTIFIER)('developer')
                 PsiElement(DOT)('.')
                 REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('name')

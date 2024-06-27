@@ -79,3 +79,14 @@ FILE: DeclarationsInConditionals.kt
         }
 
     }
+    public final fun g(download: R|Download|): R|kotlin/String| {
+        ^g when () {
+            lval <isDestructor>: R|Download| = R|<local>/download| && (R|<local>/<isDestructor>| is R|App|) && lval title: R|kotlin/String| = R|<local>/<isDestructor>|.R|/App.component1|() && lval developer: R|Developer| = R|<local>/<isDestructor>|.R|/App.component2|() && (R|<local>/developer| is R|Person|) && ==(R|<local>/developer|.R|/Person.name|, String(Alice)) ->  {
+                <strcat>(R|<local>/title|, String( in Wonderland))
+            }
+            else ->  {
+                String(Boo)
+            }
+        }
+
+    }
