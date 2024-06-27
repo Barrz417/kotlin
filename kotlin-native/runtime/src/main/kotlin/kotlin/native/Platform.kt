@@ -84,7 +84,7 @@ public object Platform {
      * Memory model binary was compiled with.
      */
     public val memoryModel: MemoryModel
-        get() = MemoryModel.values()[Platform_getMemoryModel()]
+        get() = MemoryModel.EXPERIMENTAL
 
     /**
      * If binary was compiled in debug mode.
@@ -99,7 +99,7 @@ public object Platform {
      * [memoryModel] is equal to [MemoryModel.EXPERIMENTAL].
      */
     public val isFreezingEnabled: Boolean
-        get() = Platform_isFreezingEnabled()
+        get() = false
 
     /**
      * If the memory leak checker is activated, by default `true` in debug mode, `false` in release.
@@ -152,14 +152,8 @@ private external fun Platform_getOsFamily(): Int
 @GCUnsafeCall("Konan_Platform_getCpuArchitecture")
 private external fun Platform_getCpuArchitecture(): Int
 
-@GCUnsafeCall("Konan_Platform_getMemoryModel")
-private external fun Platform_getMemoryModel(): Int
-
 @GCUnsafeCall("Konan_Platform_isDebugBinary")
 private external fun Platform_isDebugBinary(): Boolean
-
-@GCUnsafeCall("Konan_Platform_isFreezingEnabled")
-private external fun Platform_isFreezingEnabled(): Boolean
 
 @GCUnsafeCall("Konan_Platform_getMemoryLeakChecker")
 private external fun Platform_getMemoryLeakChecker(): Boolean
@@ -179,7 +173,5 @@ private external fun Platform_getAvailableProcessorsEnv(): String?
 @GCUnsafeCall("Konan_Platform_getAvailableProcessors")
 private external fun Platform_getAvailableProcessors(): Int
 
-
-@TypedIntrinsic(IntrinsicType.IS_EXPERIMENTAL_MM)
 @ExperimentalStdlibApi
-public external fun isExperimentalMM(): Boolean
+public fun isExperimentalMM(): Boolean = true
