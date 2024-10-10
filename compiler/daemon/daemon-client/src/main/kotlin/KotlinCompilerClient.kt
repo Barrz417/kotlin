@@ -111,6 +111,7 @@ object KotlinCompilerClient {
         val ignoredDaemonSessionFiles = mutableSetOf<File>()
         var daemonStartupAttemptsCount = 0
         val gcAutoConfiguration = GcAutoConfiguration()
+        val initiatorInfo = InitiatorInformation(clientAliveFlagFile)
         return connectLoop(reportingTargets, autostart) { isLastAttempt ->
 
             fun CompileService.tryToLeaseSession(): CompileServiceSession? {
@@ -157,7 +158,17 @@ object KotlinCompilerClient {
                 is DaemonSearchResult.NotFound -> {
                     if (!isLastAttempt && autostart) {
                         reportingTargets.report(DaemonReportCategory.DEBUG, "trying to start a new compiler daemon")
-                        if (startDaemon(compilerId, result.requiredJvmOptions, daemonOptions, reportingTargets, daemonStartupAttemptsCount++, gcAutoConfiguration)) {
+                        if (
+                            startDaemon(
+                                compilerId,
+                                result.requiredJvmOptions,
+                                daemonOptions,
+                                reportingTargets,
+                                daemonStartupAttemptsCount++,
+                                gcAutoConfiguration,
+                                initiatorInfo,
+                            )
+                        ) {
                             reportingTargets.report(DaemonReportCategory.DEBUG, "new compiler daemon started, trying to find it")
                         }
                     }
@@ -500,6 +511,7 @@ object KotlinCompilerClient {
         reportingTargets: DaemonReportingTargets,
         startupAttempt: Int,
         gcAutoConfiguration: GcAutoConfiguration,
+        initiatorInfo: InitiatorInformation,
     ): Boolean {
         val javaExecutable = File(File(CompilerSystemProperties.JAVA_HOME.safeValue, "bin"), "java")
         val serverHostname = CompilerSystemProperties.JAVA_RMI_SERVER_HOSTNAME.value
@@ -527,12 +539,19 @@ object KotlinCompilerClient {
             "-XX:+UseCodeCacheFlushing",
             if (gcAutoConfiguration.shouldAutoConfigureGc) "-XX:+Use${gcAutoConfiguration.preferredGc}GC" else null,
         )
+        // TODO: KT-72161. Investigate IDEA's JSR223 Kotlin Script integration. Possibly transform this into regular arguments
+        val initiatorInfoAsSystemProperties = listOfNotNull(
+            initiatorInfo.clientMarkerFile?.absolutePath?.let {
+                "-D${CompilerSystemProperties.COMPILE_DAEMON_INITIATOR_MARKER_FILE.property}=$it"
+            }
+        )
         val args = listOf(
             javaExecutable.absolutePath, "-cp", compilerId.compilerClasspath.joinToString(File.pathSeparator)
         ) +
                 platformSpecificOptions +
                 jvmArguments +
                 additionalOptimizationOptions +
+                initiatorInfoAsSystemProperties +
                 javaIllegalAccessWorkaround +
                 COMPILER_DAEMON_CLASS_FQN +
                 daemonOptions.mappers.flatMap { it.toArgs(COMPILE_DAEMON_CMDLINE_OPTIONS_PREFIX) } +

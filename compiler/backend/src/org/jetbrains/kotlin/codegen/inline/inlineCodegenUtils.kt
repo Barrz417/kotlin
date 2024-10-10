@@ -9,8 +9,10 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.codegen.ASSERTIONS_DISABLED_FIELD_NAME
 import org.jetbrains.kotlin.codegen.AsmUtil
+import org.jetbrains.kotlin.codegen.InsnSequence
 import org.jetbrains.kotlin.codegen.SamWrapperCodegen.SAM_WRAPPER_SUFFIX
 import org.jetbrains.kotlin.codegen.StackValue
+import org.jetbrains.kotlin.codegen.asSequence
 import org.jetbrains.kotlin.codegen.binding.CodegenBinding
 import org.jetbrains.kotlin.codegen.context.CodegenContext
 import org.jetbrains.kotlin.codegen.context.CodegenContextUtil
@@ -18,8 +20,6 @@ import org.jetbrains.kotlin.codegen.context.InlineLambdaContext
 import org.jetbrains.kotlin.codegen.context.MethodContext
 import org.jetbrains.kotlin.codegen.coroutines.originalReturnTypeOfSuspendFunctionReturningUnboxedInlineClass
 import org.jetbrains.kotlin.codegen.coroutines.unwrapInitialDescriptorForSuspendFunction
-import org.jetbrains.kotlin.codegen.optimization.common.InsnSequence
-import org.jetbrains.kotlin.codegen.optimization.common.asSequence
 import org.jetbrains.kotlin.codegen.optimization.common.intConstant
 import org.jetbrains.kotlin.codegen.optimization.common.nodeType
 import org.jetbrains.kotlin.codegen.state.GenerationState
@@ -54,7 +54,6 @@ import kotlin.math.max
 const val GENERATE_SMAP = true
 const val NUMBERED_FUNCTION_PREFIX = "kotlin/jvm/functions/Function"
 const val INLINE_FUN_VAR_SUFFIX = "\$iv"
-const val INLINE_SCOPE_NUMBER_SEPARATOR = '\\'
 
 internal const val FIRST_FUN_LABEL = "$$$$\$ROOT$$$$$"
 const val SPECIAL_TRANSFORMATION_NAME = "\$special"
@@ -684,15 +683,11 @@ internal fun calcMarkerShift(parameters: Parameters, node: MethodNode): Int {
 private fun getIndexAfterLastMarker(node: MethodNode): Int {
     var result = -1
     for (variable in node.localVariables) {
-        if (isFakeLocalVariableForInline(variable.name)) {
+        if (JvmAbi.isFakeLocalVariableForInline(variable.name)) {
             result = max(result, variable.index + 1)
         }
     }
     return result
-}
-
-fun isFakeLocalVariableForInline(name: String): Boolean {
-    return name.startsWith(JvmAbi.LOCAL_VARIABLE_NAME_PREFIX_INLINE_FUNCTION) || name.startsWith(JvmAbi.LOCAL_VARIABLE_NAME_PREFIX_INLINE_ARGUMENT)
 }
 
 internal fun isThis0(name: String): Boolean = AsmUtil.CAPTURED_THIS_FIELD == name

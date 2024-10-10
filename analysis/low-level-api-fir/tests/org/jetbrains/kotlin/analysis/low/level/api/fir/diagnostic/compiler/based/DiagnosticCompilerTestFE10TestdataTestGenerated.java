@@ -1216,6 +1216,12 @@ public class DiagnosticCompilerTestFE10TestdataTestGenerated extends AbstractDia
     }
 
     @Test
+    @TestMetadata("noValueForParameterOfLambda.kt")
+    public void testNoValueForParameterOfLambda() {
+      runTest("compiler/testData/diagnostics/tests/noValueForParameterOfLambda.kt");
+    }
+
+    @Test
     @TestMetadata("nonConstNotCall.kt")
     public void testNonConstNotCall() {
       runTest("compiler/testData/diagnostics/tests/nonConstNotCall.kt");
@@ -35797,6 +35803,12 @@ public class DiagnosticCompilerTestFE10TestdataTestGenerated extends AbstractDia
       public void testSimpleCorrectKT() {
         runTest("compiler/testData/diagnostics/tests/samConversions/SimpleCorrectKT.kt");
       }
+
+      @Test
+      @TestMetadata("typeMismatchOnGenericSam.kt")
+      public void testTypeMismatchOnGenericSam() {
+        runTest("compiler/testData/diagnostics/tests/samConversions/typeMismatchOnGenericSam.kt");
+      }
     }
 
     @Nested
@@ -49095,6 +49107,12 @@ public class DiagnosticCompilerTestFE10TestdataTestGenerated extends AbstractDia
     @TestMetadata("compiler/testData/diagnostics/testsWithStdLib/multiplatform")
     @TestDataPath("$PROJECT_ROOT")
     public class Multiplatform {
+      @Test
+      @TestMetadata("actualDeprecated.kt")
+      public void testActualDeprecated() {
+        runTest("compiler/testData/diagnostics/testsWithStdLib/multiplatform/actualDeprecated.kt");
+      }
+
       @Test
       @TestMetadata("actualExternalInJs.kt")
       public void testActualExternalInJs() {

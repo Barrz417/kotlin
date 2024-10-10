@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.fir.java.declarations.FirJavaClassBuilder
 import org.jetbrains.kotlin.fir.java.declarations.FirJavaMethod
 import org.jetbrains.kotlin.fir.moduleData
 import org.jetbrains.kotlin.fir.resolve.defaultType
+import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirTypeParameterSymbol
 import org.jetbrains.kotlin.fir.toFirResolvedTypeRef
@@ -27,6 +28,7 @@ import org.jetbrains.kotlin.fir.types.builder.buildResolvedTypeRef
 import org.jetbrains.kotlin.fir.types.constructClassLikeType
 import org.jetbrains.kotlin.fir.types.constructType
 import org.jetbrains.kotlin.lombok.k2.config.ConeLombokAnnotations.SuperBuilder
+import org.jetbrains.kotlin.lombok.utils.LombokNames
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.Variance
@@ -37,12 +39,13 @@ class SuperBuilderGenerator(session: FirSession) : AbstractBuilderGenerator<Supe
         const val BUILDER_TYPE_PARAMETER_INDEX = 1
     }
 
-    override val builderModality: Modality
-        get() = Modality.ABSTRACT
+    override val builderModality: Modality = Modality.ABSTRACT
 
-    override fun getBuilder(classSymbol: FirClassSymbol<*>): SuperBuilder? {
+    override val annotationClassId: ClassId = LombokNames.SUPER_BUILDER_ID
+
+    override fun getBuilder(symbol: FirBasedSymbol<*>): SuperBuilder? {
         // There is also a build impl class, but it's private, and it's used only for internal purposes. Not relevant for API.
-        return lombokService.getSuperBuilder(classSymbol)
+        return lombokService.getSuperBuilder(symbol)
     }
 
     override fun constructBuilderType(builderClassId: ClassId): ConeClassLikeType {
@@ -53,7 +56,7 @@ class SuperBuilderGenerator(session: FirSession) : AbstractBuilderGenerator<Supe
         return builderSymbol.typeParameterSymbols[BUILDER_TYPE_PARAMETER_INDEX].defaultType
     }
 
-    override fun MutableMap<Name, FirJavaMethod>.addBuilderMethodsIfNeeded(
+    override fun MutableMap<Name, FirJavaMethod>.addSpecialBuilderMethods(
         builder: SuperBuilder,
         classSymbol: FirClassSymbol<*>,
         builderSymbol: FirClassSymbol<*>,
@@ -61,7 +64,7 @@ class SuperBuilderGenerator(session: FirSession) : AbstractBuilderGenerator<Supe
     ) {
         val builderTypeParameterSymbols = builderSymbol.typeParameterSymbols
 
-        addIfNeeded(Name.identifier("self"), existingFunctionNames) {
+        addIfNonClashing(Name.identifier("self"), existingFunctionNames) {
             builderSymbol.createJavaMethod(
                 it,
                 valueParameters = emptyList(),
@@ -70,7 +73,7 @@ class SuperBuilderGenerator(session: FirSession) : AbstractBuilderGenerator<Supe
                 modality = Modality.ABSTRACT
             )
         }
-        addIfNeeded(Name.identifier(builder.buildMethodName), existingFunctionNames) {
+        addIfNonClashing(Name.identifier(builder.buildMethodName), existingFunctionNames) {
             builderSymbol.createJavaMethod(
                 it,
                 valueParameters = emptyList(),
@@ -123,7 +126,9 @@ class SuperBuilderGenerator(session: FirSession) : AbstractBuilderGenerator<Supe
 
         val superBuilderClass = classSymbol.resolvedSuperTypeRefs.mapNotNull { superTypeRef ->
             val superTypeSymbol = superTypeRef.toRegularClassSymbol(session) ?: return@mapNotNull null
-            builderClassCache.getValue(superTypeSymbol)
+            val superBuilders = builderClassesCache.getValue(superTypeSymbol) ?: return@mapNotNull null
+            require(superBuilders.size <= 1) { "@SuperBuilder is only supported on types -> not more than one super type is possible" }
+            superBuilders.firstNotNullOfOrNull { it.component2() }
         }.singleOrNull()
         val superBuilderTypeRef = superBuilderClass?.symbol?.constructType(
             typeArguments = arrayOf(
